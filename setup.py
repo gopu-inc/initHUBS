@@ -31,7 +31,7 @@ setup(
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "inithub=inithub.cli:main",
+            "inithub=cli:main",
         ],
     },
     include_package_data=True,
