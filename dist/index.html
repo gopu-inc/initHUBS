@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>initHUB - Plateforme Collaborative IA</title>
+    
+    <!-- CDN React, ReactDOM, Tailwind CSS, et autres dépendances -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/lucide-react@0.292.0/dist/umd/lucide-react.development.js"></script>
+    <script src="https://unpkg.com/react-hot-toast/dist/index.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#7c3aed',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Styles personnalisés -->
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Configuration de l'API
+        const API_BASE = 'https://hubs-ja2g.onrender.com/api';
+        
+        // Icônes Lucide
+        const { 
+            Brain, Code, Upload, Users, GitBranch, Rocket, 
+            LogIn, UserPlus, LogOut, Menu, X, Search,
+            FolderOpen, Cpu, FileText, Settings, Star,
+            ChevronRight, Plus, Trash2, Edit3, Download
+        } = lucideReact;
+
+        // Contexte d'authentification
+        const AuthContext = React.createContext();
+
+        // Hook personnalisé pour l'authentification
+        function useAuth() {
+            const [user, setUser] = React.useState(null);
+            const [loading, setLoading] = React.useState(true);
+
+            React.useEffect(() => {
+                checkAuth();
+            }, []);
+
+            const checkAuth = async () => {
+                try {
+                    const token = localStorage.getItem('inithub_token');
+                    if (token) {
+                        const response = await axios.get(`${API_BASE}/auth/me`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        setUser(response.data);
+                    }
+                } catch (error) {
+                    localStorage.removeItem('inithub_token');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const login = async (email, password) => {
+                try {
+                    const response = await axios.post(`${API_BASE}/auth/login`, {
+                        email, password
+                    });
+                    
+                    const { access_token } = response.data;
+                    localStorage.setItem('inithub_token', access_token);
+                    
+                    const userResponse = await axios.get(`${API_BASE}/auth/me`, {
+                        headers: { Authorization: `Bearer ${access_token}` }
+                    });
+                    
+                    setUser(userResponse.data);
+                    reactHotToast.success('Connexion réussie!');
+                    return true;
+                } catch (error) {
+                    reactHotToast.error('Erreur de connexion');
+                    return false;
+                }
+            };
+
+            const register = async (userData) => {
+                try {
+                    await axios.post(`${API_BASE}/auth/register`, userData);
+                    reactHotToast.success('Compte créé avec succès!');
+                    return true;
+                } catch (error) {
+                    reactHotToast.error('Erreur lors de la création du compte');
+                    return false;
+                }
+            };
+
+            const logout = () => {
+                localStorage.removeItem('inithub_token');
+                setUser(null);
+                reactHotToast.success('Déconnexion réussie');
+            };
+
+            return { user, loading, login, register, logout };
+        }
+
+        // Composant Header
+        function Header() {
+            const { user, logout } = React.useContext(AuthContext);
+            const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+            return React.createElement('header', { className: 'bg-white shadow-sm border-b' },
+                React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
+                    React.createElement('div', { className: 'flex justify-between items-center h-16' },
+                        // Logo
+                        React.createElement('div', { className: 'flex items-center' },
+                            React.createElement(Rocket, { className: 'h-8 w-8 text-primary' }),
+                            React.createElement('span', { className: 'ml-2 text-xl font-bold text-gray-900' }, 'initHUB')
+                        ),
+
+                        // Navigation Desktop
+                        React.createElement('nav', { className: 'hidden md:flex items-center space-x-8' },
+                            React.createElement('a', { href: '#dashboard', className: 'text-gray-700 hover:text-primary font-medium' }, 'Dashboard'),
+                            React.createElement('a', { href: '#projects', className: 'text-gray-700 hover:text-primary font-medium' }, 'Projets'),
+                            React.createElement('a', { href: '#models', className: 'text-gray-700 hover:text-primary font-medium' }, 'Modèles IA'),
+                            user && React.createElement('a', { href: '#upload', className: 'bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium' }, 
+                                React.createElement(Upload, { className: 'h-4 w-4 inline mr-2' }),
+                                'Upload'
+                            )
+                        ),
+
+                        // Actions utilisateur
+                        React.createElement('div', { className: 'hidden md:flex items-center space-x-4' },
+                            user ? React.createElement(React.Fragment, null,
+                                React.createElement('span', { className: 'text-gray-700' }, `Bonjour, ${user.username}`),
+                                React.createElement('button', { 
+                                    onClick: logout,
+                                    className: 'flex items-center text-gray-500 hover:text-red-600'
+                                },
+                                    React.createElement(LogOut, { className: 'h-4 w-4 mr-1' }),
+                                    'Déconnexion'
+                                )
+                            ) : React.createElement(React.Fragment, null,
+                                React.createElement('a', { href: '#login', className: 'text-gray-700 hover:text-primary font-medium' }, 'Connexion'),
+                                React.createElement('a', { href: '#register', className: 'bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium' }, 'Inscription')
+                            )
+                        ),
+
+                        // Menu mobile
+                        React.createElement('div', { className: 'md:hidden' },
+                            React.createElement('button', {
+                                onClick: () => setMobileMenuOpen(!mobileMenuOpen),
+                                className: 'text-gray-700'
+                            },
+                                mobileMenuOpen ? React.createElement(X, { className: 'h-6 w-6' }) : React.createElement(Menu, { className: 'h-6 w-6' })
+                            )
+                        )
+                    ),
+
+                    // Menu mobile déroulant
+                    mobileMenuOpen && React.createElement('div', { className: 'md:hidden py-4 border-t' },
+                        React.createElement('div', { className: 'flex flex-col space-y-4' },
+                            React.createElement('a', { href: '#dashboard', className: 'text-gray-700 hover:text-primary' }, 'Dashboard'),
+                            React.createElement('a', { href: '#projects', className: 'text-gray-700 hover:text-primary' }, 'Projets'),
+                            React.createElement('a', { href: '#models', className: 'text-gray-700 hover:text-primary' }, 'Modèles IA'),
+                            !user && React.createElement(React.Fragment, null,
+                                React.createElement('a', { href: '#login', className: 'text-gray-700 hover:text-primary' }, 'Connexion'),
+                                React.createElement('a', { href: '#register', className: 'text-gray-700 hover:text-primary' }, 'Inscription')
+                            ),
+                            user && React.createElement('button', { 
+                                onClick: logout,
+                                className: 'text-left text-gray-700 hover:text-red-600'
+                            }, 'Déconnexion')
+                        )
+                    )
+                )
+            );
+        }
+
+        // Composant Hero
+        function Hero() {
+            return React.createElement('section', { className: 'gradient-bg text-white py-20' },
+                React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center' },
+                    React.createElement('h1', { className: 'text-5xl md:text-6xl font-bold mb-6' },
+                        'Plateforme Collaborative ',
+                        React.createElement('span', { className: 'text-yellow-300' }, 'IA')
+                    ),
+                    React.createElement('p', { className: 'text-xl md:text-2xl mb-8 text-blue-100' },
+                        'Partagez, collaborez et déployez vos modèles IA avec la communauté initHUB'
+                    ),
+                    React.createElement('div', { className: 'flex flex-col sm:flex-row gap-4 justify-center' },
+                        React.createElement('a', { 
+                            href: '#register',
+                            className: 'bg-white text-primary px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors'
+                        }, 'Commencer gratuitement'),
+                        React.createElement('a', { 
+                            href: '#models',
+                            className: 'border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-primary transition-colors'
+                        }, 'Explorer les modèles')
+                    )
+                )
+            );
+        }
+
+        // Composant Features
+        function Features() {
+            const features = [
+                {
+                    icon: Brain,
+                    title: 'Modèles IA',
+                    description: 'Accédez à des centaines de modèles IA pré-entraînés et partagez les vôtres'
+                },
+                {
+                    icon: Code,
+                    title: 'SSF Integration',
+                    description: 'Gérez vos projets avec le format .ssf LZL-ZOBA avancé'
+                },
+                {
+                    icon: GitBranch,
+                    title: 'Git Integré',
+                    description: 'Versionnez et collaborez sur vos projets avec Git intégré'
+                },
+                {
+                    icon: Users,
+                    title: 'Communauté',
+                    description: 'Rejoignez une communauté active de développeurs et chercheurs IA'
+                },
+                {
+                    icon: Upload,
+                    title: 'Déploiement Simple',
+                    description: 'Déployez vos modèles en un clic sur notre infrastructure cloud'
+                },
+                {
+                    icon: Cpu,
+                    title: 'GPU Accéléré',
+                    description: 'Bénéficiez de l\'accélération GPU pour l\'entraînement et l\'inférence'
+                }
+            ];
+
+            return React.createElement('section', { className: 'py-16 bg-white' },
+                React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
+                    React.createElement('div', { className: 'text-center mb-12' },
+                        React.createElement('h2', { className: 'text-3xl md:text-4xl font-bold text-gray-900 mb-4' },
+                            'Tout ce dont vous avez besoin pour l\'IA'
+                        ),
+                        React.createElement('p', { className: 'text-xl text-gray-600' },
+                            'Une plateforme complète pour le développement et le déploiement de l\'IA'
+                        )
+                    ),
+                    React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8' },
+                        features.map((feature, index) => 
+                            React.createElement('div', { 
+                                key: index,
+                                className: 'card-hover bg-gray-50 p-6 rounded-xl border border-gray-200'
+                            },
+                                React.createElement(feature.icon, { className: 'h-12 w-12 text-primary mb-4' }),
+                                React.createElement('h3', { className: 'text-xl font-bold text-gray-900 mb-2' }, feature.title),
+                                React.createElement('p', { className: 'text-gray-600' }, feature.description)
+                            )
+                        )
+                    )
+                )
+            );
+        }
+
+        // Composant Login
+        function Login() {
+            const { login } = React.useContext(AuthContext);
+            const [formData, setFormData] = React.useState({ email: '', password: '' });
+            const [loading, setLoading] = React.useState(false);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                await login(formData.email, formData.password);
+                setLoading(false);
+            };
+
+            return React.createElement('section', { id: 'login', className: 'py-16 bg-gray-50' },
+                React.createElement('div', { className: 'max-w-md mx-auto bg-white p-8 rounded-xl shadow-sm border' },
+                    React.createElement('h2', { className: 'text-2xl font-bold text-center mb-8' }, 'Connexion à initHUB'),
+                    React.createElement('form', { onSubmit: handleSubmit },
+                        React.createElement('div', { className: 'mb-4' },
+                            React.createElement('label', { className: 'block text-gray-700 mb-2' }, 'Email'),
+                            React.createElement('input', {
+                                type: 'email',
+                                required: true,
+                                value: formData.email,
+                                onChange: (e) => setFormData({...formData, email: e.target.value}),
+                                className: 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary',
+                                placeholder: 'votre@email.com'
+                            })
+                        ),
+                        React.createElement('div', { className: 'mb-6' },
+                            React.createElement('label', { className: 'block text-gray-700 mb-2' }, 'Mot de passe'),
+                            React.createElement('input', {
+                                type: 'password',
+                                required: true,
+                                value: formData.password,
+                                onChange: (e) => setFormData({...formData, password: e.target.value}),
+                                className: 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary',
+                                placeholder: 'Votre mot de passe'
+                            })
+                        ),
+                        React.createElement('button', {
+                            type: 'submit',
+                            disabled: loading,
+                            className: 'w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center'
+                        },
+                            loading && React.createElement('div', { className: 'loading-spinner mr-2' }),
+                            'Se connecter'
+                        )
+                    ),
+                    React.createElement('p', { className: 'text-center mt-4 text-gray-600' },
+                        'Pas de compte? ',
+                        React.createElement('a', { href: '#register', className: 'text-primary hover:underline' }, 'Inscrivez-vous')
+                    )
+                )
+            );
+        }
+
+        // Composant Register
+        function Register() {
+            const { register } = React.useContext(AuthContext);
+            const [formData, setFormData] = React.useState({
+                username: '', email: '', password: '', full_name: ''
+            });
+            const [loading, setLoading] = React.useState(false);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                await register(formData);
+                setLoading(false);
+            };
+
+            return React.createElement('section', { id: 'register', className: 'py-16 bg-gray-50' },
+                React.createElement('div', { className: 'max-w-md mx-auto bg-white p-8 rounded-xl shadow-sm border' },
+                    React.createElement('h2', { className: 'text-2xl font-bold text-center mb-8' }, 'Rejoindre initHUB'),
+                    React.createElement('form', { onSubmit: handleSubmit },
+                        React.createElement('div', { className: 'mb-4' },
+                            React.createElement('label', { className: 'block text-gray-700 mb-2' }, 'Nom d\'utilisateur'),
+                            React.createElement('input', {
+                                type: 'text',
+                                required: true,
+                                value: formData.username,
+                                onChange: (e) => setFormData({...formData, username: e.target.value}),
+                                className: 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary',
+                                placeholder: 'johndoe'
+                            })
+                        ),
+                        React.createElement('div', { className: 'mb-4' },
+                            React.createElement('label', { className: 'block text-gray-700 mb-2' }, 'Email'),
+                            React.createElement('input', {
+                                type: 'email',
+                                required: true,
+                                value: formData.email,
+                                onChange: (e) => setFormData({...formData, email: e.target.value}),
+                                className: 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary',
+                                placeholder: 'votre@email.com'
+                            })
+                        ),
+                        React.createElement('div', { className: 'mb-4' },
+                            React.createElement('label', { className: 'block text-gray-700 mb-2' }, 'Nom complet (optionnel)'),
+                            React.createElement('input', {
+                                type: 'text',
+                                value: formData.full_name,
+                                onChange: (e) => setFormData({...formData, full_name: e.target.value}),
+                                className: 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary',
+                                placeholder: 'John Doe'
+                            })
+                        ),
+                        React.createElement('div', { className: 'mb-6' },
+                            React.createElement('label', { className: 'block text-gray-700 mb-2' }, 'Mot de passe'),
+                            React.createElement('input', {
+                                type: 'password',
+                                required: true,
+                                value: formData.password,
+                                onChange: (e) => setFormData({...formData, password: e.target.value}),
+                                className: 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary',
+                                placeholder: 'Mot de passe sécurisé'
+                            })
+                        ),
+                        React.createElement('button', {
+                            type: 'submit',
+                            disabled: loading,
+                            className: 'w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center'
+                        },
+                            loading && React.createElement('div', { className: 'loading-spinner mr-2' }),
+                            'Créer mon compte'
+                        )
+                    ),
+                    React.createElement('p', { className: 'text-center mt-4 text-gray-600' },
+                        'Déjà un compte? ',
+                        React.createElement('a', { href: '#login', className: 'text-primary hover:underline' }, 'Connectez-vous')
+                    )
+                )
+            );
+        }
+
+        // Composant Dashboard
+        function Dashboard() {
+            const { user } = React.useContext(AuthContext);
+            const [stats, setStats] = React.useState({ projects: 0, models: 0, files: 0 });
+            const [recentProjects, setRecentProjects] = React.useState([]);
+
+            React.useEffect(() => {
+                if (user) {
+                    fetchDashboardData();
+                }
+            }, [user]);
+
+            const fetchDashboardData = async () => {
+                try {
+                    const token = localStorage.getItem('inithub_token');
+                    const [projectsRes, modelsRes] = await Promise.all([
+                        axios.get(`${API_BASE}/projects`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        }),
+                        axios.get(`${API_BASE}/models`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        })
+                    ]);
+
+                    setStats({
+                        projects: projectsRes.data.length,
+                        models: modelsRes.data.length,
+                        files: projectsRes.data.reduce((acc, project) => acc + (project.files_count || 0), 0)
+                    });
+
+                    setRecentProjects(projectsRes.data.slice(0, 5));
+                } catch (error) {
+                    console.error('Error fetching dashboard data:', error);
+                }
+            };
+
+            if (!user) {
+                return React.createElement('div', { className: 'text-center py-16' },
+                    React.createElement('p', { className: 'text-gray-600' }, 'Veuillez vous connecter pour accéder au dashboard')
+                );
+            }
+
+            return React.createElement('section', { id: 'dashboard', className: 'py-8' },
+                React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
+                    // En-tête
+                    React.createElement('div', { className: 'mb-8' },
+                        React.createElement('h1', { className: 'text-3xl font-bold text-gray-900' }, 'Tableau de bord'),
+                        React.createElement('p', { className: 'text-gray-600 mt-2' }, `Bon retour, ${user.username}!`)
+                    ),
+
+                    // Statistiques
+                    React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-6 mb-8' },
+                        React.createElement('div', { className: 'bg-white p-6 rounded-xl shadow-sm border' },
+                            React.createElement('div', { className: 'flex items-center' },
+                                React.createElement(FolderOpen, { className: 'h-8 w-8 text-blue-500' }),
+                                React.createElement('div', { className: 'ml-4' },
+                                    React.createElement('p', { className: 'text-sm font-medium text-gray-600' }, 'Projets'),
+                                    React.createElement('p', { className: 'text-2xl font-bold text-gray-900' }, stats.projects)
+                                )
+                            )
+                        ),
+                        React.createElement('div', { className: 'bg-white p-6 rounded-xl shadow-sm border' },
+                            React.createElement('div', { className: 'flex items-center' },
+                                React.createElement(Cpu, { className: 'h-8 w-8 text-green-500' }),
+                                React.createElement('div', { className: 'ml-4' },
+                                    React.createElement('p', { className: 'text-sm font-medium text-gray-600' }, 'Modèles IA'),
+                                    React.createElement('p', { className: 'text-2xl font-bold text-gray-900' }, stats.models)
+                                )
+                            )
+                        ),
+                        React.createElement('div', { className: 'bg-white p-6 rounded-xl shadow-sm border' },
+                            React.createElement('div', { className: 'flex items-center' },
+                                React.createElement(FileText, { className: 'h-8 w-8 text-purple-500' }),
+                                React.createElement('div', { className: 'ml-4' },
+                                    React.createElement('p', { className: 'text-sm font-medium text-gray-600' }, 'Fichiers'),
+                                    React.createElement('p', { className: 'text-2xl font-bold text-gray-900' }, stats.files)
+                                )
+                            )
+                        )
+                    ),
+
+                    // Projets récents
+                    React.createElement('div', { className: 'bg-white rounded-xl shadow-sm border p-6' },
+                        React.createElement('div', { className: 'flex justify-between items-center mb-6' },
+                            React.createElement('h2', { className: 'text-xl font-bold text-gray-900' }, 'Projets Récents'),
+                            React.createElement('a', { 
+                                href: '#projects',
+                                className: 'flex items-center text-primary hover:underline'
+                            },
+                                'Voir tout',
+                                React.createElement(ChevronRight, { className: 'h-4 w-4 ml-1' })
+                            )
+                        ),
+                        recentProjects.length > 0 ? 
+                            React.createElement('div', { className: 'space-y-4' },
+                                recentProjects.map(project => 
+                                    React.createElement('div', { 
+                                        key: project.id,
+                                        className: 'flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50'
+                                    },
+                                        React.createElement('div', null,
+                                            React.createElement('h3', { className: 'font-medium text-gray-900' }, project.name),
+                                            React.createElement('p', { className: 'text-sm text-gray-600' }, project.description || 'Pas de description')
+                                        ),
+                                        React.createElement('div', { className: 'flex items-center space-x-2' },
+                                            React.createElement(Star, { className: 'h-4 w-4 text-yellow-500' }),
+                                            React.createElement('span', { className: 'text-sm text-gray-600' }, project.star_count || 0)
+                                        )
+                                    )
+                                )
+                            ) :
+                            React.createElement('p', { className: 'text-gray-600 text-center py-8' }, 'Aucun projet pour le moment')
+                    )
+                )
+            );
+        }
+
+        // Composant Footer
+        function Footer() {
+            return React.createElement('footer', { className: 'bg-dark text-white py-12' },
+                React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
+                    React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-4 gap-8' },
+                        React.createElement('div', null,
+                            React.createElement('div', { className: 'flex items-center mb-4' },
+                                React.createElement(Rocket, { className: 'h-6 w-6 text-primary' }),
+                                React.createElement('span', { className: 'ml-2 text-xl font-bold' }, 'initHUB')
+                            ),
+                            React.createElement('p', { className: 'text-gray-400' }, 
+                                'Plateforme collaborative pour le développement et le partage de modèles IA.'
+                            )
+                        ),
+                        React.createElement('div', null,
+                            React.createElement('h3', { className: 'font-bold mb-4' }, 'Produit'),
+                            React.createElement('ul', { className: 'space-y-2 text-gray-400' },
+                                React.createElement('li', null, React.createElement('a', { href: '#features', className: 'hover:text-white' }, 'Fonctionnalités')),
+                                React.createElement('li', null, React.createElement('a', { href: '#pricing', className: 'hover:text-white' }, 'Tarifs')),
+                                React.createElement('li', null, React.createElement('a', { href: '#api', className: 'hover:text-white' }, 'API'))
+                            )
+                        ),
+                        React.createElement('div', null,
+                            React.createElement('h3', { className: 'font-bold mb-4' }, 'Ressources'),
+                            React.createElement('ul', { className: 'space-y-2 text-gray-400' },
+                                React.createElement('li', null, React.createElement('a', { href: '#docs', className: 'hover:text-white' }, 'Documentation')),
+                                React.createElement('li', null, React.createElement('a', { href: '#tutorials', className: 'hover:text-white' }, 'Tutoriels')),
+                                React.createElement('li', null, React.createElement('a', { href: '#blog', className: 'hover:text-white' }, 'Blog'))
+                            )
+                        ),
+                        React.createElement('div', null,
+                            React.createElement('h3', { className: 'font-bold mb-4' }, 'Communauté'),
+                            React.createElement('ul', { className: 'space-y-2 text-gray-400' },
+                                React.createElement('li', null, React.createElement('a', { href: '#discord', className: 'hover:text-white' }, 'Discord')),
+                                React.createElement('li', null, React.createElement('a', { href: '#github', className: 'hover:text-white' }, 'GitHub')),
+                                React.createElement('li', null, React.createElement('a', { href: '#twitter', className: 'hover:text-white' }, 'Twitter'))
+                            )
+                        )
+                    ),
+                    React.createElement('div', { className: 'border-t border-gray-700 mt-8 pt-8 text-center text-gray-400' },
+                        '© 2024 initHUB. Tous droits réservés.'
+                    )
+                )
+            );
+        }
+
+        // Composant principal App
+        function App() {
+            const auth = useAuth();
+            const [currentView, setCurrentView] = React.useState('home');
+
+            // Gestion de la navigation par hash
+            React.useEffect(() => {
+                const handleHashChange = () => {
+                    const hash = window.location.hash.slice(1) || 'home';
+                    setCurrentView(hash);
+                };
+
+                window.addEventListener('hashchange', handleHashChange);
+                handleHashChange(); // Initial call
+
+                return () => window.removeEventListener('hashchange', handleHashChange);
+            }, []);
+
+            const renderCurrentView = () => {
+                if (auth.loading) {
+                    return React.createElement('div', { className: 'flex justify-center items-center min-h-screen' },
+                        React.createElement('div', { className: 'loading-spinner' })
+                    );
+                }
+
+                switch (currentView) {
+                    case 'login':
+                        return React.createElement(Login);
+                    case 'register':
+                        return React.createElement(Register);
+                    case 'dashboard':
+                        return React.createElement(Dashboard);
+                    default:
+                        return React.createElement(React.Fragment, null,
+                            React.createElement(Hero),
+                            React.createElement(Features),
+                            !auth.user && React.createElement(React.Fragment, null,
+                                React.createElement(Login),
+                                React.createElement(Register)
+                            )
+                        );
+                }
+            };
+
+            return React.createElement(AuthContext.Provider, { value: auth },
+                React.createElement('div', { className: 'min-h-screen flex flex-col' },
+                    React.createElement(Header),
+                    React.createElement('main', { className: 'flex-grow' },
+                        renderCurrentView()
+                    ),
+                    React.createElement(Footer),
+                    // Container pour les toasts
+                    React.createElement('div', { id: 'toast-container' })
+                )
+            );
+        }
+
+        // Rendu de l'application
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    </script>
+</body>
+</html>
