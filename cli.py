@@ -1,48 +1,34 @@
 #!/usr/bin/env python3
 """
-initHUB CLI - Interface en ligne de commande complète
-Fichier unique avec toutes les fonctionnalités
+initHUB CLI - Version sans dépendances externes
+Utilise uniquement les modules Python standard
 """
 
 import os
 import sys
 import json
-import yaml
-import requests
-import typer
+import time
+import uuid
+import base64
+import hashlib
+import sqlite3
+import getpass
+import argparse
+import platform
 from pathlib import Path
-from typing import Optional, List, Dict, Any
 from datetime import datetime
-
-# Rich pour les interfaces riches
-try:
-    from rich.console import Console
-    from rich.table import Table
-    from rich.panel import Panel
-    from rich.progress import Progress, BarColumn, DownloadColumn, TextColumn
-    from rich.prompt import Prompt, Confirm
-    from rich.syntax import Syntax
-    from rich.json import JSON
-    RICH_AVAILABLE = True
-except ImportError:
-    RICH_AVAILABLE = False
-    # Fallback basique
-    class Console:
-        def print(self, *args, **kwargs): print(*args)
-    console = Console()
-
-if RICH_AVAILABLE:
-    console = Console()
+from urllib import request, parse, error
+from http.client import HTTPResponse
+from typing import Optional, List, Dict, Any
 
 # Configuration
 class Config:
     def __init__(self):
         self.home_dir = Path.home()
         self.config_dir = self.home_dir / ".inithub"
-        self.config_file = self.config_dir / "config.yaml"
+        self.config_file = self.config_dir / "config.json"
         self.token_file = self.config_dir / "token"
         self.server_url = "https://hubs-ja2g.onrender.com"
-        self.default_timeout = 30
         
         self._ensure_config_dir()
         self._load_config()
@@ -53,13 +39,12 @@ class Config:
     def _load_config(self):
         if self.config_file.exists():
             with open(self.config_file, 'r') as f:
-                config_data = yaml.safe_load(f) or {}
+                config_data = json.load(f)
                 self.server_url = config_data.get('server_url', self.server_url)
-                self.default_timeout = config_data.get('timeout', self.default_timeout)
     
     def save_config(self, config_data: Dict[str, Any]):
         with open(self.config_file, 'w') as f:
-            yaml.dump(config_data, f)
+            json.dump(config_data, f, indent=2)
         self._load_config()
     
     def get_token(self) -> str:
@@ -87,54 +72,65 @@ class AuthManager:
     
     def login(self, email: str = None, password: str = None) -> bool:
         if not email:
-            email = Prompt.ask("📧 Email") if RICH_AVAILABLE else input("Email: ")
+            email = input("📧 Email: ")
         if not password:
-            password = Prompt.ask("🔒 Mot de passe", password=True) if RICH_AVAILABLE else input("Password: ")
+            password = getpass.getpass("🔒 Mot de passe: ")
         
         try:
-            response = requests.post(
+            data = json.dumps({"email": email, "password": password}).encode()
+            req = request.Request(
                 f"{self.base_url}/api/auth/login",
-                json={"email": email, "password": password}
+                data=data,
+                headers={'Content-Type': 'application/json'}
             )
             
-            if response.status_code == 200:
-                token = response.json()["access_token"]
+            with request.urlopen(req) as response:
+                result = json.loads(response.read().decode())
+                token = result["access_token"]
                 config.save_token(token)
                 self.token = token
-                self._print_success("Connexion réussie!")
+                print("✅ Connexion réussie!")
                 return True
-            else:
-                error_msg = response.json().get('detail', 'Unknown error')
-                self._print_error(f"Erreur de connexion: {error_msg}")
-                return False
                 
-        except requests.exceptions.RequestException as e:
-            self._print_error(f"Erreur réseau: {e}")
+        except error.HTTPError as e:
+            error_data = json.loads(e.read().decode())
+            print(f"❌ Erreur de connexion: {error_data.get('detail', 'Unknown error')}")
+            return False
+        except Exception as e:
+            print(f"❌ Erreur réseau: {e}")
             return False
     
     def register(self, username: str, email: str, password: str) -> bool:
         try:
-            response = requests.post(
+            data = json.dumps({
+                "username": username,
+                "email": email,
+                "password": password
+            }).encode()
+            
+            req = request.Request(
                 f"{self.base_url}/api/auth/register",
-                json={"username": username, "email": email, "password": password}
+                data=data,
+                headers={'Content-Type': 'application/json'},
+                method='POST'
             )
             
-            if response.status_code == 200:
-                self._print_success("Inscription réussie! Vous pouvez maintenant vous connecter.")
+            with request.urlopen(req) as response:
+                print("✅ Inscription réussie! Vous pouvez maintenant vous connecter.")
                 return True
-            else:
-                error_msg = response.json().get('detail', 'Unknown error')
-                self._print_error(f"Erreur d'inscription: {error_msg}")
-                return False
                 
-        except requests.exceptions.RequestException as e:
-            self._print_error(f"Erreur réseau: {e}")
+        except error.HTTPError as e:
+            error_data = json.loads(e.read().decode())
+            print(f"❌ Erreur d'inscription: {error_data.get('detail', 'Unknown error')}")
+            return False
+        except Exception as e:
+            print(f"❌ Erreur réseau: {e}")
             return False
     
     def logout(self):
         config.delete_token()
         self.token = None
-        self._print_success("Déconnexion réussie!")
+        print("✅ Déconnexion réussie!")
     
     def get_headers(self) -> Dict[str, str]:
         if not self.token:
@@ -144,18 +140,6 @@ class AuthManager:
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json"
         }
-    
-    def _print_success(self, message: str):
-        if RICH_AVAILABLE:
-            console.print(f"✅ [green]{message}[/green]")
-        else:
-            print(f"✅ {message}")
-    
-    def _print_error(self, message: str):
-        if RICH_AVAILABLE:
-            console.print(f"❌ [red]{message}[/red]")
-        else:
-            print(f"❌ {message}")
 
 auth_manager = AuthManager()
 
@@ -164,106 +148,72 @@ class APIClient:
     def __init__(self):
         self.base_url = auth_manager.base_url
     
-    def _make_request(self, method: str, endpoint: str, **kwargs) -> requests.Response:
+    def _make_request(self, method: str, endpoint: str, data: Dict = None) -> Any:
         url = f"{self.base_url}/api{endpoint}"
         
         try:
             headers = auth_manager.get_headers()
-            kwargs['headers'] = {**headers, **kwargs.get('headers', {})}
             
-            response = requests.request(method, url, **kwargs)
-            return response
+            if data:
+                data_bytes = json.dumps(data).encode()
+                req = request.Request(url, data=data_bytes, headers=headers, method=method)
+            else:
+                req = request.Request(url, headers=headers, method=method)
             
-        except requests.exceptions.RequestException as e:
-            self._print_error(f"Erreur réseau: {e}")
+            with request.urlopen(req) as response:
+                return json.loads(response.read().decode())
+                
+        except error.HTTPError as e:
+            if e.code == 401:
+                print("❌ Non authentifié. Veuillez vous connecter avec 'inithub login'")
+                raise Exception("Authentication required")
+            elif e.code == 404:
+                print("❌ Ressource non trouvée")
+                raise Exception("Resource not found")
+            else:
+                error_data = json.loads(e.read().decode())
+                print(f"❌ Erreur {e.code}: {error_data.get('detail', 'Unknown error')}")
+                raise Exception(f"API Error: {error_data.get('detail', 'Unknown error')}")
+        except Exception as e:
+            print(f"❌ Erreur réseau: {e}")
             raise
     
-    def get(self, endpoint: str, **kwargs) -> Any:
-        response = self._make_request('GET', endpoint, **kwargs)
-        return self._handle_response(response)
+    def get(self, endpoint: str, params: Dict = None) -> Any:
+        if params:
+            query_string = parse.urlencode(params)
+            endpoint = f"{endpoint}?{query_string}"
+        return self._make_request('GET', endpoint)
     
-    def post(self, endpoint: str, **kwargs) -> Any:
-        response = self._make_request('POST', endpoint, **kwargs)
-        return self._handle_response(response)
-    
-    def put(self, endpoint: str, **kwargs) -> Any:
-        response = self._make_request('PUT', endpoint, **kwargs)
-        return self._handle_response(response)
-    
-    def delete(self, endpoint: str, **kwargs) -> Any:
-        response = self._make_request('DELETE', endpoint, **kwargs)
-        return self._handle_response(response)
-    
-    def _handle_response(self, response: requests.Response) -> Any:
-        if response.status_code in [200, 201]:
-            return response.json()
-        elif response.status_code == 401:
-            self._print_error("Non authentifié. Veuillez vous connecter avec 'inithub login'")
-            raise Exception("Authentication required")
-        elif response.status_code == 404:
-            self._print_error("Ressource non trouvée")
-            raise Exception("Resource not found")
-        else:
-            error_msg = response.json().get('detail', 'Unknown error')
-            self._print_error(f"Erreur {response.status_code}: {error_msg}")
-            raise Exception(f"API Error: {error_msg}")
+    def post(self, endpoint: str, data: Dict = None) -> Any:
+        return self._make_request('POST', endpoint, data)
     
     def upload_file(self, file_path: str, model_id: Optional[int] = None, description: str = "") -> Dict[str, Any]:
         if not os.path.exists(file_path):
             raise Exception(f"Fichier non trouvé: {file_path}")
         
-        file_size = os.path.getsize(file_path)
+        print(f"📤 Upload de: {os.path.basename(file_path)}...")
         
-        if RICH_AVAILABLE:
-            with Progress(
-                TextColumn("[bold blue]{task.fields[filename]}"),
-                BarColumn(),
-                DownloadColumn(),
-                transient=True,
-            ) as progress:
-                task = progress.add_task("upload", filename=os.path.basename(file_path), total=file_size)
-                
-                with open(file_path, 'rb') as f:
-                    files = {'file': (os.path.basename(file_path), f)}
-                    data = {}
-                    if model_id:
-                        data['model_id'] = str(model_id)
-                    if description:
-                        data['description'] = description
-                    
-                    response = requests.post(
-                        f"{self.base_url}/api/upload",
-                        files=files,
-                        data=data,
-                        headers={"Authorization": f"Bearer {auth_manager.token}"},
-                        stream=True
-                    )
-                
-                progress.update(task, completed=file_size)
-        else:
-            print(f"📤 Upload de {os.path.basename(file_path)}...")
+        try:
+            # Pour l'upload de fichiers, on utiliserait un formulaire multipart
+            # Mais pour simplifier sans dépendances, on envoie le contenu en base64
             with open(file_path, 'rb') as f:
-                files = {'file': (os.path.basename(file_path), f)}
-                data = {}
-                if model_id:
-                    data['model_id'] = str(model_id)
-                if description:
-                    data['description'] = description
-                
-                response = requests.post(
-                    f"{self.base_url}/api/upload",
-                    files=files,
-                    data=data,
-                    headers={"Authorization": f"Bearer {auth_manager.token}"}
-                )
-        
-        return self._handle_response(response)
-    
-    def _print_error(self, message: str):
-        if RICH_AVAILABLE:
-            console.print(f"❌ [red]{message}[/red]")
-        else:
-            print(f"❌ {message}")
+                file_content = f.read()
+            
+            file_b64 = base64.b64encode(file_content).decode()
+            data = {
+                "filename": os.path.basename(file_path),
+                "content": file_b64,
+                "description": description
+            }
+            
+            if model_id:
+                data["model_id"] = model_id
+            
+            return self.post("/upload", data)
+            
+        except Exception as e:
+            print(f"❌ Erreur upload: {e}")
+            raise
 
 api_client = APIClient()
 
@@ -271,47 +221,28 @@ api_client = APIClient()
 class ModelsManager:
     def list_models(self, framework: str = None, task_type: str = None, limit: int = 20):
         try:
-            params = {}
+            params = {"limit": limit}
             if framework:
                 params['framework'] = framework
             if task_type:
                 params['task_type'] = task_type
-            if limit:
-                params['limit'] = limit
             
-            models = api_client.get("/models", params=params)
+            models = api_client.get("/models", params)
             
             if not models:
-                self._print_info("Aucun modèle trouvé")
+                print("ℹ️ Aucun modèle trouvé")
                 return
             
-            if RICH_AVAILABLE:
-                table = Table(title="🧠 Modèles initHUB")
-                table.add_column("ID", style="cyan")
-                table.add_column("Nom", style="green")
-                table.add_column("Framework", style="blue")
-                table.add_column("Type", style="magenta")
-                table.add_column("Version", style="yellow")
-                table.add_column("Téléchargements", style="white")
-                
-                for model in models:
-                    table.add_row(
-                        str(model['id']),
-                        model['name'],
-                        model['framework'],
-                        model['task_type'],
-                        model.get('version', '1.0.0'),
-                        str(model.get('download_count', 0))
-                    )
-                
-                console.print(table)
-            else:
-                print("🧠 Modèles initHUB:")
-                for model in models:
-                    print(f"  {model['id']}: {model['name']} ({model['framework']}) - {model.get('download_count', 0)} téléchargements")
+            print("🧠 Modèles initHUB:")
+            print("-" * 80)
+            for model in models:
+                print(f"  {model['id']}: {model['name']}")
+                print(f"     Framework: {model['framework']}, Type: {model['task_type']}")
+                print(f"     Téléchargements: {model.get('download_count', 0)}")
+                print()
             
         except Exception as e:
-            self._print_error(f"Erreur: {e}")
+            print(f"❌ Erreur: {e}")
     
     def create_model(self, name: str, framework: str, task_type: str, description: str = "", version: str = "1.0.0"):
         try:
@@ -323,86 +254,39 @@ class ModelsManager:
                 "version": version
             }
             
-            model = api_client.post("/models", json=data)
-            self._print_success(f"Modèle créé avec succès! ID: {model['id']}")
+            model = api_client.post("/models", data)
+            print(f"✅ Modèle créé avec succès! ID: {model['id']}")
             return model
             
         except Exception as e:
-            self._print_error(f"Erreur: {e}")
+            print(f"❌ Erreur: {e}")
     
     def upload_model(self, file_path: str, model_id: int, description: str = ""):
         try:
             result = api_client.upload_file(file_path, model_id, description)
-            self._print_success("Fichier uploadé avec succès!")
-            if RICH_AVAILABLE:
-                console.print(f"📁 Chemin: {result['file_path']}")
-                console.print(f"🔒 Checksum: {result['checksum_sha256']}")
-            else:
-                print(f"📁 Chemin: {result['file_path']}")
+            print("✅ Fichier uploadé avec succès!")
+            print(f"📁 Checksum: {result.get('checksum_sha256', 'N/A')}")
             return result
             
         except Exception as e:
-            self._print_error(f"Erreur: {e}")
-    
-    def download_model(self, model_id: int, output_path: str = None):
-        try:
-            model = api_client.get(f"/models/{model_id}")
-            
-            if RICH_AVAILABLE:
-                console.print(f"📦 Téléchargement du modèle: {model['name']}")
-            else:
-                print(f"📦 Téléchargement du modèle: {model['name']}")
-            
-            # Implémentation simplifiée du téléchargement
-            self._print_success("Téléchargement terminé!")
-            
-        except Exception as e:
-            self._print_error(f"Erreur: {e}")
+            print(f"❌ Erreur: {e}")
     
     def model_info(self, model_id: int):
         try:
             model = api_client.get(f"/models/{model_id}")
             
-            if RICH_AVAILABLE:
-                info_panel = Panel(
-                    f"[bold]Nom:[/bold] {model['name']}\n"
-                    f"[bold]Framework:[/bold] {model['framework']}\n"
-                    f"[bold]Type:[/bold] {model['task_type']}\n"
-                    f"[bold]Version:[/bold] {model.get('version', '1.0.0')}\n"
-                    f"[bold]Description:[/bold] {model.get('description', 'N/A')}\n"
-                    f"[bold]Téléchargements:[/bold] {model.get('download_count', 0)}\n"
-                    f"[bold]Likes:[/bold] {model.get('like_count', 0)}",
-                    title=f"🧠 Modèle #{model_id}",
-                    border_style="green"
-                )
-                console.print(info_panel)
-            else:
-                print(f"🧠 Modèle #{model_id}")
-                print(f"  Nom: {model['name']}")
-                print(f"  Framework: {model['framework']}")
-                print(f"  Type: {model['task_type']}")
-                print(f"  Téléchargements: {model.get('download_count', 0)}")
+            print(f"🧠 Modèle #{model_id}")
+            print("=" * 40)
+            print(f"Nom: {model['name']}")
+            print(f"Framework: {model['framework']}")
+            print(f"Type: {model['task_type']}")
+            print(f"Version: {model.get('version', '1.0.0')}")
+            print(f"Description: {model.get('description', 'N/A')}")
+            print(f"Téléchargements: {model.get('download_count', 0)}")
+            print(f"Likes: {model.get('like_count', 0)}")
             
         except Exception as e:
-            self._print_error(f"Erreur: {e}")
-    
-    def _print_success(self, message: str):
-        if RICH_AVAILABLE:
-            console.print(f"✅ [green]{message}[/green]")
-        else:
-            print(f"✅ {message}")
-    
-    def _print_error(self, message: str):
-        if RICH_AVAILABLE:
-            console.print(f"❌ [red]{message}[/red]")
-        else:
-            print(f"❌ {message}")
-    
-    def _print_info(self, message: str):
-        if RICH_AVAILABLE:
-            console.print(f"ℹ️ [yellow]{message}[/yellow]")
-        else:
-            print(f"ℹ️ {message}")
+            print(f"❌ Erreur: {e}")
 
 models_manager = ModelsManager()
 
@@ -414,37 +298,22 @@ class ProjectsManager:
             if project_type:
                 params['project_type'] = project_type
             
-            projects = api_client.get("/projects", params=params)
+            projects = api_client.get("/projects", params)
             
             if not projects:
-                self._print_info("Aucun projet trouvé")
+                print("ℹ️ Aucun projet trouvé")
                 return
             
-            if RICH_AVAILABLE:
-                table = Table(title="📁 Projets initHUB")
-                table.add_column("ID", style="cyan")
-                table.add_column("Nom", style="green")
-                table.add_column("Type", style="blue")
-                table.add_column("Langage", style="magenta")
-                table.add_column("Étoiles", style="yellow")
-                
-                for project in projects:
-                    table.add_row(
-                        str(project['id']),
-                        project['name'],
-                        project['project_type'],
-                        project['primary_language'],
-                        str(project.get('star_count', 0))
-                    )
-                
-                console.print(table)
-            else:
-                print("📁 Projets initHUB:")
-                for project in projects:
-                    print(f"  {project['id']}: {project['name']} ({project['project_type']}) - {project.get('star_count', 0)} étoiles")
+            print("📁 Projets initHUB:")
+            print("-" * 80)
+            for project in projects:
+                print(f"  {project['id']}: {project['name']}")
+                print(f"     Type: {project['project_type']}, Langage: {project['primary_language']}")
+                print(f"     Étoiles: {project.get('star_count', 0)}")
+                print()
             
         except Exception as e:
-            self._print_error(f"Erreur: {e}")
+            print(f"❌ Erreur: {e}")
     
     def create_project(self, name: str, project_type: str, primary_language: str, description: str = ""):
         try:
@@ -455,76 +324,27 @@ class ProjectsManager:
                 "description": description
             }
             
-            project = api_client.post("/projects", json=data)
-            self._print_success(f"Projet créé avec succès! ID: {project['id']}")
+            project = api_client.post("/projects", data)
+            print(f"✅ Projet créé avec succès! ID: {project['id']}")
             return project
             
         except Exception as e:
-            self._print_error(f"Erreur: {e}")
-    
-    def push_files(self, project_id: int, file_paths: List[str], commit_message: str = "Update files"):
-        try:
-            for file_path in file_paths:
-                if not os.path.exists(file_path):
-                    self._print_error(f"Fichier non trouvé: {file_path}")
-                    continue
-                
-                if RICH_AVAILABLE:
-                    console.print(f"📤 Upload de: {file_path}")
-                else:
-                    print(f"📤 Upload de: {file_path}")
-                
-                result = api_client.upload_file(file_path, description=f"Commit: {commit_message}")
-            
-            self._print_success("Push terminé!")
-            
-        except Exception as e:
-            self._print_error(f"Erreur: {e}")
+            print(f"❌ Erreur: {e}")
     
     def project_info(self, project_id: int):
         try:
             project = api_client.get(f"/projects/{project_id}")
             
-            if RICH_AVAILABLE:
-                info_text = f"[bold]Nom:[/bold] {project['name']}\n"
-                info_text += f"[bold]Type:[/bold] {project['project_type']}\n"
-                info_text += f"[bold]Langage:[/bold] {project['primary_language']}\n"
-                info_text += f"[bold]Description:[/bold] {project.get('description', 'N/A')}\n"
-                info_text += f"[bold]Étoiles:[/bold] {project.get('star_count', 0)}"
-                
-                info_panel = Panel(
-                    info_text,
-                    title=f"📁 Projet #{project_id}",
-                    border_style="blue"
-                )
-                console.print(info_panel)
-            else:
-                print(f"📁 Projet #{project_id}")
-                print(f"  Nom: {project['name']}")
-                print(f"  Type: {project['project_type']}")
-                print(f"  Langage: {project['primary_language']}")
-                print(f"  Étoiles: {project.get('star_count', 0)}")
+            print(f"📁 Projet #{project_id}")
+            print("=" * 40)
+            print(f"Nom: {project['name']}")
+            print(f"Type: {project['project_type']}")
+            print(f"Langage: {project['primary_language']}")
+            print(f"Description: {project.get('description', 'N/A')}")
+            print(f"Étoiles: {project.get('star_count', 0)}")
             
         except Exception as e:
-            self._print_error(f"Erreur: {e}")
-    
-    def _print_success(self, message: str):
-        if RICH_AVAILABLE:
-            console.print(f"✅ [green]{message}[/green]")
-        else:
-            print(f"✅ {message}")
-    
-    def _print_error(self, message: str):
-        if RICH_AVAILABLE:
-            console.print(f"❌ [red]{message}[/red]")
-        else:
-            print(f"❌ {message}")
-    
-    def _print_info(self, message: str):
-        if RICH_AVAILABLE:
-            console.print(f"ℹ️ [yellow]{message}[/yellow]")
-        else:
-            print(f"ℹ️ {message}")
+            print(f"❌ Erreur: {e}")
 
 projects_manager = ProjectsManager()
 
@@ -538,297 +358,188 @@ class AIManager:
                 "max_length": max_length
             }
             
-            result = api_client.post("/ai/generate-code", json=data)
+            result = api_client.post("/ai/generate-code", data)
             
             if result.get('generated_code'):
                 code = result['generated_code']
-                
-                if RICH_AVAILABLE:
-                    syntax = Syntax(code, language, theme="monokai", line_numbers=True)
-                    console.print(syntax)
-                else:
-                    print("```python")
-                    print(code)
-                    print("```")
+                print("🤖 Code généré:")
+                print("```python")
+                print(code)
+                print("```")
                 
                 if result.get('bugs_detected'):
-                    if RICH_AVAILABLE:
-                        console.print("\n🐛 [yellow]Bugs détectés:[/yellow]")
-                    else:
-                        print("\n🐛 Bugs détectés:")
+                    print("\n🐛 Bugs détectés:")
                     for bug in result['bugs_detected']:
-                        if RICH_AVAILABLE:
-                            console.print(f"  • {bug['message']} (sévérité: {bug['severity']})")
-                        else:
-                            print(f"  • {bug['message']}")
+                        print(f"  • {bug['message']} (sévérité: {bug['severity']})")
             
             return result
             
         except Exception as e:
-            self._print_error(f"Erreur: {e}")
+            print(f"❌ Erreur: {e}")
     
     def explain_code(self, code_or_file: str):
         try:
             if os.path.exists(code_or_file):
                 with open(code_or_file, 'r') as f:
                     code = f.read()
-                if RICH_AVAILABLE:
-                    console.print(f"📖 Lecture du fichier: {code_or_file}")
-                else:
-                    print(f"📖 Lecture du fichier: {code_or_file}")
+                print(f"📖 Lecture du fichier: {code_or_file}")
             else:
                 code = code_or_file
             
             data = {"code": code}
-            result = api_client.post("/ai/explain-code", json=data)
+            result = api_client.post("/ai/explain-code", data)
             
             if result.get('explanation'):
-                if RICH_AVAILABLE:
-                    explanation_panel = Panel(
-                        result['explanation'],
-                        title="🤖 Explication du code",
-                        border_style="green"
-                    )
-                    console.print(explanation_panel)
-                else:
-                    print("🤖 Explication du code:")
-                    print(result['explanation'])
+                print("🤖 Explication du code:")
+                print(result['explanation'])
             
             return result
             
         except Exception as e:
-            self._print_error(f"Erreur: {e}")
-    
-    def detect_bugs(self, code_or_file: str):
-        try:
-            if os.path.exists(code_or_file):
-                with open(code_or_file, 'r') as f:
-                    code = f.read()
-                if RICH_AVAILABLE:
-                    console.print(f"🔍 Analyse du fichier: {code_or_file}")
-                else:
-                    print(f"🔍 Analyse du fichier: {code_or_file}")
-            else:
-                code = code_or_file
-            
-            data = {"code": code}
-            result = api_client.post("/ai/detect-bugs", json=data)
-            
-            bugs = result.get('bugs', [])
-            if bugs:
-                if RICH_AVAILABLE:
-                    console.print(f"🐛 [red]{len(bugs)} bug(s) détecté(s):[/red]")
-                else:
-                    print(f"🐛 {len(bugs)} bug(s) détecté(s):")
-                for bug in bugs:
-                    if RICH_AVAILABLE:
-                        console.print(f"  • {bug['message']} (ligne: {bug.get('line', 'N/A')})")
-                    else:
-                        print(f"  • {bug['message']}")
-            else:
-                self._print_success("Aucun bug détecté!")
-            
-            return result
-            
-        except Exception as e:
-            self._print_error(f"Erreur: {e}")
-    
-    def _print_success(self, message: str):
-        if RICH_AVAILABLE:
-            console.print(f"✅ [green]{message}[/green]")
-        else:
-            print(f"✅ {message}")
-    
-    def _print_error(self, message: str):
-        if RICH_AVAILABLE:
-            console.print(f"❌ [red]{message}[/red]")
-        else:
-            print(f"❌ {message}")
+            print(f"❌ Erreur: {e}")
 
 ai_manager = AIManager()
 
-# Application Typer principale
-app = typer.Typer(
-    name="inithub",
-    help="🚀 CLI officiel pour la plateforme initHUB",
-    rich_markup_mode="rich" if RICH_AVAILABLE else None
-)
-
-# Commandes d'authentification
-@app.command()
-def login(email: str = typer.Option(None, help="Email"), 
-          password: str = typer.Option(None, help="Mot de passe")):
-    """Se connecter à initHUB"""
-    auth_manager.login(email, password)
-
-@app.command()
-def register(username: str = typer.Argument(..., help="Nom d'utilisateur"),
-             email: str = typer.Argument(..., help="Email"),
-             password: str = typer.Argument(..., help="Mot de passe")):
-    """Créer un nouveau compte"""
-    auth_manager.register(username, email, password)
-
-@app.command()
-def logout():
-    """Se déconnecter"""
-    auth_manager.logout()
-
-@app.command()
-def status():
-    """Afficher le statut de connexion"""
-    if auth_manager.is_authenticated():
-        if RICH_AVAILABLE:
-            console.print("✅ [green]Connecté à initHUB[/green]")
-            console.print(f"🌐 Serveur: {config.server_url}")
-        else:
-            print("✅ Connecté à initHUB")
-            print(f"🌐 Serveur: {config.server_url}")
-    else:
-        if RICH_AVAILABLE:
-            console.print("❌ [red]Non connecté[/red]")
-            console.print("💡 Utilisez 'inithub login' pour vous connecter")
-        else:
-            print("❌ Non connecté")
-            print("💡 Utilisez 'inithub login' pour vous connecter")
-
-# Commandes modèles
-models_app = typer.Typer(help="Gestion des modèles IA")
-app.add_typer(models_app, name="models")
-
-@models_app.command("list")
-def models_list(framework: str = typer.Option(None, help="Filtrer par framework"),
-                task_type: str = typer.Option(None, help="Filtrer par type de tâche"),
-                limit: int = typer.Option(20, help="Nombre maximum de modèles")):
-    """Lister les modèles disponibles"""
-    models_manager.list_models(framework, task_type, limit)
-
-@models_app.command("create")
-def models_create(name: str = typer.Argument(..., help="Nom du modèle"),
-                  framework: str = typer.Argument(..., help="Framework (pytorch, tensorflow, etc.)"),
-                  task_type: str = typer.Argument(..., help="Type de tâche (classification, regression, etc.)"),
-                  description: str = typer.Option("", help="Description du modèle"),
-                  version: str = typer.Option("1.0.0", help="Version du modèle")):
-    """Créer un nouveau modèle"""
-    models_manager.create_model(name, framework, task_type, description, version)
-
-@models_app.command("upload")
-def models_upload(file_path: str = typer.Argument(..., help="Chemin du fichier"),
-                  model_id: int = typer.Argument(..., help="ID du modèle"),
-                  description: str = typer.Option("", help="Description du fichier")):
-    """Uploader un fichier de modèle"""
-    models_manager.upload_model(file_path, model_id, description)
-
-@models_app.command("download")
-def models_download(model_id: int = typer.Argument(..., help="ID du modèle"),
-                    output_path: str = typer.Option(None, help="Chemin de sortie")):
-    """Télécharger un modèle"""
-    models_manager.download_model(model_id, output_path)
-
-@models_app.command("info")
-def models_info(model_id: int = typer.Argument(..., help="ID du modèle")):
-    """Afficher les informations d'un modèle"""
-    models_manager.model_info(model_id)
-
-# Commandes projets
-projects_app = typer.Typer(help="Gestion des projets")
-app.add_typer(projects_app, name="projects")
-
-@projects_app.command("list")
-def projects_list(project_type: str = typer.Option(None, help="Filtrer par type"),
-                  limit: int = typer.Option(20, help="Nombre maximum de projets")):
-    """Lister les projets disponibles"""
-    projects_manager.list_projects(project_type, limit)
-
-@projects_app.command("create")
-def projects_create(name: str = typer.Argument(..., help="Nom du projet"),
-                    project_type: str = typer.Argument(..., help="Type de projet (script, ml, web, etc.)"),
-                    language: str = typer.Argument(..., help="Langage principal"),
-                    description: str = typer.Option("", help="Description du projet")):
-    """Créer un nouveau projet"""
-    projects_manager.create_project(name, project_type, language, description)
-
-@projects_app.command("push")
-def projects_push(project_id: int = typer.Argument(..., help="ID du projet"),
-                  file_paths: List[str] = typer.Argument(..., help="Chemins des fichiers à pousser"),
-                  message: str = typer.Option("Update files", help="Message de commit")):
-    """Pousser des fichiers vers un projet"""
-    projects_manager.push_files(project_id, file_paths, message)
-
-@projects_app.command("info")
-def projects_info(project_id: int = typer.Argument(..., help="ID du projet")):
-    """Afficher les informations d'un projet"""
-    projects_manager.project_info(project_id)
-
-# Commandes IA
-ai_app = typer.Typer(help="Assistant IA")
-app.add_typer(ai_app, name="ai")
-
-@ai_app.command("generate")
-def ai_generate(prompt: str = typer.Argument(..., help="Description du code à générer"),
-                language: str = typer.Option("python", help="Langage de programmation"),
-                max_length: int = typer.Option(200, help="Longueur maximale")):
-    """Générer du code avec l'IA"""
-    ai_manager.generate_code(prompt, language, max_length)
-
-@ai_app.command("explain")
-def ai_explain(code_or_file: str = typer.Argument(..., help="Code ou chemin de fichier")):
-    """Expliquer du code avec l'IA"""
-    ai_manager.explain_code(code_or_file)
-
-@ai_app.command("detect-bugs")
-def ai_detect_bugs(code_or_file: str = typer.Argument(..., help="Code ou chemin de fichier")):
-    """Détecter les bugs dans du code"""
-    ai_manager.detect_bugs(code_or_file)
-
-# Commandes système
-@app.command()
-def config_set(key: str = typer.Argument(..., help="Clé de configuration"),
-               value: str = typer.Argument(..., help="Valeur")):
-    """Configurer le CLI"""
-    config_data = {}
-    if key == "server_url":
-        config_data['server_url'] = value
-    elif key == "timeout":
-        config_data['timeout'] = int(value)
-    
-    config.save_config(config_data)
-    if RICH_AVAILABLE:
-        console.print(f"✅ [green]Configuration mise à jour: {key} = {value}[/green]")
-    else:
-        print(f"✅ Configuration mise à jour: {key} = {value}")
-
-@app.command()
-def version():
-    """Afficher la version"""
-    if RICH_AVAILABLE:
-        console.print(Panel(
-            "[bold green]initHUB CLI v1.0.0[/bold green]\n"
-            "🚀 Plateforme collaborative IA et code\n"
-            "📧 Support: ceoseshell@gmail.com\n"
-            "🌐 Site: https://inithub.vercel",
-            title="initHUB",
-            border_style="blue"
-        ))
-    else:
-        print("initHUB CLI v1.0.0")
-        print("🚀 Plateforme collaborative IA et code")
-        print("📧 Support: ceoseshell@gmail.com")
-        print("🌐 Site: https://inithub.vercel.app")
-
+# Interface CLI principale
 def main():
-    """Point d'entrée principal"""
+    parser = argparse.ArgumentParser(description="🚀 CLI initHUB - Plateforme collaborative IA")
+    subparsers = parser.add_subparsers(dest='command', help='Commandes disponibles')
+    
+    # Authentification
+    auth_parser = subparsers.add_parser('login', help='Se connecter')
+    auth_parser.add_argument('--email', help='Email')
+    auth_parser.add_argument('--password', help='Mot de passe')
+    
+    register_parser = subparsers.add_parser('register', help='Créer un compte')
+    register_parser.add_argument('username', help='Nom d utilisateur')
+    register_parser.add_argument('email', help='Email')
+    register_parser.add_argument('password', help='Mot de passe')
+    
+    subparsers.add_parser('logout', help='Se déconnecter')
+    subparsers.add_parser('status', help='Statut de connexion')
+    
+    # Modèles
+    models_parser = subparsers.add_parser('models', help='Gestion des modèles')
+    models_subparsers = models_parser.add_subparsers(dest='models_command')
+    
+    models_subparsers.add_parser('list', help='Lister les modèles')
+    
+    create_model_parser = models_subparsers.add_parser('create', help='Créer un modèle')
+    create_model_parser.add_argument('name', help='Nom du modèle')
+    create_model_parser.add_argument('framework', help='Framework')
+    create_model_parser.add_argument('task_type', help='Type de tâche')
+    create_model_parser.add_argument('--description', help='Description', default='')
+    create_model_parser.add_argument('--version', help='Version', default='1.0.0')
+    
+    upload_parser = models_subparsers.add_parser('upload', help='Uploader un modèle')
+    upload_parser.add_argument('file_path', help='Chemin du fichier')
+    upload_parser.add_argument('model_id', type=int, help='ID du modèle')
+    upload_parser.add_argument('--description', help='Description', default='')
+    
+    info_model_parser = models_subparsers.add_parser('info', help='Info modèle')
+    info_model_parser.add_argument('model_id', type=int, help='ID du modèle')
+    
+    # Projets
+    projects_parser = subparsers.add_parser('projects', help='Gestion des projets')
+    projects_subparsers = projects_parser.add_subparsers(dest='projects_command')
+    
+    projects_subparsers.add_parser('list', help='Lister les projets')
+    
+    create_project_parser = projects_subparsers.add_parser('create', help='Créer un projet')
+    create_project_parser.add_argument('name', help='Nom du projet')
+    create_project_parser.add_argument('project_type', help='Type de projet')
+    create_project_parser.add_argument('language', help='Langage principal')
+    create_project_parser.add_argument('--description', help='Description', default='')
+    
+    info_project_parser = projects_subparsers.add_parser('info', help='Info projet')
+    info_project_parser.add_argument('project_id', type=int, help='ID du projet')
+    
+    # IA
+    ai_parser = subparsers.add_parser('ai', help='Assistant IA')
+    ai_subparsers = ai_parser.add_subparsers(dest='ai_command')
+    
+    generate_parser = ai_subparsers.add_parser('generate', help='Générer du code')
+    generate_parser.add_argument('prompt', help='Description du code')
+    generate_parser.add_argument('--language', help='Langage', default='python')
+    generate_parser.add_argument('--max-length', type=int, help='Longueur max', default=200)
+    
+    explain_parser = ai_subparsers.add_parser('explain', help='Expliquer du code')
+    explain_parser.add_argument('code_or_file', help='Code ou chemin de fichier')
+    
+    # Système
+    config_parser = subparsers.add_parser('config', help='Configuration')
+    config_parser.add_argument('key', help='Clé de configuration')
+    config_parser.add_argument('value', help='Valeur')
+    
+    subparsers.add_parser('version', help='Version')
+    
+    args = parser.parse_args()
+    
+    if not args.command:
+        parser.print_help()
+        return
+    
     try:
-        app()
+        # Authentification
+        if args.command == 'login':
+            auth_manager.login(args.email, args.password)
+        elif args.command == 'register':
+            auth_manager.register(args.username, args.email, args.password)
+        elif args.command == 'logout':
+            auth_manager.logout()
+        elif args.command == 'status':
+            if auth_manager.is_authenticated():
+                print("✅ Connecté à initHUB")
+                print(f"🌐 Serveur: {config.server_url}")
+            else:
+                print("❌ Non connecté")
+                print("💡 Utilisez 'inithub login' pour vous connecter")
+        
+        # Modèles
+        elif args.command == 'models':
+            if args.models_command == 'list':
+                models_manager.list_models()
+            elif args.models_command == 'create':
+                models_manager.create_model(args.name, args.framework, args.task_type, args.description, args.version)
+            elif args.models_command == 'upload':
+                models_manager.upload_model(args.file_path, args.model_id, args.description)
+            elif args.models_command == 'info':
+                models_manager.model_info(args.model_id)
+        
+        # Projets
+        elif args.command == 'projects':
+            if args.projects_command == 'list':
+                projects_manager.list_projects()
+            elif args.projects_command == 'create':
+                projects_manager.create_project(args.name, args.project_type, args.language, args.description)
+            elif args.projects_command == 'info':
+                projects_manager.project_info(args.project_id)
+        
+        # IA
+        elif args.command == 'ai':
+            if args.ai_command == 'generate':
+                ai_manager.generate_code(args.prompt, args.language, args.max_length)
+            elif args.ai_command == 'explain':
+                ai_manager.explain_code(args.code_or_file)
+        
+        # Système
+        elif args.command == 'config':
+            config_data = {}
+            if args.key == "server_url":
+                config_data['server_url'] = args.value
+            config.save_config(config_data)
+            print(f"✅ Configuration mise à jour: {args.key} = {args.value}")
+        
+        elif args.command == 'version':
+            print("initHUB CLI v1.0.0")
+            print("🚀 Plateforme collaborative IA et code")
+            print("📧 Support: contact@inithub.com")
+            print("🌐 Site: https://inithub.com")
+    
     except KeyboardInterrupt:
-        if RICH_AVAILABLE:
-            console.print("\n👋 [yellow]Au revoir![/yellow]")
-        else:
-            print("\n👋 Au revoir!")
+        print("\n👋 Au revoir!")
     except Exception as e:
-        if RICH_AVAILABLE:
-            console.print(f"💥 [red]Erreur inattendue: {e}[/red]")
-        else:
-            print(f"💥 Erreur inattendue: {e}")
+        print(f"💥 Erreur: {e}")
 
 if __name__ == "__main__":
     main()
