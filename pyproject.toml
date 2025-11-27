@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "inithub-cli"
+dynamic = ["version"]
+description = "CLI officiel pour la plateforme initHUB"
+authors = [
+    {name = "initHUB Team", email = "contact@inithub.com"}
+]
+license = {text = "MIT"}
+keywords = ["ai", "machine-learning", "cli", "collaboration"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = []  # Aucune dépendance externe
+requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://inithub.vercel.app"
+Documentation = "https://docs.inithub.vercel.app"
+Source = "https://github.com/gopu-inc/initHUBS"
+Issues = "https://github.com/gopu-inc/initHUBS/issues"
+
+[project.scripts]
+inithub = "cli:main"
+
+[tool.setuptools]
+packages = {find = {where = ["."]}}
+
+[tool.setuptools.package-data]
+"*" = ["*.md", "*.txt", "*.rst"]
