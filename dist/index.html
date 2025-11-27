@@ -3,17 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>initHUB - Plateforme Collaborative IA</title>
-    
-    <!-- CDN React, ReactDOM, Tailwind CSS, et autres dépendances -->
+    <title>initHUB - Plateforme IA</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/lucide-react@0.292.0/dist/umd/lucide-react.development.js"></script>
-    <script src="https://unpkg.com/react-hot-toast/dist/index.min.js"></script>
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -22,26 +15,13 @@
                     colors: {
                         primary: '#2563eb',
                         secondary: '#7c3aed',
-                        dark: '#1e293b',
-                        light: '#f8fafc'
+                        dark: '#1e293b'
                     }
                 }
             }
         }
     </script>
-    
-    <!-- Styles personnalisés -->
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
         .loading-spinner {
             border: 3px solid #f3f4f6;
             border-top: 3px solid #2563eb;
@@ -54,30 +34,309 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50">
     <div id="root"></div>
 
     <script type="text/babel">
-        // Configuration de l'API
         const API_BASE = 'https://hubs-ja2g.onrender.com/api';
-        
-        // Icônes Lucide
-        const { 
-            Brain, Code, Upload, Users, GitBranch, Rocket, 
-            LogIn, UserPlus, LogOut, Menu, X, Search,
-            FolderOpen, Cpu, FileText, Settings, Star,
-            ChevronRight, Plus, Trash2, Edit3, Download
-        } = lucideReact;
+
+        // Service API complet
+        class ApiService {
+            constructor() {
+                this.token = localStorage.getItem('inithub_token');
+            }
+
+            async request(endpoint, options = {}) {
+                const url = `${API_BASE}${endpoint}`;
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+                        ...options.headers,
+                    },
+                    ...options,
+                };
+
+                try {
+                    const response = await fetch(url, config);
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.detail || 'Erreur API');
+                    }
+                    
+                    return data;
+                } catch (error) {
+                    console.error('API Error:', error);
+                    throw error;
+                }
+            }
+
+            // 🔐 AUTHENTIFICATION
+            async login(email, password) {
+                const data = await this.request('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password }),
+                });
+                this.token = data.access_token;
+                localStorage.setItem('inithub_token', this.token);
+                return data;
+            }
+
+            async register(userData) {
+                return await this.request('/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify(userData),
+                });
+            }
+
+            async getCurrentUser() {
+                return await this.request('/auth/me');
+            }
+
+            async updateProfile(profileData) {
+                return await this.request('/auth/profile', {
+                    method: 'PUT',
+                    body: JSON.stringify(profileData),
+                });
+            }
+
+            // 🧠 MODÈLES IA
+            async createModel(modelData) {
+                return await this.request('/models', {
+                    method: 'POST',
+                    body: JSON.stringify(modelData),
+                });
+            }
+
+            async getModels(params = {}) {
+                const query = new URLSearchParams(params).toString();
+                return await this.request(`/models?${query}`);
+            }
+
+            async getModel(id) {
+                return await this.request(`/models/${id}`);
+            }
+
+            async updateModel(id, modelData) {
+                return await this.request(`/models/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(modelData),
+                });
+            }
+
+            async deleteModel(id) {
+                return await this.request(`/models/${id}`, {
+                    method: 'DELETE',
+                });
+            }
+
+            // 📁 PROJETS
+            async createProject(projectData) {
+                return await this.request('/projects', {
+                    method: 'POST',
+                    body: JSON.stringify(projectData),
+                });
+            }
+
+            async getProjects(params = {}) {
+                const query = new URLSearchParams(params).toString();
+                return await this.request(`/projects?${query}`);
+            }
+
+            async getProject(id) {
+                return await this.request(`/projects/${id}`);
+            }
+
+            async updateProject(id, projectData) {
+                return await this.request(`/projects/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(projectData),
+                });
+            }
+
+            async deleteProject(id) {
+                return await this.request(`/projects/${id}`, {
+                    method: 'DELETE',
+                });
+            }
+
+            // 📤 FICHIERS
+            async uploadFile(file, modelId = null, projectId = null, description = '') {
+                const formData = new FormData();
+                formData.append('file', file);
+                if (modelId) formData.append('model_id', modelId);
+                if (projectId) formData.append('project_id', projectId);
+                if (description) formData.append('description', description);
+
+                const response = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${this.token}`,
+                    },
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+
+                return await response.json();
+            }
+
+            async getFiles(params = {}) {
+                const query = new URLSearchParams(params).toString();
+                return await this.request(`/files?${query}`);
+            }
+
+            async deleteFile(id) {
+                return await this.request(`/files/${id}`, {
+                    method: 'DELETE',
+                });
+            }
+
+            // 🤖 IA & CODE
+            async generateCode(prompt, language = 'python', maxLength = 200) {
+                return await this.request('/ai/generate-code', {
+                    method: 'POST',
+                    body: JSON.stringify({ prompt, language, max_length: maxLength }),
+                });
+            }
+
+            async explainCode(code) {
+                const formData = new FormData();
+                formData.append('code', code);
+                
+                const response = await fetch(`${API_BASE}/ai/explain-code`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${this.token}`,
+                    },
+                    body: formData,
+                });
+                return await response.json();
+            }
+
+            async detectBugs(code) {
+                const formData = new FormData();
+                formData.append('code', code);
+                
+                const response = await fetch(`${API_BASE}/ai/detect-bugs`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${this.token}`,
+                    },
+                    body: formData,
+                });
+                return await response.json();
+            }
+
+            // 💬 COMMENTAIRES & LIKES
+            async createComment(commentData) {
+                return await this.request('/comments', {
+                    method: 'POST',
+                    body: JSON.stringify(commentData),
+                });
+            }
+
+            async getComments(params = {}) {
+                const query = new URLSearchParams(params).toString();
+                return await this.request(`/comments?${query}`);
+            }
+
+            async createLike(likeData) {
+                return await this.request('/likes', {
+                    method: 'POST',
+                    body: JSON.stringify(likeData),
+                });
+            }
+
+            async deleteLike(params = {}) {
+                const query = new URLSearchParams(params).toString();
+                return await this.request(`/likes?${query}`, {
+                    method: 'DELETE',
+                });
+            }
+
+            // 📊 STATISTIQUES
+            async getStats() {
+                return await this.request('/stats');
+            }
+
+            async getUserStats(userId) {
+                return await this.request(`/stats/user/${userId}`);
+            }
+
+            async getPopularModels(limit = 10) {
+                return await this.request(`/analytics/popular-models?limit=${limit}`);
+            }
+
+            async getRecentActivity(limit = 20) {
+                return await this.request(`/analytics/recent-activity?limit=${limit}`);
+            }
+
+            // 🔍 RECHERCHE
+            async search(query, searchType = 'all', limit = 20) {
+                return await this.request(`/search?q=${encodeURIComponent(query)}&search_type=${searchType}&limit=${limit}`);
+            }
+
+            // 🏪 MARKETPLACE
+            async createListing(listingData) {
+                return await this.request('/marketplace/listings', {
+                    method: 'POST',
+                    body: JSON.stringify(listingData),
+                });
+            }
+
+            async getListings(params = {}) {
+                const query = new URLSearchParams(params).toString();
+                return await this.request(`/marketplace/listings?${query}`);
+            }
+
+            // 📖 MARKDOWN
+            async renderMarkdown(content, baseUrl = '') {
+                const formData = new FormData();
+                formData.append('content', content);
+                formData.append('base_url', baseUrl);
+                
+                const response = await fetch(`${API_BASE}/markdown/render`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${this.token}`,
+                    },
+                    body: formData,
+                });
+                return await response.json();
+            }
+
+            // 🔧 SYSTÈME
+            async getSystemInfo() {
+                return await this.request('/system/info');
+            }
+
+            async getAdminUsers(skip = 0, limit = 50) {
+                return await this.request(`/admin/users?skip=${skip}&limit=${limit}`);
+            }
+
+            logout() {
+                this.token = null;
+                localStorage.removeItem('inithub_token');
+            }
+        }
 
         // Contexte d'authentification
         const AuthContext = React.createContext();
 
-        // Hook personnalisé pour l'authentification
+        // Hook d'authentification
         function useAuth() {
             const [user, setUser] = React.useState(null);
             const [loading, setLoading] = React.useState(true);
+            const api = new ApiService();
 
             React.useEffect(() => {
                 checkAuth();
@@ -85,15 +344,10 @@
 
             const checkAuth = async () => {
                 try {
-                    const token = localStorage.getItem('inithub_token');
-                    if (token) {
-                        const response = await axios.get(`${API_BASE}/auth/me`, {
-                            headers: { Authorization: `Bearer ${token}` }
-                        });
-                        setUser(response.data);
-                    }
+                    const userData = await api.getCurrentUser();
+                    setUser(userData);
                 } catch (error) {
-                    localStorage.removeItem('inithub_token');
+                    api.logout();
                 } finally {
                     setLoading(false);
                 }
@@ -101,67 +355,83 @@
 
             const login = async (email, password) => {
                 try {
-                    const response = await axios.post(`${API_BASE}/auth/login`, {
-                        email, password
-                    });
-                    
-                    const { access_token } = response.data;
-                    localStorage.setItem('inithub_token', access_token);
-                    
-                    const userResponse = await axios.get(`${API_BASE}/auth/me`, {
-                        headers: { Authorization: `Bearer ${access_token}` }
-                    });
-                    
-                    setUser(userResponse.data);
-                    reactHotToast.success('Connexion réussie!');
+                    await api.login(email, password);
+                    const userData = await api.getCurrentUser();
+                    setUser(userData);
                     return true;
                 } catch (error) {
-                    reactHotToast.error('Erreur de connexion');
                     return false;
                 }
             };
 
             const register = async (userData) => {
                 try {
-                    await axios.post(`${API_BASE}/auth/register`, userData);
-                    reactHotToast.success('Compte créé avec succès!');
+                    await api.register(userData);
                     return true;
                 } catch (error) {
-                    reactHotToast.error('Erreur lors de la création du compte');
                     return false;
                 }
             };
 
             const logout = () => {
-                localStorage.removeItem('inithub_token');
+                api.logout();
                 setUser(null);
-                reactHotToast.success('Déconnexion réussie');
             };
 
-            return { user, loading, login, register, logout };
+            return { user, loading, login, register, logout, api };
         }
+
+        // Composants d'icônes simples
+        const Icon = ({ name, className = '' }) => {
+            const icons = {
+                brain: '🧠',
+                code: '💻',
+                upload: '📤',
+                users: '👥',
+                rocket: '🚀',
+                login: '🔐',
+                logout: '🚪',
+                user: '👤',
+                folder: '📁',
+                cpu: '⚡',
+                file: '📄',
+                star: '⭐',
+                search: '🔍',
+                plus: '➕',
+                trash: '🗑️',
+                edit: '✏️',
+                settings: '⚙️',
+                chevron: '›'
+            };
+            
+            return React.createElement('span', { className }, icons[name] || '•');
+        };
 
         // Composant Header
         function Header() {
             const { user, logout } = React.useContext(AuthContext);
-            const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+            const [mobileMenu, setMobileMenu] = React.useState(false);
 
             return React.createElement('header', { className: 'bg-white shadow-sm border-b' },
                 React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
                     React.createElement('div', { className: 'flex justify-between items-center h-16' },
                         // Logo
                         React.createElement('div', { className: 'flex items-center' },
-                            React.createElement(Rocket, { className: 'h-8 w-8 text-primary' }),
+                            React.createElement(Icon, { name: 'rocket', className: 'h-6 w-6 text-primary' }),
                             React.createElement('span', { className: 'ml-2 text-xl font-bold text-gray-900' }, 'initHUB')
                         ),
 
                         // Navigation Desktop
                         React.createElement('nav', { className: 'hidden md:flex items-center space-x-8' },
                             React.createElement('a', { href: '#dashboard', className: 'text-gray-700 hover:text-primary font-medium' }, 'Dashboard'),
-                            React.createElement('a', { href: '#projects', className: 'text-gray-700 hover:text-primary font-medium' }, 'Projets'),
                             React.createElement('a', { href: '#models', className: 'text-gray-700 hover:text-primary font-medium' }, 'Modèles IA'),
-                            user && React.createElement('a', { href: '#upload', className: 'bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium' }, 
-                                React.createElement(Upload, { className: 'h-4 w-4 inline mr-2' }),
+                            React.createElement('a', { href: '#projects', className: 'text-gray-700 hover:text-primary font-medium' }, 'Projets'),
+                            React.createElement('a', { href: '#marketplace', className: 'text-gray-700 hover:text-primary font-medium' }, 'Marketplace'),
+                            user && React.createElement('a', { 
+                                href: '#upload', 
+                                className: 'bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium flex items-center' 
+                            },
+                                React.createElement(Icon, { name: 'upload', className: 'h-4 w-4 mr-2' }),
                                 'Upload'
                             )
                         ),
@@ -169,12 +439,12 @@
                         // Actions utilisateur
                         React.createElement('div', { className: 'hidden md:flex items-center space-x-4' },
                             user ? React.createElement(React.Fragment, null,
-                                React.createElement('span', { className: 'text-gray-700' }, `Bonjour, ${user.username}`),
+                                React.createElement('span', { className: 'text-gray-700' }, `👤 ${user.username}`),
                                 React.createElement('button', { 
                                     onClick: logout,
                                     className: 'flex items-center text-gray-500 hover:text-red-600'
                                 },
-                                    React.createElement(LogOut, { className: 'h-4 w-4 mr-1' }),
+                                    React.createElement(Icon, { name: 'logout', className: 'h-4 w-4 mr-1' }),
                                     'Déconnexion'
                                 )
                             ) : React.createElement(React.Fragment, null,
@@ -184,22 +454,18 @@
                         ),
 
                         // Menu mobile
-                        React.createElement('div', { className: 'md:hidden' },
-                            React.createElement('button', {
-                                onClick: () => setMobileMenuOpen(!mobileMenuOpen),
-                                className: 'text-gray-700'
-                            },
-                                mobileMenuOpen ? React.createElement(X, { className: 'h-6 w-6' }) : React.createElement(Menu, { className: 'h-6 w-6' })
-                            )
-                        )
+                        React.createElement('button', {
+                            onClick: () => setMobileMenu(!mobileMenu),
+                            className: 'md:hidden text-gray-700'
+                        }, '☰')
                     ),
 
-                    // Menu mobile déroulant
-                    mobileMenuOpen && React.createElement('div', { className: 'md:hidden py-4 border-t' },
+                    // Menu mobile
+                    mobileMenu && React.createElement('div', { className: 'md:hidden py-4 border-t' },
                         React.createElement('div', { className: 'flex flex-col space-y-4' },
                             React.createElement('a', { href: '#dashboard', className: 'text-gray-700 hover:text-primary' }, 'Dashboard'),
-                            React.createElement('a', { href: '#projects', className: 'text-gray-700 hover:text-primary' }, 'Projets'),
                             React.createElement('a', { href: '#models', className: 'text-gray-700 hover:text-primary' }, 'Modèles IA'),
+                            React.createElement('a', { href: '#projects', className: 'text-gray-700 hover:text-primary' }, 'Projets'),
                             !user && React.createElement(React.Fragment, null,
                                 React.createElement('a', { href: '#login', className: 'text-gray-700 hover:text-primary' }, 'Connexion'),
                                 React.createElement('a', { href: '#register', className: 'text-gray-700 hover:text-primary' }, 'Inscription')
@@ -214,117 +480,235 @@
             );
         }
 
-        // Composant Hero
-        function Hero() {
-            return React.createElement('section', { className: 'gradient-bg text-white py-20' },
-                React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center' },
-                    React.createElement('h1', { className: 'text-5xl md:text-6xl font-bold mb-6' },
-                        'Plateforme Collaborative ',
-                        React.createElement('span', { className: 'text-yellow-300' }, 'IA')
+        // Composant Dashboard
+        function Dashboard() {
+            const { user, api } = React.useContext(AuthContext);
+            const [stats, setStats] = React.useState({});
+            const [recentActivity, setRecentActivity] = React.useState([]);
+            const [loading, setLoading] = React.useState(true);
+
+            React.useEffect(() => {
+                if (user) loadDashboardData();
+            }, [user]);
+
+            const loadDashboardData = async () => {
+                try {
+                    const [statsData, activityData] = await Promise.all([
+                        api.getStats(),
+                        api.getRecentActivity(5)
+                    ]);
+                    setStats(statsData);
+                    setRecentActivity(activityData);
+                } catch (error) {
+                    console.error('Error loading dashboard:', error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            if (!user) {
+                return React.createElement('div', { className: 'text-center py-16' },
+                    React.createElement('p', { className: 'text-gray-600' }, 'Veuillez vous connecter')
+                );
+            }
+
+            if (loading) {
+                return React.createElement('div', { className: 'flex justify-center py-16' },
+                    React.createElement('div', { className: 'loading-spinner' })
+                );
+            }
+
+            return React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8' },
+                // En-tête
+                React.createElement('div', { className: 'mb-8' },
+                    React.createElement('h1', { className: 'text-3xl font-bold text-gray-900' }, 'Tableau de bord'),
+                    React.createElement('p', { className: 'text-gray-600 mt-2' }, `Bon retour, ${user.username}!`)
+                ),
+
+                // Statistiques
+                React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-4 gap-6 mb-8' },
+                    React.createElement('div', { className: 'bg-white p-6 rounded-lg shadow border' },
+                        React.createElement('div', { className: 'flex items-center' },
+                            React.createElement(Icon, { name: 'users', className: 'text-2xl text-blue-500 mr-3' }),
+                            React.createElement('div', null,
+                                React.createElement('p', { className: 'text-sm text-gray-600' }, 'Utilisateurs'),
+                                React.createElement('p', { className: 'text-2xl font-bold' }, stats.users || 0)
+                            )
+                        )
                     ),
-                    React.createElement('p', { className: 'text-xl md:text-2xl mb-8 text-blue-100' },
-                        'Partagez, collaborez et déployez vos modèles IA avec la communauté initHUB'
+                    React.createElement('div', { className: 'bg-white p-6 rounded-lg shadow border' },
+                        React.createElement('div', { className: 'flex items-center' },
+                            React.createElement(Icon, { name: 'cpu', className: 'text-2xl text-green-500 mr-3' }),
+                            React.createElement('div', null,
+                                React.createElement('p', { className: 'text-sm text-gray-600' }, 'Modèles IA'),
+                                React.createElement('p', { className: 'text-2xl font-bold' }, stats.public_models || 0)
+                            )
+                        )
                     ),
-                    React.createElement('div', { className: 'flex flex-col sm:flex-row gap-4 justify-center' },
-                        React.createElement('a', { 
-                            href: '#register',
-                            className: 'bg-white text-primary px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors'
-                        }, 'Commencer gratuitement'),
-                        React.createElement('a', { 
-                            href: '#models',
-                            className: 'border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-primary transition-colors'
-                        }, 'Explorer les modèles')
+                    React.createElement('div', { className: 'bg-white p-6 rounded-lg shadow border' },
+                        React.createElement('div', { className: 'flex items-center' },
+                            React.createElement(Icon, { name: 'folder', className: 'text-2xl text-purple-500 mr-3' }),
+                            React.createElement('div', null,
+                                React.createElement('p', { className: 'text-sm text-gray-600' }, 'Projets'),
+                                React.createElement('p', { className: 'text-2xl font-bold' }, stats.public_projects || 0)
+                            )
+                        )
+                    ),
+                    React.createElement('div', { className: 'bg-white p-6 rounded-lg shadow border' },
+                        React.createElement('div', { className: 'flex items-center' },
+                            React.createElement(Icon, { name: 'star', className: 'text-2xl text-yellow-500 mr-3' }),
+                            React.createElement('div', null,
+                                React.createElement('p', { className: 'text-sm text-gray-600' }, 'Likes totaux'),
+                                React.createElement('p', { className: 'text-2xl font-bold' }, stats.total_likes || 0)
+                            )
+                        )
                     )
+                ),
+
+                // Activité récente
+                React.createElement('div', { className: 'bg-white rounded-lg shadow border p-6' },
+                    React.createElement('h2', { className: 'text-xl font-bold mb-4' }, 'Activité récente'),
+                    recentActivity.length > 0 ? 
+                        React.createElement('div', { className: 'space-y-3' },
+                            recentActivity.map(activity => 
+                                React.createElement('div', { 
+                                    key: activity.id,
+                                    className: 'flex items-center justify-between p-3 border rounded'
+                                },
+                                    React.createElement('div', null,
+                                        React.createElement('p', { className: 'font-medium' }, activity.name),
+                                        React.createElement('p', { className: 'text-sm text-gray-600' }, 
+                                            `${activity.type} par ${activity.author_username}`
+                                        )
+                                    ),
+                                    React.createElement('p', { className: 'text-sm text-gray-500' },
+                                        new Date(activity.created_at).toLocaleDateString()
+                                    )
+                                )
+                            )
+                        ) :
+                        React.createElement('p', { className: 'text-gray-600 text-center py-4' }, 'Aucune activité récente')
                 )
             );
         }
 
-        // Composant Features
-        function Features() {
-            const features = [
-                {
-                    icon: Brain,
-                    title: 'Modèles IA',
-                    description: 'Accédez à des centaines de modèles IA pré-entraînés et partagez les vôtres'
-                },
-                {
-                    icon: Code,
-                    title: 'SSF Integration',
-                    description: 'Gérez vos projets avec le format .ssf LZL-ZOBA avancé'
-                },
-                {
-                    icon: GitBranch,
-                    title: 'Git Integré',
-                    description: 'Versionnez et collaborez sur vos projets avec Git intégré'
-                },
-                {
-                    icon: Users,
-                    title: 'Communauté',
-                    description: 'Rejoignez une communauté active de développeurs et chercheurs IA'
-                },
-                {
-                    icon: Upload,
-                    title: 'Déploiement Simple',
-                    description: 'Déployez vos modèles en un clic sur notre infrastructure cloud'
-                },
-                {
-                    icon: Cpu,
-                    title: 'GPU Accéléré',
-                    description: 'Bénéficiez de l\'accélération GPU pour l\'entraînement et l\'inférence'
-                }
-            ];
+        // Composant Modèles IA
+        function Models() {
+            const { api } = React.useContext(AuthContext);
+            const [models, setModels] = React.useState([]);
+            const [loading, setLoading] = React.useState(true);
+            const [search, setSearch] = React.useState('');
 
-            return React.createElement('section', { className: 'py-16 bg-white' },
-                React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
-                    React.createElement('div', { className: 'text-center mb-12' },
-                        React.createElement('h2', { className: 'text-3xl md:text-4xl font-bold text-gray-900 mb-4' },
-                            'Tout ce dont vous avez besoin pour l\'IA'
+            React.useEffect(() => {
+                loadModels();
+            }, []);
+
+            const loadModels = async () => {
+                try {
+                    const data = await api.getModels();
+                    setModels(data);
+                } catch (error) {
+                    console.error('Error loading models:', error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const filteredModels = models.filter(model =>
+                model.name.toLowerCase().includes(search.toLowerCase()) ||
+                model.framework.toLowerCase().includes(search.toLowerCase()) ||
+                model.task_type.toLowerCase().includes(search.toLowerCase())
+            );
+
+            return React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8' },
+                // En-tête
+                React.createElement('div', { className: 'mb-8' },
+                    React.createElement('h1', { className: 'text-3xl font-bold text-gray-900 mb-4' }, 'Modèles IA'),
+                    React.createElement('div', { className: 'flex flex-col sm:flex-row gap-4' },
+                        React.createElement('div', { className: 'flex-1' },
+                            React.createElement('input', {
+                                type: 'text',
+                                placeholder: 'Rechercher un modèle...',
+                                value: search,
+                                onChange: (e) => setSearch(e.target.value),
+                                className: 'w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-primary'
+                            })
                         ),
-                        React.createElement('p', { className: 'text-xl text-gray-600' },
-                            'Une plateforme complète pour le développement et le déploiement de l\'IA'
+                        React.createElement('button', { 
+                            className: 'bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center'
+                        },
+                            React.createElement(Icon, { name: 'plus', className: 'mr-2' }),
+                            'Nouveau modèle'
                         )
-                    ),
-                    React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8' },
-                        features.map((feature, index) => 
+                    )
+                ),
+
+                // Liste des modèles
+                loading ? 
+                    React.createElement('div', { className: 'flex justify-center py-16' },
+                        React.createElement('div', { className: 'loading-spinner' })
+                    ) :
+                    React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' },
+                        filteredModels.map(model => 
                             React.createElement('div', { 
-                                key: index,
-                                className: 'card-hover bg-gray-50 p-6 rounded-xl border border-gray-200'
+                                key: model.id,
+                                className: 'bg-white rounded-lg shadow border p-6 hover:shadow-md transition-shadow'
                             },
-                                React.createElement(feature.icon, { className: 'h-12 w-12 text-primary mb-4' }),
-                                React.createElement('h3', { className: 'text-xl font-bold text-gray-900 mb-2' }, feature.title),
-                                React.createElement('p', { className: 'text-gray-600' }, feature.description)
+                                React.createElement('div', { className: 'flex justify-between items-start mb-4' },
+                                    React.createElement('h3', { className: 'text-lg font-bold text-gray-900' }, model.name),
+                                    React.createElement('span', { 
+                                        className: `px-2 py-1 rounded text-xs font-medium ${
+                                            model.is_public ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                        }` 
+                                    }, model.is_public ? 'Public' : 'Privé')
+                                ),
+                                React.createElement('p', { className: 'text-gray-600 mb-4 text-sm' }, 
+                                    model.description || 'Aucune description'
+                                ),
+                                React.createElement('div', { className: 'flex flex-wrap gap-2 mb-4' },
+                                    React.createElement('span', { 
+                                        className: 'bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs'
+                                    }, model.framework),
+                                    React.createElement('span', { 
+                                        className: 'bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs'
+                                    }, model.task_type)
+                                ),
+                                React.createElement('div', { className: 'flex justify-between items-center text-sm text-gray-500' },
+                                    React.createElement('span', null, `v${model.version}`),
+                                    React.createElement('span', null, `❤️ ${model.like_count || 0}`)
+                                )
                             )
                         )
                     )
-                )
             );
         }
 
         // Composant Login
         function Login() {
             const { login } = React.useContext(AuthContext);
-            const [formData, setFormData] = React.useState({ email: '', password: '' });
+            const [form, setForm] = React.useState({ email: '', password: '' });
             const [loading, setLoading] = React.useState(false);
 
             const handleSubmit = async (e) => {
                 e.preventDefault();
                 setLoading(true);
-                await login(formData.email, formData.password);
+                const success = await login(form.email, form.password);
                 setLoading(false);
+                if (success) window.location.hash = 'dashboard';
             };
 
-            return React.createElement('section', { id: 'login', className: 'py-16 bg-gray-50' },
-                React.createElement('div', { className: 'max-w-md mx-auto bg-white p-8 rounded-xl shadow-sm border' },
-                    React.createElement('h2', { className: 'text-2xl font-bold text-center mb-8' }, 'Connexion à initHUB'),
+            return React.createElement('div', { className: 'min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4' },
+                React.createElement('div', { className: 'max-w-md w-full bg-white rounded-lg shadow-md p-8' },
+                    React.createElement('h2', { className: 'text-2xl font-bold text-center mb-8' }, 'Connexion'),
                     React.createElement('form', { onSubmit: handleSubmit },
                         React.createElement('div', { className: 'mb-4' },
                             React.createElement('label', { className: 'block text-gray-700 mb-2' }, 'Email'),
                             React.createElement('input', {
                                 type: 'email',
                                 required: true,
-                                value: formData.email,
-                                onChange: (e) => setFormData({...formData, email: e.target.value}),
-                                className: 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary',
+                                value: form.email,
+                                onChange: (e) => setForm({...form, email: e.target.value}),
+                                className: 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-primary',
                                 placeholder: 'votre@email.com'
                             })
                         ),
@@ -333,9 +717,9 @@
                             React.createElement('input', {
                                 type: 'password',
                                 required: true,
-                                value: formData.password,
-                                onChange: (e) => setFormData({...formData, password: e.target.value}),
-                                className: 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary',
+                                value: form.password,
+                                onChange: (e) => setForm({...form, password: e.target.value}),
+                                className: 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-primary',
                                 placeholder: 'Votre mot de passe'
                             })
                         ),
@@ -359,7 +743,7 @@
         // Composant Register
         function Register() {
             const { register } = React.useContext(AuthContext);
-            const [formData, setFormData] = React.useState({
+            const [form, setForm] = React.useState({
                 username: '', email: '', password: '', full_name: ''
             });
             const [loading, setLoading] = React.useState(false);
@@ -367,22 +751,23 @@
             const handleSubmit = async (e) => {
                 e.preventDefault();
                 setLoading(true);
-                await register(formData);
+                const success = await register(form);
                 setLoading(false);
+                if (success) window.location.hash = 'login';
             };
 
-            return React.createElement('section', { id: 'register', className: 'py-16 bg-gray-50' },
-                React.createElement('div', { className: 'max-w-md mx-auto bg-white p-8 rounded-xl shadow-sm border' },
-                    React.createElement('h2', { className: 'text-2xl font-bold text-center mb-8' }, 'Rejoindre initHUB'),
+            return React.createElement('div', { className: 'min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4' },
+                React.createElement('div', { className: 'max-w-md w-full bg-white rounded-lg shadow-md p-8' },
+                    React.createElement('h2', { className: 'text-2xl font-bold text-center mb-8' }, 'Inscription'),
                     React.createElement('form', { onSubmit: handleSubmit },
                         React.createElement('div', { className: 'mb-4' },
                             React.createElement('label', { className: 'block text-gray-700 mb-2' }, 'Nom d\'utilisateur'),
                             React.createElement('input', {
                                 type: 'text',
                                 required: true,
-                                value: formData.username,
-                                onChange: (e) => setFormData({...formData, username: e.target.value}),
-                                className: 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary',
+                                value: form.username,
+                                onChange: (e) => setForm({...form, username: e.target.value}),
+                                className: 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-primary',
                                 placeholder: 'johndoe'
                             })
                         ),
@@ -391,19 +776,19 @@
                             React.createElement('input', {
                                 type: 'email',
                                 required: true,
-                                value: formData.email,
-                                onChange: (e) => setFormData({...formData, email: e.target.value}),
-                                className: 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary',
+                                value: form.email,
+                                onChange: (e) => setForm({...form, email: e.target.value}),
+                                className: 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-primary',
                                 placeholder: 'votre@email.com'
                             })
                         ),
                         React.createElement('div', { className: 'mb-4' },
-                            React.createElement('label', { className: 'block text-gray-700 mb-2' }, 'Nom complet (optionnel)'),
+                            React.createElement('label', { className: 'block text-gray-700 mb-2' }, 'Nom complet'),
                             React.createElement('input', {
                                 type: 'text',
-                                value: formData.full_name,
-                                onChange: (e) => setFormData({...formData, full_name: e.target.value}),
-                                className: 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary',
+                                value: form.full_name,
+                                onChange: (e) => setForm({...form, full_name: e.target.value}),
+                                className: 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-primary',
                                 placeholder: 'John Doe'
                             })
                         ),
@@ -412,9 +797,9 @@
                             React.createElement('input', {
                                 type: 'password',
                                 required: true,
-                                value: formData.password,
-                                onChange: (e) => setFormData({...formData, password: e.target.value}),
-                                className: 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary',
+                                value: form.password,
+                                onChange: (e) => setForm({...form, password: e.target.value}),
+                                className: 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-primary',
                                 placeholder: 'Mot de passe sécurisé'
                             })
                         ),
@@ -435,188 +820,74 @@
             );
         }
 
-        // Composant Dashboard
-        function Dashboard() {
-            const { user } = React.useContext(AuthContext);
-            const [stats, setStats] = React.useState({ projects: 0, models: 0, files: 0 });
-            const [recentProjects, setRecentProjects] = React.useState([]);
-
-            React.useEffect(() => {
-                if (user) {
-                    fetchDashboardData();
-                }
-            }, [user]);
-
-            const fetchDashboardData = async () => {
-                try {
-                    const token = localStorage.getItem('inithub_token');
-                    const [projectsRes, modelsRes] = await Promise.all([
-                        axios.get(`${API_BASE}/projects`, {
-                            headers: { Authorization: `Bearer ${token}` }
-                        }),
-                        axios.get(`${API_BASE}/models`, {
-                            headers: { Authorization: `Bearer ${token}` }
-                        })
-                    ]);
-
-                    setStats({
-                        projects: projectsRes.data.length,
-                        models: modelsRes.data.length,
-                        files: projectsRes.data.reduce((acc, project) => acc + (project.files_count || 0), 0)
-                    });
-
-                    setRecentProjects(projectsRes.data.slice(0, 5));
-                } catch (error) {
-                    console.error('Error fetching dashboard data:', error);
-                }
-            };
-
-            if (!user) {
-                return React.createElement('div', { className: 'text-center py-16' },
-                    React.createElement('p', { className: 'text-gray-600' }, 'Veuillez vous connecter pour accéder au dashboard')
-                );
-            }
-
-            return React.createElement('section', { id: 'dashboard', className: 'py-8' },
-                React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
-                    // En-tête
-                    React.createElement('div', { className: 'mb-8' },
-                        React.createElement('h1', { className: 'text-3xl font-bold text-gray-900' }, 'Tableau de bord'),
-                        React.createElement('p', { className: 'text-gray-600 mt-2' }, `Bon retour, ${user.username}!`)
-                    ),
-
-                    // Statistiques
-                    React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-6 mb-8' },
-                        React.createElement('div', { className: 'bg-white p-6 rounded-xl shadow-sm border' },
-                            React.createElement('div', { className: 'flex items-center' },
-                                React.createElement(FolderOpen, { className: 'h-8 w-8 text-blue-500' }),
-                                React.createElement('div', { className: 'ml-4' },
-                                    React.createElement('p', { className: 'text-sm font-medium text-gray-600' }, 'Projets'),
-                                    React.createElement('p', { className: 'text-2xl font-bold text-gray-900' }, stats.projects)
-                                )
-                            )
+        // Composant Home
+        function Home() {
+            return React.createElement('div', { className: 'min-h-screen' },
+                // Hero Section
+                React.createElement('section', { className: 'gradient-bg text-white py-20' },
+                    React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center' },
+                        React.createElement('h1', { className: 'text-5xl md:text-6xl font-bold mb-6' },
+                            'initHUB ',
+                            React.createElement('span', { className: 'text-yellow-300' }, 'IA')
                         ),
-                        React.createElement('div', { className: 'bg-white p-6 rounded-xl shadow-sm border' },
-                            React.createElement('div', { className: 'flex items-center' },
-                                React.createElement(Cpu, { className: 'h-8 w-8 text-green-500' }),
-                                React.createElement('div', { className: 'ml-4' },
-                                    React.createElement('p', { className: 'text-sm font-medium text-gray-600' }, 'Modèles IA'),
-                                    React.createElement('p', { className: 'text-2xl font-bold text-gray-900' }, stats.models)
-                                )
-                            )
+                        React.createElement('p', { className: 'text-xl md:text-2xl mb-8 text-blue-100' },
+                            'Plateforme collaborative pour modèles et projets IA'
                         ),
-                        React.createElement('div', { className: 'bg-white p-6 rounded-xl shadow-sm border' },
-                            React.createElement('div', { className: 'flex items-center' },
-                                React.createElement(FileText, { className: 'h-8 w-8 text-purple-500' }),
-                                React.createElement('div', { className: 'ml-4' },
-                                    React.createElement('p', { className: 'text-sm font-medium text-gray-600' }, 'Fichiers'),
-                                    React.createElement('p', { className: 'text-2xl font-bold text-gray-900' }, stats.files)
-                                )
-                            )
-                        )
-                    ),
-
-                    // Projets récents
-                    React.createElement('div', { className: 'bg-white rounded-xl shadow-sm border p-6' },
-                        React.createElement('div', { className: 'flex justify-between items-center mb-6' },
-                            React.createElement('h2', { className: 'text-xl font-bold text-gray-900' }, 'Projets Récents'),
+                        React.createElement('div', { className: 'flex flex-col sm:flex-row gap-4 justify-center' },
                             React.createElement('a', { 
-                                href: '#projects',
-                                className: 'flex items-center text-primary hover:underline'
-                            },
-                                'Voir tout',
-                                React.createElement(ChevronRight, { className: 'h-4 w-4 ml-1' })
-                            )
+                                href: '#register',
+                                className: 'bg-white text-primary px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100'
+                            }, 'Commencer gratuitement'),
+                            React.createElement('a', { 
+                                href: '#models',
+                                className: 'border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-primary'
+                            }, 'Explorer les modèles')
+                        )
+                    )
+                ),
+
+                // Features Section
+                React.createElement('section', { className: 'py-16 bg-white' },
+                    React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
+                        React.createElement('h2', { className: 'text-3xl md:text-4xl font-bold text-center mb-12' }, 
+                            'Pourquoi choisir initHUB?'
                         ),
-                        recentProjects.length > 0 ? 
-                            React.createElement('div', { className: 'space-y-4' },
-                                recentProjects.map(project => 
-                                    React.createElement('div', { 
-                                        key: project.id,
-                                        className: 'flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50'
-                                    },
-                                        React.createElement('div', null,
-                                            React.createElement('h3', { className: 'font-medium text-gray-900' }, project.name),
-                                            React.createElement('p', { className: 'text-sm text-gray-600' }, project.description || 'Pas de description')
-                                        ),
-                                        React.createElement('div', { className: 'flex items-center space-x-2' },
-                                            React.createElement(Star, { className: 'h-4 w-4 text-yellow-500' }),
-                                            React.createElement('span', { className: 'text-sm text-gray-600' }, project.star_count || 0)
-                                        )
+                        React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-8' },
+                            ['🧠 Modèles IA', '💻 Code Collaboratif', '🚀 Déploiement Simple'].map((feature, index) =>
+                                React.createElement('div', { 
+                                    key: index,
+                                    className: 'text-center p-6'
+                                },
+                                    React.createElement('div', { className: 'text-4xl mb-4' }, feature.split(' ')[0]),
+                                    React.createElement('h3', { className: 'text-xl font-bold mb-2' }, feature),
+                                    React.createElement('p', { className: 'text-gray-600' }, 
+                                        'Solution complète pour vos projets d\'intelligence artificielle'
                                     )
                                 )
-                            ) :
-                            React.createElement('p', { className: 'text-gray-600 text-center py-8' }, 'Aucun projet pour le moment')
-                    )
-                )
-            );
-        }
-
-        // Composant Footer
-        function Footer() {
-            return React.createElement('footer', { className: 'bg-dark text-white py-12' },
-                React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
-                    React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-4 gap-8' },
-                        React.createElement('div', null,
-                            React.createElement('div', { className: 'flex items-center mb-4' },
-                                React.createElement(Rocket, { className: 'h-6 w-6 text-primary' }),
-                                React.createElement('span', { className: 'ml-2 text-xl font-bold' }, 'initHUB')
-                            ),
-                            React.createElement('p', { className: 'text-gray-400' }, 
-                                'Plateforme collaborative pour le développement et le partage de modèles IA.'
-                            )
-                        ),
-                        React.createElement('div', null,
-                            React.createElement('h3', { className: 'font-bold mb-4' }, 'Produit'),
-                            React.createElement('ul', { className: 'space-y-2 text-gray-400' },
-                                React.createElement('li', null, React.createElement('a', { href: '#features', className: 'hover:text-white' }, 'Fonctionnalités')),
-                                React.createElement('li', null, React.createElement('a', { href: '#pricing', className: 'hover:text-white' }, 'Tarifs')),
-                                React.createElement('li', null, React.createElement('a', { href: '#api', className: 'hover:text-white' }, 'API'))
-                            )
-                        ),
-                        React.createElement('div', null,
-                            React.createElement('h3', { className: 'font-bold mb-4' }, 'Ressources'),
-                            React.createElement('ul', { className: 'space-y-2 text-gray-400' },
-                                React.createElement('li', null, React.createElement('a', { href: '#docs', className: 'hover:text-white' }, 'Documentation')),
-                                React.createElement('li', null, React.createElement('a', { href: '#tutorials', className: 'hover:text-white' }, 'Tutoriels')),
-                                React.createElement('li', null, React.createElement('a', { href: '#blog', className: 'hover:text-white' }, 'Blog'))
-                            )
-                        ),
-                        React.createElement('div', null,
-                            React.createElement('h3', { className: 'font-bold mb-4' }, 'Communauté'),
-                            React.createElement('ul', { className: 'space-y-2 text-gray-400' },
-                                React.createElement('li', null, React.createElement('a', { href: '#discord', className: 'hover:text-white' }, 'Discord')),
-                                React.createElement('li', null, React.createElement('a', { href: '#github', className: 'hover:text-white' }, 'GitHub')),
-                                React.createElement('li', null, React.createElement('a', { href: '#twitter', className: 'hover:text-white' }, 'Twitter'))
                             )
                         )
-                    ),
-                    React.createElement('div', { className: 'border-t border-gray-700 mt-8 pt-8 text-center text-gray-400' },
-                        '© 2024 initHUB. Tous droits réservés.'
                     )
                 )
             );
         }
 
-        // Composant principal App
+        // Router principal
         function App() {
             const auth = useAuth();
             const [currentView, setCurrentView] = React.useState('home');
 
-            // Gestion de la navigation par hash
             React.useEffect(() => {
                 const handleHashChange = () => {
-                    const hash = window.location.hash.slice(1) || 'home';
-                    setCurrentView(hash);
+                    setCurrentView(window.location.hash.slice(1) || 'home');
                 };
 
                 window.addEventListener('hashchange', handleHashChange);
-                handleHashChange(); // Initial call
+                handleHashChange();
 
                 return () => window.removeEventListener('hashchange', handleHashChange);
             }, []);
 
-            const renderCurrentView = () => {
+            const renderView = () => {
                 if (auth.loading) {
                     return React.createElement('div', { className: 'flex justify-center items-center min-h-screen' },
                         React.createElement('div', { className: 'loading-spinner' })
@@ -624,38 +895,23 @@
                 }
 
                 switch (currentView) {
-                    case 'login':
-                        return React.createElement(Login);
-                    case 'register':
-                        return React.createElement(Register);
-                    case 'dashboard':
-                        return React.createElement(Dashboard);
-                    default:
-                        return React.createElement(React.Fragment, null,
-                            React.createElement(Hero),
-                            React.createElement(Features),
-                            !auth.user && React.createElement(React.Fragment, null,
-                                React.createElement(Login),
-                                React.createElement(Register)
-                            )
-                        );
+                    case 'login': return React.createElement(Login);
+                    case 'register': return React.createElement(Register);
+                    case 'dashboard': return React.createElement(Dashboard);
+                    case 'models': return React.createElement(Models);
+                    default: return React.createElement(Home);
                 }
             };
 
             return React.createElement(AuthContext.Provider, { value: auth },
                 React.createElement('div', { className: 'min-h-screen flex flex-col' },
                     React.createElement(Header),
-                    React.createElement('main', { className: 'flex-grow' },
-                        renderCurrentView()
-                    ),
-                    React.createElement(Footer),
-                    // Container pour les toasts
-                    React.createElement('div', { id: 'toast-container' })
+                    React.createElement('main', { className: 'flex-grow' }, renderView())
                 )
             );
         }
 
-        // Rendu de l'application
+        // Rendu
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(React.createElement(App));
     </script>
