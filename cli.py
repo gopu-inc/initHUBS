@@ -804,15 +804,15 @@ def version():
         console.print(Panel(
             "[bold green]initHUB CLI v1.0.0[/bold green]\n"
             "🚀 Plateforme collaborative IA et code\n"
-            "📧 Support: contact@inithub.com\n"
-            "🌐 Site: https://inithub.com",
+            "📧 Support: ceoseshell@gmail.com\n"
+            "🌐 Site: https://inithub.vercel",
             title="initHUB",
             border_style="blue"
         ))
     else:
         print("initHUB CLI v1.0.0")
         print("🚀 Plateforme collaborative IA et code")
-        print("📧 Support: contact@inithub.com")
+        print("📧 Support: ceoseshell@gmail.com")
         print("🌐 Site: https://inithub.vercel.app")
 
 def main():
