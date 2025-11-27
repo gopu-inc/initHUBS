@@ -1,0 +1,12 @@
+requests
+rich
+typer
+python-dotenv
+pyyaml
+pathlib
+aiofiles
+httpx
+tqdm
+cryptography
+python-jose
+click
