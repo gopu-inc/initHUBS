@@ -1,0 +1,17 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+include requirements.txt
+include pyproject.toml
+
+include man/inithub.1
+
+recursive-include tests *
+recursive-include examples *
+
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__
+global-exclude *.so
+global-exclude *.dll
+global-exclude *.exe
