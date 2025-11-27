@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-initHUB CLI - Support complet du format .ssf LZL-ZOBA
-Version corrigée et améliorée
+initHUB CLI - Client complet avec connexion au serveur en ligne
+Support .ssf LZL-ZOBA + API initHUB
 """
 
 import os
@@ -11,12 +11,262 @@ import json
 import glob
 import fnmatch
 import shlex
+import requests
+import argparse
 from pathlib import Path
 from typing import Dict, List, Any, Optional
-import argparse
 
 # ============================================================================
-# 📄 PARSER MANIFEST .SSF (LZL-ZOBA) AMÉLIORÉ
+# ⚙️ CONFIGURATION CLIENT
+# ============================================================================
+
+class CLIConfig:
+    # URL de votre serveur déployé
+    SERVER_URL = "https://hubs-ja2g.onrender.com"
+    API_BASE = f"{SERVER_URL}/api"
+    
+    # Chemins de configuration
+    CONFIG_DIR = Path.home() / ".inithub"
+    CONFIG_FILE = CONFIG_DIR / "config.json"
+    TOKEN_FILE = CONFIG_DIR / "token.json"
+    
+    def __init__(self):
+        self.config_dir = self.CONFIG_DIR
+        self.config_dir.mkdir(exist_ok=True)
+        self._load_config()
+    
+    def _load_config(self):
+        """Charge la configuration existante"""
+        if self.CONFIG_FILE.exists():
+            try:
+                with open(self.CONFIG_FILE, 'r') as f:
+                    self.data = json.load(f)
+            except:
+                self.data = {}
+        else:
+            self.data = {"server_url": self.SERVER_URL}
+    
+    def save_config(self):
+        """Sauvegarde la configuration"""
+        with open(self.CONFIG_FILE, 'w') as f:
+            json.dump(self.data, f, indent=2)
+    
+    def save_token(self, token_data):
+        """Sauvegarde le token d'authentification"""
+        with open(self.TOKEN_FILE, 'w') as f:
+            json.dump(token_data, f, indent=2)
+    
+    def load_token(self):
+        """Charge le token d'authentification"""
+        if self.TOKEN_FILE.exists():
+            try:
+                with open(self.TOKEN_FILE, 'r') as f:
+                    return json.load(f)
+            except:
+                return None
+        return None
+    
+    def get_server_url(self):
+        """Retourne l'URL du serveur"""
+        return self.data.get("server_url", self.SERVER_URL)
+
+# Configuration globale
+config = CLIConfig()
+
+# ============================================================================
+# 🔌 CLIENT API
+# ============================================================================
+
+class InitHUBClient:
+    def __init__(self):
+        self.base_url = config.get_server_url() + "/api"
+        self.token_data = config.load_token()
+        self.session = requests.Session()
+        
+        if self.token_data:
+            self.session.headers.update({
+                "Authorization": f"Bearer {self.token_data.get('access_token')}",
+                "Content-Type": "application/json"
+            })
+    
+    def _handle_response(self, response):
+        """Gère la réponse de l'API"""
+        try:
+            data = response.json()
+        except:
+            data = {"detail": response.text}
+        
+        if response.status_code >= 400:
+            error_msg = data.get('detail', 'Erreur inconnue')
+            raise Exception(f"API Error {response.status_code}: {error_msg}")
+        
+        return data
+    
+    def login(self, email: str, password: str) -> bool:
+        """Connexion au serveur"""
+        try:
+            response = self.session.post(
+                f"{self.base_url}/auth/login",
+                json={"email": email, "password": password}
+            )
+            data = self._handle_response(response)
+            
+            # Sauvegarder le token
+            config.save_token(data)
+            self.session.headers.update({
+                "Authorization": f"Bearer {data['access_token']}"
+            })
+            
+            print(f"✅ Connecté en tant que {email}")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Erreur connexion: {e}")
+            return False
+    
+    def register(self, username: str, email: str, password: str, full_name: str = "") -> bool:
+        """Inscription au serveur"""
+        try:
+            response = self.session.post(
+                f"{self.base_url}/auth/register",
+                json={
+                    "username": username,
+                    "email": email,
+                    "password": password,
+                    "full_name": full_name
+                }
+            )
+            data = self._handle_response(response)
+            print(f"✅ Compte créé: {data['username']}")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Erreur inscription: {e}")
+            return False
+    
+    def get_current_user(self):
+        """Récupère les infos de l'utilisateur connecté"""
+        try:
+            response = self.session.get(f"{self.base_url}/auth/me")
+            return self._handle_response(response)
+        except Exception as e:
+            print(f"❌ Erreur récupération utilisateur: {e}")
+            return None
+    
+    def push_project(self, manifest_data: Dict[str, Any], project_path: str) -> bool:
+        """Push un projet vers le serveur"""
+        try:
+            print(f"🚀 Création du projet {manifest_data['name']}...")
+            
+            # Créer le projet d'abord
+            project_response = self.session.post(
+                f"{self.base_url}/projects",
+                json={
+                    "name": manifest_data['name'],
+                    "description": manifest_data.get('metadata', {}).get('description', 'Projet créé via CLI'),
+                    "project_type": "ssf",
+                    "primary_language": "python",
+                    "is_public": True
+                }
+            )
+            project_data = self._handle_response(project_response)
+            
+            print(f"✅ Projet créé: {project_data['name']} (ID: {project_data['id']})")
+            
+            # Uploader les fichiers
+            return self._upload_files(manifest_data, project_data['id'], project_path)
+            
+        except Exception as e:
+            print(f"❌ Erreur création projet: {e}")
+            return False
+    
+    def _upload_files(self, manifest_data: Dict[str, Any], project_id: int, project_path: str) -> bool:
+        """Upload les fichiers du projet"""
+        file_patterns = manifest_data.get('files', [])
+        all_files = expand_file_patterns(project_path, file_patterns)
+        
+        print(f"📤 Upload de {len(all_files)} fichiers...")
+        
+        success_count = 0
+        for file_path in all_files:
+            try:
+                full_path = Path(project_path) / file_path
+                
+                with open(full_path, 'rb') as f:
+                    files = {'file': (file_path, f, 'application/octet-stream')}
+                    data = {'project_id': project_id, 'description': f"Fichier {file_path}"}
+                    
+                    response = self.session.post(
+                        f"{self.base_url}/upload",
+                        files=files,
+                        data=data
+                    )
+                    
+                    if response.status_code == 200:
+                        print(f"  ✅ {file_path}")
+                        success_count += 1
+                    else:
+                        print(f"  ❌ {file_path} - Erreur: {response.status_code}")
+                        
+            except Exception as e:
+                print(f"  ❌ {file_path} - {e}")
+        
+        print(f"📊 Upload terminé: {success_count}/{len(all_files)} fichiers")
+        return success_count > 0
+    
+    def list_projects(self):
+        """Liste les projets de l'utilisateur"""
+        try:
+            response = self.session.get(f"{self.base_url}/projects")
+            projects = self._handle_response(response)
+            
+            if not projects:
+                print("📭 Aucun projet trouvé")
+                return True
+                
+            print(f"📁 {len(projects)} projets trouvés:")
+            for project in projects:
+                print(f"  📦 {project['name']} (ID: {project['id']})")
+                print(f"     📝 {project.get('description', 'Pas de description')}")
+                print(f"     👤 {project.get('author_username', 'Inconnu')}")
+                print(f"     ⭐ {project.get('star_count', 0)} stars")
+                print()
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Erreur liste projets: {e}")
+            return False
+    
+    def list_models(self):
+        """Liste les modèles IA"""
+        try:
+            response = self.session.get(f"{self.base_url}/models")
+            models = self._handle_response(response)
+            
+            if not models:
+                print("🤖 Aucun modèle IA trouvé")
+                return True
+                
+            print(f"🧠 {len(models)} modèles IA trouvés:")
+            for model in models:
+                print(f"  🔧 {model['name']} (ID: {model['id']})")
+                print(f"     🏷️  {model['framework']} - {model['task_type']}")
+                print(f"     👤 {model.get('author_username', 'Inconnu')}")
+                print(f"     ❤️  {model.get('like_count', 0)} likes")
+                print()
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Erreur liste modèles: {e}")
+            return False
+
+# Client global
+api_client = InitHUBClient()
+
+# ============================================================================
+# 📄 PARSER MANIFEST .SSF (LZL-ZOBA)
 # ============================================================================
 
 class SSFParser:
@@ -286,7 +536,7 @@ class SSFParser:
         return i
 
 # ============================================================================
-# 🛠️ UTILITAIRES FICHIERS AMÉLIORÉS
+# 🛠️ UTILITAIRES FICHIERS
 # ============================================================================
 
 def expand_file_patterns(base_path: str, patterns: List[str]) -> List[str]:
@@ -298,13 +548,11 @@ def expand_file_patterns(base_path: str, patterns: List[str]) -> List[str]:
         if pattern.startswith('!'):
             continue
         
-        # Nettoyer le pattern
         clean_pattern = pattern.strip()
         if not clean_pattern:
             continue
             
         try:
-            # Utiliser glob avec gestion d'erreurs
             matches = glob.glob(str(base / clean_pattern), recursive=True)
             
             for match in matches:
@@ -314,12 +562,10 @@ def expand_file_patterns(base_path: str, patterns: List[str]) -> List[str]:
                         rel_path = file_path.relative_to(base)
                         all_files.add(str(rel_path))
                     except ValueError:
-                        # Fichier en dehors du base_path
                         pass
         except Exception as e:
             print(f"⚠️  Erreur pattern '{pattern}': {e}")
     
-    # Appliquer les exclusions
     exclude_patterns = [p[1:] for p in patterns if p.startswith('!')]
     final_files = []
     
@@ -333,13 +579,11 @@ def find_ssf_file(project_path: str) -> Optional[Path]:
     """Trouve le fichier .ssf dans le projet"""
     path = Path(project_path)
     
-    # Chercher init.ssf ou *.ssf
     ssf_files = list(path.glob("*.ssf"))
     
     if not ssf_files:
         return None
     
-    # Préférer init.ssf
     for ssf_file in ssf_files:
         if ssf_file.name == "init.ssf":
             return ssf_file
@@ -347,7 +591,7 @@ def find_ssf_file(project_path: str) -> Optional[Path]:
     return ssf_files[0]
 
 # ============================================================================
-# 🚀 CLI AVEC COMMANDES .SSF AMÉLIORÉES
+# 🚀 COMMANDES .SSF AVEC CONNEXION API
 # ============================================================================
 
 def handle_ssf_init(args):
@@ -357,13 +601,11 @@ def handle_ssf_init(args):
     
     print(f"🚀 Création du manifest .ssf pour {project_name}...")
     
-    # Vérifier si un manifest existe déjà
     ssf_path = Path(project_path) / "init.ssf"
     if ssf_path.exists() and not args.force:
         print("❌ Un fichier init.ssf existe déjà. Utilisez --force pour écraser.")
         return False
     
-    # Générer le contenu .ssf sécurisé
     description = args.description or "Nouveau projet initHUB"
     author = args.author or "anonymous"
     namespace = args.namespace or "default"
@@ -398,7 +640,6 @@ meta.set(
 """
     
     try:
-        # Écrire le fichier
         ssf_path.parent.mkdir(parents=True, exist_ok=True)
         with open(ssf_path, 'w', encoding='utf-8') as f:
             f.write(ssf_content)
@@ -414,8 +655,16 @@ meta.set(
         return False
 
 def handle_ssf_push(args):
-    """Push avec le manifest .ssf"""
+    """Push avec le manifest .ssf vers le serveur"""
     project_path = args.path or "."
+    
+    # Vérifier la connexion
+    user = api_client.get_current_user()
+    if not user:
+        print("❌ Non connecté. Utilisez 'inithub login' d'abord.")
+        return False
+    
+    print(f"👤 Connecté en tant que: {user['username']}")
     
     # Trouver le fichier .ssf
     ssf_path = find_ssf_file(project_path)
@@ -434,37 +683,8 @@ def handle_ssf_push(args):
         manifest = parser.parse_ssf(content)
         print(f"📦 Manifest chargé: {manifest['name']} v{manifest.get('version', '1.0.0')}")
         
-        # Afficher les infos
-        print(f"👤 Auteur: {manifest.get('author', 'anonymous')}")
-        print(f"📁 Fichiers: {len(manifest.get('files', []))} patterns")
-        print(f"🏷️  Tags: {', '.join(manifest.get('tags', []))}")
-        print(f"🌿 Branche: {manifest.get('branch', 'main')}")
-        
-        if 'fork' in manifest:
-            print(f"🍴 Fork de: {manifest['fork']}")
-        
-        # Traiter les fichiers
-        file_patterns = manifest.get('files', [])
-        all_files = expand_file_patterns(project_path, file_patterns)
-        
-        print(f"\n📤 {len(all_files)} fichiers à pousser:")
-        for file_path in all_files[:10]:  # Afficher les 10 premiers
-            print(f"  📄 {file_path}")
-        
-        if len(all_files) > 10:
-            print(f"  ... et {len(all_files) - 10} autres fichiers")
-        
-        # Vérifier les dépendances
-        deps = manifest.get('dependencies', {})
-        if deps.get('python') or deps.get('packages'):
-            print(f"\n📦 Dépendances:")
-            if deps.get('python'):
-                print(f"  🐍 Python {deps['python']}")
-            for pkg in deps.get('packages', []):
-                print(f"  📦 {pkg}")
-        
-        print("\n✅ Push simulé avec succès!")
-        return True
+        # Push vers le serveur
+        return api_client.push_project(manifest, project_path)
         
     except Exception as e:
         print(f"❌ Erreur: {e}")
@@ -486,7 +706,6 @@ def handle_ssf_validate(args):
         
         manifest = parser.parse_ssf(content)
         
-        # Validation de base
         required = ['name', 'files', 'branch']
         missing = [field for field in required if field not in manifest]
         
@@ -494,7 +713,6 @@ def handle_ssf_validate(args):
             print(f"❌ Champs manquants: {', '.join(missing)}")
             return False
         
-        # Validation des fichiers
         file_patterns = manifest.get('files', [])
         if not file_patterns:
             print("⚠️  Aucun pattern de fichiers défini")
@@ -561,160 +779,178 @@ def handle_ssf_list(args):
     return True
 
 # ============================================================================
-# 🔥 NOUVELLES COMMANDES AVANCÉES
+# 🔐 COMMANDES AUTHENTIFICATION
 # ============================================================================
 
-def handle_ssf_generate(args):
-    """Génère un template de projet basé sur un type"""
-    project_path = args.path or "."
-    project_type = args.type or "basic"
+def handle_login(args):
+    """Connexion au serveur initHUB"""
+    email = args.email
+    password = args.password
     
-    templates = {
-        "basic": {
-            "name": "mon-projet",
-            "description": "Projet basique initHUB",
-            "files": ["*.py", "*.md", "!__pycache__/**"],
-            "tags": ["basic", "cli"]
-        },
-        "ml": {
-            "name": "modele-ia",
-            "description": "Projet de machine learning",
-            "files": ["*.py", "*.md", "*.ipynb", "models/**", "data/**", "!__pycache__/**"],
-            "tags": ["ml", "ai", "python"],
-            "dependencies": ["torch>=1.9", "scikit-learn>=1.0"]
-        },
-        "web": {
-            "name": "application-web",
-            "description": "Projet d'application web",
-            "files": ["*.py", "*.html", "*.css", "*.js", "static/**", "templates/**", "!__pycache__/**"],
-            "tags": ["web", "api", "fastapi"]
-        }
-    }
-    
-    template = templates.get(project_type, templates["basic"])
-    
-    print(f"🚀 Génération template {project_type}...")
-    
-    # Créer les arguments pour ssf-init
-    class Args:
-        pass
-    
-    args_obj = Args()
-    args_obj.path = project_path
-    args_obj.name = template["name"]
-    args_obj.description = template["description"]
-    args_obj.namespace = project_type
-    args_obj.author = args.author or "anonymous"
-    args_obj.force = True
-    
-    return handle_ssf_init(args_obj)
-
-def handle_ssf_stats(args):
-    """Affiche les statistiques du projet .ssf"""
-    project_path = args.path or "."
-    
-    ssf_path = find_ssf_file(project_path)
-    if not ssf_path:
-        print("❌ Aucun fichier .ssf trouvé")
+    if not email or not password:
+        print("❌ Email et mot de passe requis")
         return False
     
-    parser = SSFParser()
-    try:
-        with open(ssf_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        manifest = parser.parse_ssf(content)
-        file_patterns = manifest.get('files', [])
-        all_files = expand_file_patterns(project_path, file_patterns)
-        
-        # Calculer les statistiques
-        total_size = 0
-        extensions = {}
-        
-        for file_path in all_files:
-            full_path = Path(project_path) / file_path
-            if full_path.exists():
-                total_size += full_path.stat().st_size
-                ext = full_path.suffix.lower()
-                extensions[ext] = extensions.get(ext, 0) + 1
-        
-        print(f"📊 Statistiques du projet: {manifest['name']}")
-        print(f"📁 Fichiers: {len(all_files)}")
-        print(f"💾 Taille totale: {total_size / 1024:.1f} KB")
-        print(f"🏷️  Tags: {', '.join(manifest.get('tags', []))}")
-        print(f"📦 Dépendances: {len(manifest.get('dependencies', {}).get('packages', []))}")
-        
-        if extensions:
-            print(f"📄 Extensions: {', '.join([f'{ext}({count})' for ext, count in extensions.items()])}")
-        
+    return api_client.login(email, password)
+
+def handle_register(args):
+    """Inscription au serveur initHUB"""
+    username = args.username
+    email = args.email
+    password = args.password
+    full_name = args.full_name or ""
+    
+    if not all([username, email, password]):
+        print("❌ Username, email et mot de passe requis")
+        return False
+    
+    return api_client.register(username, email, password, full_name)
+
+def handle_whoami(args):
+    """Affiche l'utilisateur connecté"""
+    user = api_client.get_current_user()
+    if user:
+        print(f"👤 Utilisateur connecté:")
+        print(f"   📛 Nom: {user['username']}")
+        print(f"   📧 Email: {user['email']}")
+        print(f"   👤 Nom complet: {user.get('full_name', 'Non défini')}")
         return True
-        
-    except Exception as e:
-        print(f"❌ Erreur statistiques: {e}")
+    else:
+        print("❌ Non connecté")
         return False
 
+def handle_logout(args):
+    """Déconnexion du serveur"""
+    config.TOKEN_FILE.unlink(missing_ok=True)
+    print("✅ Déconnecté avec succès")
+    return True
+
 # ============================================================================
-# 🎯 INTERFACE CLI PRINCIPALE COMPLÈTE
+# 📦 COMMANDES PROJETS ET MODÈLES
+# ============================================================================
+
+def handle_projects_list(args):
+    """Liste les projets de l'utilisateur"""
+    user = api_client.get_current_user()
+    if not user:
+        print("❌ Non connecté. Utilisez 'inithub login' d'abord.")
+        return False
+    
+    return api_client.list_projects()
+
+def handle_models_list(args):
+    """Liste les modèles IA disponibles"""
+    return api_client.list_models()
+
+def handle_status(args):
+    """Statut de la connexion et informations"""
+    print(f"🌐 Serveur: {config.get_server_url()}")
+    
+    user = api_client.get_current_user()
+    if user:
+        print(f"✅ Connecté en tant que: {user['username']}")
+        print(f"📧 Email: {user['email']}")
+    else:
+        print("❌ Non connecté")
+    
+    # Test de connexion au serveur
+    try:
+        response = requests.get(config.get_server_url(), timeout=5)
+        print(f"📡 Serveur status: {'🟢 En ligne' if response.status_code == 200 else '🔴 Hors ligne'}")
+    except:
+        print("📡 Serveur status: 🔴 Hors ligne")
+    
+    return True
+
+# ============================================================================
+# 🎯 INTERFACE CLI PRINCIPALE
 # ============================================================================
 
 def main():
     banner = """
     ╔═══════════════════════════════════════════════╗
-    ║              🚀 initHUB CLI                   ║
-    ║        Support .ssf LZL-ZOBA v2.0            ║
+    ║              🚀 initHUB CLI v2.0              ║
+    ║        Connecté à: hubs-ja2g.onrender.com     ║
     ╚═══════════════════════════════════════════════╝
     """
     
     print(banner)
     
     parser = argparse.ArgumentParser(
-        description="🚀 initHUB CLI - Gestionnaire de projets .ssf LZL-ZOBA",
+        description="🚀 initHUB CLI - Client complet avec connexion serveur",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Exemples:
-  inithub ssf-init --name mon-projet
-  inithub ssf-validate --path ./mon-projet
-  inithub ssf-push --path ./mon-projet
-  inithub ssf-generate --type ml --name mon-modele-ia
+Exemples d'utilisation:
+  🔐 Authentification:
+    inithub login --email user@example.com --password secret
+    inithub register --username john --email john@example.com --password secret
+    inithub whoami
+    inithub logout
+
+  📁 Gestion projets .ssf:
+    inithub ssf-init --name mon-projet
+    inithub ssf-validate --path ./mon-projet
+    inithub ssf-push --path ./mon-projet
+    inithub ssf-list --path ./mon-projet
+
+  📦 Projets et modèles:
+    inithub projects list
+    inithub models list
+    inithub status
+
+  🆓 Sans authentification:
+    inithub ssf-show --path ./mon-projet
+    inithub ssf-validate --path ./mon-projet
         """
     )
     
     subparsers = parser.add_subparsers(dest='command', help='Commandes disponibles')
     
-    # ssf-init
+    # 🔐 Authentification
+    login_parser = subparsers.add_parser('login', help='Connexion au serveur')
+    login_parser.add_argument('--email', required=True, help='Email')
+    login_parser.add_argument('--password', required=True, help='Mot de passe')
+    
+    register_parser = subparsers.add_parser('register', help='Inscription au serveur')
+    register_parser.add_argument('--username', required=True, help='Nom d\'utilisateur')
+    register_parser.add_argument('--email', required=True, help='Email')
+    register_parser.add_argument('--password', required=True, help='Mot de passe')
+    register_parser.add_argument('--full-name', help='Nom complet')
+    
+    whoami_parser = subparsers.add_parser('whoami', help='Affiche l\'utilisateur connecté')
+    logout_parser = subparsers.add_parser('logout', help='Déconnexion')
+    
+    # 📁 Commandes .ssf
     ssf_init_parser = subparsers.add_parser('ssf-init', help='Crée un manifest .ssf')
     ssf_init_parser.add_argument('--name', help='Nom du projet')
     ssf_init_parser.add_argument('--path', help='Chemin du projet')
-    ssf_init_parser.add_argument('--namespace', help='Namespace (dragon, cli, etc.)')
+    ssf_init_parser.add_argument('--namespace', help='Namespace')
     ssf_init_parser.add_argument('--author', help='Auteur')
     ssf_init_parser.add_argument('--description', help='Description')
     ssf_init_parser.add_argument('--force', action='store_true', help='Écraser le fichier existant')
     
-    # ssf-push
-    ssf_push_parser = subparsers.add_parser('ssf-push', help='Push avec manifest .ssf')
+    ssf_push_parser = subparsers.add_parser('ssf-push', help='Push vers le serveur')
     ssf_push_parser.add_argument('--path', help='Chemin du projet')
     
-    # ssf-validate
     ssf_validate_parser = subparsers.add_parser('ssf-validate', help='Valide un manifest .ssf')
     ssf_validate_parser.add_argument('--path', help='Chemin du projet')
     
-    # ssf-show
     ssf_show_parser = subparsers.add_parser('ssf-show', help='Affiche le manifest parsé')
     ssf_show_parser.add_argument('--path', help='Chemin du projet')
     
-    # ssf-list
     ssf_list_parser = subparsers.add_parser('ssf-list', help='Liste les fichiers .ssf')
     ssf_list_parser.add_argument('--path', help='Chemin du projet')
     
-    # ssf-generate
-    ssf_generate_parser = subparsers.add_parser('ssf-generate', help='Génère un template de projet')
-    ssf_generate_parser.add_argument('--type', choices=['basic', 'ml', 'web'], help='Type de template')
-    ssf_generate_parser.add_argument('--path', help='Chemin du projet')
-    ssf_generate_parser.add_argument('--author', help='Auteur')
+    # 📦 Commandes serveur
+    projects_parser = subparsers.add_parser('projects', help='Gestion des projets')
+    projects_subparsers = projects_parser.add_subparsers(dest='subcommand')
+    projects_subparsers.add_parser('list', help='Liste les projets')
     
-    # ssf-stats
-    ssf_stats_parser = subparsers.add_parser('ssf-stats', help='Affiche les statistiques du projet')
-    ssf_stats_parser.add_argument('--path', help='Chemin du projet')
+    models_parser = subparsers.add_parser('models', help='Gestion des modèles IA')
+    models_subparsers = models_parser.add_subparsers(dest='subcommand')
+    models_subparsers.add_parser('list', help='Liste les modèles IA')
+    
+    status_parser = subparsers.add_parser('status', help='Statut de la connexion')
     
     args = parser.parse_args()
     
@@ -723,7 +959,20 @@ Exemples:
         return
     
     try:
-        if args.command == 'ssf-init':
+        success = False
+        
+        # 🔐 Authentification
+        if args.command == 'login':
+            success = handle_login(args)
+        elif args.command == 'register':
+            success = handle_register(args)
+        elif args.command == 'whoami':
+            success = handle_whoami(args)
+        elif args.command == 'logout':
+            success = handle_logout(args)
+        
+        # 📁 Commandes .ssf
+        elif args.command == 'ssf-init':
             success = handle_ssf_init(args)
         elif args.command == 'ssf-push':
             success = handle_ssf_push(args)
@@ -733,10 +982,21 @@ Exemples:
             success = handle_ssf_show(args)
         elif args.command == 'ssf-list':
             success = handle_ssf_list(args)
-        elif args.command == 'ssf-generate':
-            success = handle_ssf_generate(args)
-        elif args.command == 'ssf-stats':
-            success = handle_ssf_stats(args)
+        
+        # 📦 Commandes serveur
+        elif args.command == 'projects':
+            if args.subcommand == 'list':
+                success = handle_projects_list(args)
+            else:
+                projects_parser.print_help()
+        elif args.command == 'models':
+            if args.subcommand == 'list':
+                success = handle_models_list(args)
+            else:
+                models_parser.print_help()
+        elif args.command == 'status':
+            success = handle_status(args)
+        
         else:
             print(f"❌ Commande inconnue: {args.command}")
             success = False
