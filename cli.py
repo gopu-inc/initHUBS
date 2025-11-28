@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 initHUB CLI - Client complet avec connexion au serveur en ligne
-Support .ssf LZL-ZOBA + API initHUB
+Version corrigée avec upload fonctionnel
 """
 
 import os
@@ -74,7 +74,7 @@ class CLIConfig:
 config = CLIConfig()
 
 # ============================================================================
-# 🔌 CLIENT API
+# 🔌 CLIENT API CORRIGÉ
 # ============================================================================
 
 class InitHUBClient:
@@ -85,8 +85,7 @@ class InitHUBClient:
         
         if self.token_data:
             self.session.headers.update({
-                "Authorization": f"Bearer {self.token_data.get('access_token')}",
-                "Content-Type": "application/json"
+                "Authorization": f"Bearer {self.token_data.get('access_token')}"
             })
     
     def _handle_response(self, response):
@@ -154,7 +153,7 @@ class InitHUBClient:
             return None
     
     def push_project(self, manifest_data: Dict[str, Any], project_path: str) -> bool:
-        """Push un projet vers le serveur"""
+        """Push un projet vers le serveur - VERSION CORRIGÉE"""
         try:
             print(f"🚀 Création du projet {manifest_data['name']}...")
             
@@ -173,15 +172,15 @@ class InitHUBClient:
             
             print(f"✅ Projet créé: {project_data['name']} (ID: {project_data['id']})")
             
-            # Uploader les fichiers
-            return self._upload_files(manifest_data, project_data['id'], project_path)
+            # Uploader les fichiers - VERSION CORRIGÉE
+            return self._upload_files_corrected(manifest_data, project_data['id'], project_path)
             
         except Exception as e:
             print(f"❌ Erreur création projet: {e}")
             return False
     
-    def _upload_files(self, manifest_data: Dict[str, Any], project_id: int, project_path: str) -> bool:
-        """Upload les fichiers du projet"""
+    def _upload_files_corrected(self, manifest_data: Dict[str, Any], project_id: int, project_path: str) -> bool:
+        """Upload les fichiers du projet - VERSION CORRIGÉE"""
         file_patterns = manifest_data.get('files', [])
         all_files = expand_file_patterns(project_path, file_patterns)
         
@@ -192,26 +191,40 @@ class InitHUBClient:
             try:
                 full_path = Path(project_path) / file_path
                 
+                if not full_path.exists():
+                    print(f"  ⚠️  Fichier non trouvé: {file_path}")
+                    continue
+                
+                # Préparer les données pour l'upload - FORMAT CORRIGÉ
                 with open(full_path, 'rb') as f:
-                    files = {'file': (file_path, f, 'application/octet-stream')}
-                    data = {'project_id': project_id, 'description': f"Fichier {file_path}"}
+                    files = {
+                        'file': (file_path, f, 'application/octet-stream')
+                    }
                     
-                    response = self.session.post(
+                    # Utiliser FormData pour les métadonnées
+                    data = {
+                        'project_id': str(project_id),
+                        'description': f"Fichier {file_path} du projet {manifest_data['name']}"
+                    }
+                    
+                    # Faire l'upload avec les bons headers
+                    upload_response = self.session.post(
                         f"{self.base_url}/upload",
                         files=files,
                         data=data
                     )
                     
-                    if response.status_code == 200:
+                    if upload_response.status_code == 200:
                         print(f"  ✅ {file_path}")
                         success_count += 1
                     else:
-                        print(f"  ❌ {file_path} - Erreur: {response.status_code}")
+                        error_detail = upload_response.json().get('detail', 'Erreur inconnue')
+                        print(f"  ❌ {file_path} - Erreur {upload_response.status_code}: {error_detail}")
                         
             except Exception as e:
                 print(f"  ❌ {file_path} - {e}")
         
-        print(f"📊 Upload terminé: {success_count}/{len(all_files)} fichiers")
+        print(f"📊 Upload terminé: {success_count}/{len(all_files)} fichiers uploadés avec succès")
         return success_count > 0
     
     def list_projects(self):
@@ -260,6 +273,38 @@ class InitHUBClient:
             
         except Exception as e:
             print(f"❌ Erreur liste modèles: {e}")
+            return False
+
+    def test_upload(self, project_id: int, test_file_path: str):
+        """Test simple d'upload pour debugger"""
+        try:
+            full_path = Path(test_file_path)
+            if not full_path.exists():
+                print(f"❌ Fichier de test non trouvé: {test_file_path}")
+                return False
+            
+            with open(full_path, 'rb') as f:
+                files = {'file': (full_path.name, f, 'text/plain')}
+                data = {'project_id': str(project_id)}
+                
+                response = self.session.post(
+                    f"{self.base_url}/upload",
+                    files=files,
+                    data=data
+                )
+                
+                print(f"📡 Statut: {response.status_code}")
+                print(f"📡 Réponse: {response.text}")
+                
+                if response.status_code == 200:
+                    print("✅ Upload test réussi!")
+                    return True
+                else:
+                    print(f"❌ Upload test échoué: {response.text}")
+                    return False
+                    
+        except Exception as e:
+            print(f"❌ Erreur test upload: {e}")
             return False
 
 # Client global
@@ -553,6 +598,7 @@ def expand_file_patterns(base_path: str, patterns: List[str]) -> List[str]:
             continue
             
         try:
+            # Essayer d'abord avec glob
             matches = glob.glob(str(base / clean_pattern), recursive=True)
             
             for match in matches:
@@ -563,6 +609,13 @@ def expand_file_patterns(base_path: str, patterns: List[str]) -> List[str]:
                         all_files.add(str(rel_path))
                     except ValueError:
                         pass
+            
+            # Si pas de résultats avec glob, essayer de traiter comme un fichier simple
+            if not matches:
+                simple_path = base / clean_pattern
+                if simple_path.exists() and simple_path.is_file():
+                    all_files.add(clean_pattern)
+                    
         except Exception as e:
             print(f"⚠️  Erreur pattern '{pattern}': {e}")
     
@@ -591,7 +644,7 @@ def find_ssf_file(project_path: str) -> Optional[Path]:
     return ssf_files[0]
 
 # ============================================================================
-# 🚀 COMMANDES .SSF AVEC CONNEXION API
+# 🚀 COMMANDES .SSF AVEC CONNEXION API CORRIGÉE
 # ============================================================================
 
 def handle_ssf_init(args):
@@ -617,6 +670,7 @@ I si name: {project_name}]
  [file: 
          - *.py
          - *.md
+         - requirements.txt
          - !__pycache__/**
  ]}} ==> push-hub
    —tags( # >
@@ -648,6 +702,7 @@ meta.set(
         print(f"📊 Nom: {project_name}")
         print(f"📊 Auteur: {author}")
         print(f"📊 Namespace: {namespace}")
+        
         return True
         
     except Exception as e:
@@ -655,7 +710,7 @@ meta.set(
         return False
 
 def handle_ssf_push(args):
-    """Push avec le manifest .ssf vers le serveur"""
+    """Push avec le manifest .ssf vers le serveur - VERSION CORRIGÉE"""
     project_path = args.path or "."
     
     # Vérifier la connexion
@@ -683,12 +738,73 @@ def handle_ssf_push(args):
         manifest = parser.parse_ssf(content)
         print(f"📦 Manifest chargé: {manifest['name']} v{manifest.get('version', '1.0.0')}")
         
+        # Vérifier les fichiers
+        file_patterns = manifest.get('files', [])
+        all_files = expand_file_patterns(project_path, file_patterns)
+        
+        if not all_files:
+            print("⚠️  Aucun fichier trouvé avec les patterns définis")
+            print("📋 Patterns:", file_patterns)
+            create_sample = input("📝 Créer des fichiers d'exemple? (y/n): ")
+            if create_sample.lower() == 'y':
+                create_sample_files(project_path, manifest['name'])
+                all_files = expand_file_patterns(project_path, file_patterns)
+        
+        print(f"📁 Fichiers à uploader ({len(all_files)}):")
+        for file_path in all_files:
+            full_path = Path(project_path) / file_path
+            if full_path.exists():
+                print(f"  ✅ {file_path} ({full_path.stat().st_size} bytes)")
+            else:
+                print(f"  ❌ {file_path} (NON TROUVÉ)")
+        
+        # Demander confirmation
+        confirm = input(f"🚀 Pousser le projet vers initHUB? (y/n): ")
+        if confirm.lower() != 'y':
+            print("❌ Opération annulée")
+            return False
+        
         # Push vers le serveur
         return api_client.push_project(manifest, project_path)
         
     except Exception as e:
         print(f"❌ Erreur: {e}")
         return False
+
+def create_sample_files(project_path: str, project_name: str):
+    """Crée des fichiers d'exemple si aucun fichier n'est trouvé"""
+    project_path = Path(project_path)
+    
+    # README.md
+    readme_content = f"""# {project_name}
+
+Projet créé avec initHUB CLI.
+"""
+    
+    with open(project_path / "README.md", 'w', encoding='utf-8') as f:
+        f.write(readme_content)
+    
+    # Fichier Python exemple
+    py_content = '''"""
+Module exemple pour initHUB
+"""
+
+def hello_world():
+    """Fonction d'exemple"""
+    print("Hello initHUB!")
+    
+if __name__ == "__main__":
+    hello_world()
+'''
+    
+    with open(project_path / "example.py", 'w', encoding='utf-8') as f:
+        f.write(py_content)
+    
+    # Requirements
+    with open(project_path / "requirements.txt", 'w', encoding='utf-8') as f:
+        f.write("requests>=2.25.0\n")
+    
+    print("✅ Fichiers d'exemple créés: README.md, example.py, requirements.txt")
 
 def handle_ssf_validate(args):
     """Valide un manifest .ssf"""
@@ -862,6 +978,44 @@ def handle_status(args):
     
     return True
 
+def handle_test_upload(args):
+    """Test d'upload pour debugger"""
+    user = api_client.get_current_user()
+    if not user:
+        print("❌ Non connecté")
+        return False
+    
+    # Créer un projet de test
+    try:
+        project_response = api_client.session.post(
+            f"{api_client.base_url}/projects",
+            json={
+                "name": "test-upload",
+                "description": "Projet de test pour upload",
+                "project_type": "test",
+                "primary_language": "python",
+                "is_public": False
+            }
+        )
+        project_data = api_client._handle_response(project_response)
+        print(f"✅ Projet test créé: {project_data['id']}")
+        
+        # Tester l'upload
+        test_file = Path("test_upload.txt")
+        with open(test_file, 'w') as f:
+            f.write("Ceci est un fichier de test pour initHUB")
+        
+        success = api_client.test_upload(project_data['id'], "test_upload.txt")
+        
+        # Nettoyer
+        test_file.unlink(missing_ok=True)
+        
+        return success
+        
+    except Exception as e:
+        print(f"❌ Erreur test: {e}")
+        return False
+
 # ============================================================================
 # 🎯 INTERFACE CLI PRINCIPALE
 # ============================================================================
@@ -869,8 +1023,8 @@ def handle_status(args):
 def main():
     banner = """
     ╔═══════════════════════════════════════════════╗
-    ║              🚀 initHUB CLI v2.0              ║
-    ║        Connecté à: hubs-ja2g.onrender.com     ║
+    ║              🚀 initHUB CLI v2.1              ║
+    ║        Version corrigée - Upload réparé       ║
     ╚═══════════════════════════════════════════════╝
     """
     
@@ -898,9 +1052,8 @@ Exemples d'utilisation:
     inithub models list
     inithub status
 
-  🆓 Sans authentification:
-    inithub ssf-show --path ./mon-projet
-    inithub ssf-validate --path ./mon-projet
+  🐛 Debug:
+    inithub test-upload
         """
     )
     
@@ -952,6 +1105,9 @@ Exemples d'utilisation:
     
     status_parser = subparsers.add_parser('status', help='Statut de la connexion')
     
+    # 🐛 Debug
+    test_upload_parser = subparsers.add_parser('test-upload', help='Test d\'upload')
+    
     args = parser.parse_args()
     
     if not args.command:
@@ -996,6 +1152,10 @@ Exemples d'utilisation:
                 models_parser.print_help()
         elif args.command == 'status':
             success = handle_status(args)
+        
+        # 🐛 Debug
+        elif args.command == 'test-upload':
+            success = handle_test_upload(args)
         
         else:
             print(f"❌ Commande inconnue: {args.command}")
