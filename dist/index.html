@@ -3,1645 +3,1345 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>initHUB - Plateforme IA Collaborative</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8'
-                        },
-                        secondary: {
-                            50: '#faf5ff',
-                            500: '#a855f7',
-                            600: '#9333ea'
-                        },
-                        dark: '#1e293b'
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.5s ease-in-out',
-                        'slide-in': 'slideIn 0.3s ease-out',
-                        'pulse-soft': 'pulseSoft 2s infinite'
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' }
-                        },
-                        slideIn: {
-                            '0%': { transform: 'translateY(-10px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' }
-                        },
-                        pulseSoft: {
-                            '0%, 100%': { opacity: '1' },
-                            '50%': { opacity: '0.7' }
-                        }
-                    }
-                }
+    <title>initHUB - Plateforme IA Avancée</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --gray-light: #e5e7eb;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            opacity: 0.9;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            opacity: 0.9;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+            background-color: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title h2 {
+            font-size: 2.2rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .section-title p {
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--light);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            background-color: var(--primary);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .feature-card p {
+            color: var(--gray);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            padding: 80px 0;
+            background-color: #f3f4f6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .models-grid, .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .model-card, .project-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .model-card:hover, .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .card-header h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .card-header p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-footer {
+            padding: 15px 20px;
+            background-color: var(--light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: var(--gray-light);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--dark);
+        }
+
+        .tag-primary {
+            background-color: #e0e7ff;
+            color: var(--primary);
+        }
+
+        .tag-success {
+            background-color: #d1fae5;
+            color: var(--success);
+        }
+
+        /* Forms */
+        .form-container {
+            max-width: 500px;
+            margin: 50px auto;
+            background-color: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            color: var(--dark);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column a {
+            color: #d1d5db;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #374151;
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            nav ul {
+                gap: 15px;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .features-grid, .models-grid, .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-container {
+                padding: 30px 20px;
             }
         }
-    </script>
-    <style>
-        .loading-spinner {
-            border: 3px solid #f3f4f6;
-            border-top: 3px solid #2563eb;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: 30px;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        .tab {
+            padding: 12px 25px;
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
         }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
         }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+
+        .tab-content {
+            display: none;
         }
-        .code-block {
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            background: #1e293b;
-            color: #e2e8f0;
+
+        .tab-content.active {
+            display: block;
         }
-        .notification-dot {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            width: 8px;
-            height: 8px;
-            background: #ef4444;
-            border-radius: 50%;
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateX(150%);
+            transition: transform 0.3s;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background-color: var(--success);
+        }
+
+        .toast.error {
+            background-color: var(--danger);
+        }
+
+        .toast.warning {
+            background-color: var(--warning);
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans">
-    <div id="root"></div>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <span>initHUB</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="nav-link" data-page="home">Accueil</a></li>
+                        <li><a href="#" class="nav-link" data-page="models">Modèles IA</a></li>
+                        <li><a href="#" class="nav-link" data-page="projects">Projets</a></li>
+                        <li><a href="#" class="nav-link" data-page="analytics">Analytics</a></li>
+                    </ul>
+                </nav>
+                <div class="auth-buttons">
+                    <button class="btn btn-outline" id="login-btn">Connexion</button>
+                    <button class="btn btn-primary" id="register-btn">Inscription</button>
+                </div>
+            </div>
+        </div>
+    </header>
 
-    <script type="text/babel">
-        const API_BASE = 'https://hubs-ja2g.onrender.com/api';
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
 
-        // Service API étendu
-        class ApiService {
-            constructor() {
-                this.token = localStorage.getItem('inithub_token');
-            }
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Home Page -->
+        <section id="home-page" class="page active">
+            <!-- Hero Section -->
+            <div class="hero">
+                <div class="container">
+                    <h1>Plateforme IA Avancée</h1>
+                    <p>Découvrez, partagez et collaborez sur des modèles d'intelligence artificielle avec initHUB, la plateforme complète pour les développeurs et chercheurs en IA.</p>
+                    <button class="btn btn-success">Commencer maintenant</button>
+                </div>
+            </div>
 
-            async request(endpoint, options = {}) {
-                const url = `${API_BASE}${endpoint}`;
-                const config = {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-                        ...options.headers,
-                    },
-                    ...options,
-                };
+            <!-- Features Section -->
+            <div class="features">
+                <div class="container">
+                    <div class="section-title">
+                        <h2>Fonctionnalités Principales</h2>
+                        <p>Découvrez toutes les fonctionnalités puissantes d'initHUB pour votre workflow IA</p>
+                    </div>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h3>Modèles IA</h3>
+                            <p>Créez, partagez et découvrez des modèles d'apprentissage automatique de pointe.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <h3>Gestion de Projets</h3>
+                            <p>Organisez vos projets IA avec un système de versioning intégré et des outils de collaboration.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3>Analytics Avancés</h3>
+                            <p>Suivez les performances de vos modèles avec des tableaux de bord détaillés et des métriques en temps réel.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3>Sécurité Renforcée</h3>
+                            <p>Vos données et modèles sont protégés avec un chiffrement de bout en bout et une authentification robuste.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                if (config.body && typeof config.body === 'object' && !(config.body instanceof FormData)) {
-                    config.body = JSON.stringify(config.body);
-                }
+            <!-- Popular Models Section -->
+            <div class="dashboard">
+                <div class="container">
+                    <div class="section-title">
+                        <h2>Modèles Populaires</h2>
+                        <p>Découvrez les modèles IA les plus populaires de la communauté</p>
+                    </div>
+                    <div class="models-grid" id="popular-models">
+                        <!-- Models will be loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                try {
-                    const response = await fetch(url, config);
+        <!-- Models Page -->
+        <section id="models-page" class="page">
+            <div class="dashboard">
+                <div class="container">
+                    <div class="section-title">
+                        <h2>Modèles IA</h2>
+                        <p>Explorez notre collection de modèles d'intelligence artificielle</p>
+                    </div>
                     
-                    if (response.status === 204) {
-                        return null;
-                    }
+                    <div class="tabs">
+                        <div class="tab active" data-tab="all-models">Tous les modèles</div>
+                        <div class="tab" data-tab="my-models">Mes modèles</div>
+                        <div class="tab" data-tab="create-model">Créer un modèle</div>
+                    </div>
                     
-                    const data = await response.json();
+                    <div class="tab-content active" id="all-models">
+                        <div class="models-grid" id="models-list">
+                            <!-- Models will be loaded dynamically -->
+                        </div>
+                    </div>
                     
-                    if (!response.ok) {
-                        throw new Error(data.detail || `Erreur ${response.status}`);
-                    }
+                    <div class="tab-content" id="my-models">
+                        <div class="models-grid" id="user-models">
+                            <!-- User models will be loaded dynamically -->
+                        </div>
+                    </div>
                     
-                    return data;
-                } catch (error) {
-                    console.error('API Error:', error);
-                    throw error;
-                }
-            }
-
-            // 🔐 AUTHENTIFICATION AVANCÉE
-            async login(email, password) {
-                const data = await this.request('/auth/login', {
-                    method: 'POST',
-                    body: { email, password },
-                });
-                this.token = data.access_token;
-                localStorage.setItem('inithub_token', this.token);
-                localStorage.setItem('user_data', JSON.stringify(data.user));
-                return data;
-            }
-
-            async register(userData) {
-                return await this.request('/auth/register', {
-                    method: 'POST',
-                    body: userData,
-                });
-            }
-
-            async getCurrentUser() {
-                return await this.request('/auth/me');
-            }
-
-            async updateProfile(profileData) {
-                return await this.request('/auth/profile', {
-                    method: 'PUT',
-                    body: profileData,
-                });
-            }
-
-            async changePassword(currentPassword, newPassword) {
-                return await this.request('/auth/change-password', {
-                    method: 'POST',
-                    body: { current_password: currentPassword, new_password: newPassword },
-                });
-            }
-
-            // 🔑 TOKENS API
-            async createApiToken(tokenData) {
-                return await this.request('/tokens', {
-                    method: 'POST',
-                    body: tokenData,
-                });
-            }
-
-            async getApiTokens() {
-                return await this.request('/tokens');
-            }
-
-            async revokeApiToken(tokenId) {
-                return await this.request(`/tokens/${tokenId}`, {
-                    method: 'DELETE',
-                });
-            }
-
-            // 🧠 MODÈLES IA AVANCÉS
-            async createModel(modelData) {
-                return await this.request('/models', {
-                    method: 'POST',
-                    body: modelData,
-                });
-            }
-
-            async getModels(params = {}) {
-                const query = new URLSearchParams(params).toString();
-                return await this.request(`/models?${query}`);
-            }
-
-            async getModel(id) {
-                return await this.request(`/models/${id}`);
-            }
-
-            async updateModel(id, modelData) {
-                return await this.request(`/models/${id}`, {
-                    method: 'PUT',
-                    body: modelData,
-                });
-            }
-
-            async deleteModel(id) {
-                return await this.request(`/models/${id}`, {
-                    method: 'DELETE',
-                });
-            }
-
-            async getPopularModels(limit = 10) {
-                return await this.request(`/models/popular?limit=${limit}`);
-            }
-
-            // 🔮 INFÉRENCE IA
-            async runInference(modelId, inputData, parameters = {}) {
-                return await this.request('/inference', {
-                    method: 'POST',
-                    body: {
-                        model_id: modelId,
-                        input_data: inputData,
-                        parameters: parameters
-                    },
-                });
-            }
-
-            async getInferenceHistory(skip = 0, limit = 20) {
-                return await this.request(`/inference/history?skip=${skip}&limit=${limit}`);
-            }
-
-            // 📁 PROJETS AVANCÉS
-            async createProject(projectData) {
-                return await this.request('/projects', {
-                    method: 'POST',
-                    body: projectData,
-                });
-            }
-
-            async getProjects(params = {}) {
-                const query = new URLSearchParams(params).toString();
-                return await this.request(`/projects?${query}`);
-            }
-
-            async getProject(id) {
-                return await this.request(`/projects/${id}`);
-            }
-
-            async updateProject(id, projectData) {
-                return await this.request(`/projects/${id}`, {
-                    method: 'PUT',
-                    body: projectData,
-                });
-            }
-
-            async deleteProject(id) {
-                return await this.request(`/projects/${id}`, {
-                    method: 'DELETE',
-                });
-            }
-
-            // 📚 SYSTÈME GIT COMPLET
-            async createGitRepository(repoData) {
-                return await this.request('/git/repositories', {
-                    method: 'POST',
-                    body: repoData,
-                });
-            }
-
-            async getGitRepositories() {
-                return await this.request('/git/repositories');
-            }
-
-            async gitCommit(repoId, commitData) {
-                return await this.request(`/git/repositories/${repoId}/commit`, {
-                    method: 'POST',
-                    body: commitData,
-                });
-            }
-
-            async createPullRequest(repoId, prData) {
-                return await this.request(`/git/repositories/${repoId}/pull-requests`, {
-                    method: 'POST',
-                    body: prData,
-                });
-            }
-
-            // 🎯 BADGES ET ACHIEVEMENTS
-            async createBadge(badgeData) {
-                return await this.request('/badges', {
-                    method: 'POST',
-                    body: badgeData,
-                });
-            }
-
-            async getBadges() {
-                return await this.request('/badges');
-            }
-
-            async awardBadge(userId, badgeId) {
-                return await this.request(`/users/${userId}/badges/${badgeId}`, {
-                    method: 'POST',
-                });
-            }
-
-            // 🔄 WORKFLOWS
-            async createWorkflow(workflowData) {
-                return await this.request('/workflows', {
-                    method: 'POST',
-                    body: workflowData,
-                });
-            }
-
-            async triggerWorkflow(workflowId, triggerData = {}) {
-                return await this.request(`/workflows/${workflowId}/trigger`, {
-                    method: 'POST',
-                    body: triggerData,
-                });
-            }
-
-            // 💝 SPONSORS
-            async createSponsor(sponsorData) {
-                return await this.request('/sponsors', {
-                    method: 'POST',
-                    body: sponsorData,
-                });
-            }
-
-            async getSponsors() {
-                return await this.request('/sponsors');
-            }
-
-            // 📤 FICHIERS AVANCÉS
-            async uploadFile(file, metadata = {}) {
-                const formData = new FormData();
-                formData.append('file', file);
-                Object.keys(metadata).forEach(key => {
-                    if (metadata[key] !== null && metadata[key] !== undefined) {
-                        formData.append(key, metadata[key]);
-                    }
-                });
-
-                const response = await fetch(`${API_BASE}/upload`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${this.token}`,
-                    },
-                    body: formData,
-                });
-
-                if (!response.ok) {
-                    throw new Error('Upload failed');
-                }
-
-                return await response.json();
-            }
-
-            async getFiles(params = {}) {
-                const query = new URLSearchParams(params).toString();
-                return await this.request(`/files?${query}`);
-            }
-
-            async deleteFile(id) {
-                return await this.request(`/files/${id}`, {
-                    method: 'DELETE',
-                });
-            }
-
-            // 🤖 IA & CODE AVANCÉ
-            async generateCode(prompt, language = 'python', maxLength = 200) {
-                return await this.request('/ai/generate-code', {
-                    method: 'POST',
-                    body: { prompt, language, max_length: maxLength },
-                });
-            }
-
-            async explainCode(code) {
-                return await this.request('/ai/explain-code', {
-                    method: 'POST',
-                    body: { code },
-                });
-            }
-
-            async detectBugs(code) {
-                return await this.request('/ai/detect-bugs', {
-                    method: 'POST',
-                    body: { code },
-                });
-            }
-
-            // 📊 ANALYTICS AVANCÉES
-            async getAnalyticsDashboard() {
-                return await this.request('/analytics/dashboard');
-            }
-
-            async getPlatformAnalytics() {
-                return await this.request('/analytics/platform');
-            }
-
-            async getUserAnalytics(userId) {
-                return await this.request(`/analytics/user/${userId}`);
-            }
-
-            // 🔍 RECHERCHE AVANCÉE
-            async search(query, searchType = 'all', limit = 20, filters = {}) {
-                return await this.request('/search', {
-                    method: 'POST',
-                    body: { query, search_type: searchType, limit, filters },
-                });
-            }
-
-            // 📓 NOTEBOOKS JUPYTER
-            async createNotebook(notebookData) {
-                return await this.request('/notebooks', {
-                    method: 'POST',
-                    body: notebookData,
-                });
-            }
-
-            async getNotebooks(skip = 0, limit = 20) {
-                return await this.request(`/notebooks?skip=${skip}&limit=${limit}`);
-            }
-
-            async getNotebook(id) {
-                return await this.request(`/notebooks/${id}`);
-            }
-
-            async updateNotebook(id, content) {
-                return await this.request(`/notebooks/${id}`, {
-                    method: 'PUT',
-                    body: content,
-                });
-            }
-
-            async executeNotebookCell(notebookId, executionData) {
-                return await this.request(`/notebooks/${notebookId}/execute`, {
-                    method: 'POST',
-                    body: executionData,
-                });
-            }
-
-            // 💬 SYSTÈME SOCIAL
-            async createComment(commentData) {
-                return await this.request('/comments', {
-                    method: 'POST',
-                    body: commentData,
-                });
-            }
-
-            async getComments(params = {}) {
-                const query = new URLSearchParams(params).toString();
-                return await this.request(`/comments?${query}`);
-            }
-
-            async createLike(likeData) {
-                return await this.request('/likes', {
-                    method: 'POST',
-                    body: likeData,
-                });
-            }
-
-            async deleteLike(params = {}) {
-                const query = new URLSearchParams(params).toString();
-                return await this.request(`/likes?${query}`, {
-                    method: 'DELETE',
-                });
-            }
-
-            // 🔔 NOTIFICATIONS
-            async getNotifications(skip = 0, limit = 20) {
-                return await this.request(`/notifications?skip=${skip}&limit=${limit}`);
-            }
-
-            async markNotificationRead(notificationId) {
-                return await this.request(`/notifications/${notificationId}/read`, {
-                    method: 'POST',
-                });
-            }
-
-            // 👥 PROFILS UTILISATEURS
-            async getUserProfile(username) {
-                return await this.request(`/user/${username}`);
-            }
-
-            // 🏪 MARKETPLACE
-            async createListing(listingData) {
-                return await this.request('/marketplace/listings', {
-                    method: 'POST',
-                    body: listingData,
-                });
-            }
-
-            async getListings(params = {}) {
-                const query = new URLSearchParams(params).toString();
-                return await this.request(`/marketplace/listings?${query}`);
-            }
-
-            // 🎉 CONTENU TENDANCE
-            async getTrendingContent() {
-                return await this.request('/trending');
-            }
-
-            // ⚙️ SYSTÈME
-            async getSystemInfo() {
-                return await this.request('/system/info');
-            }
-
-            async testAllFeatures() {
-                return await this.request('/test/all');
-            }
-
-            // 🏷️ GISTS
-            async createGist(gistData) {
-                return await this.request('/gists', {
-                    method: 'POST',
-                    body: gistData,
-                });
-            }
-
-            async getGists(skip = 0, limit = 20) {
-                return await this.request(`/gists?skip=${skip}&limit=${limit}`);
-            }
-
-            // 🔐 ADMIN
-            async getAdminUsers(skip = 0, limit = 50) {
-                return await this.request(`/admin/users?skip=${skip}&limit=${limit}`);
-            }
-
-            async toggleUserStatus(userId) {
-                return await this.request(`/admin/users/${userId}/toggle`, {
-                    method: 'POST',
-                });
-            }
-
-            logout() {
-                this.token = null;
-                localStorage.removeItem('inithub_token');
-                localStorage.removeItem('user_data');
-            }
-        }
-
-        // Contexte d'authentification
-        const AuthContext = React.createContext();
-
-        // Hook d'authentification avancé
-        function useAuth() {
-            const [user, setUser] = React.useState(null);
-            const [loading, setLoading] = React.useState(true);
-            const [notifications, setNotifications] = React.useState([]);
-            const api = new ApiService();
-
-            React.useEffect(() => {
-                checkAuth();
-            }, []);
-
-            const checkAuth = async () => {
-                try {
-                    const userData = await api.getCurrentUser();
-                    setUser(userData);
+                    <div class="tab-content" id="create-model">
+                        <div class="form-container">
+                            <h2 class="form-title">Créer un modèle IA</h2>
+                            <form id="create-model-form">
+                                <div class="form-group">
+                                    <label for="model-name">Nom du modèle</label>
+                                    <input type="text" id="model-name" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="model-description">Description</label>
+                                    <textarea id="model-description" class="form-control" rows="3"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="model-framework">Framework</label>
+                                    <select id="model-framework" class="form-control" required>
+                                        <option value="">Sélectionnez un framework</option>
+                                        <option value="TensorFlow">TensorFlow</option>
+                                        <option value="PyTorch">PyTorch</option>
+                                        <option value="Keras">Keras</option>
+                                        <option value="Scikit-learn">Scikit-learn</option>
+                                        <option value="Other">Autre</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="model-task">Type de tâche</label>
+                                    <select id="model-task" class="form-control" required>
+                                        <option value="">Sélectionnez un type</option>
+                                        <option value="Classification">Classification</option>
+                                        <option value="Regression">Régression</option>
+                                        <option value="Clustering">Clustering</option>
+                                        <option value="Computer Vision">Vision par ordinateur</option>
+                                        <option value="NLP">Traitement du langage naturel</option>
+                                        <option value="Other">Autre</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="model-version">Version</label>
+                                    <input type="text" id="model-version" class="form-control" value="1.0.0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="model-public" checked> Modèle public
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">Créer le modèle</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Page -->
+        <section id="projects-page" class="page">
+            <div class="dashboard">
+                <div class="container">
+                    <div class="section-title">
+                        <h2>Projets</h2>
+                        <p>Gérez et découvrez des projets IA collaboratifs</p>
+                    </div>
                     
-                    // Charger les notifications
-                    const notifs = await api.getNotifications(0, 10);
-                    setNotifications(notifs);
-                } catch (error) {
-                    api.logout();
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            const login = async (email, password) => {
-                try {
-                    await api.login(email, password);
-                    const userData = await api.getCurrentUser();
-                    setUser(userData);
-                    return true;
-                } catch (error) {
-                    return false;
-                }
-            };
-
-            const register = async (userData) => {
-                try {
-                    await api.register(userData);
-                    return true;
-                } catch (error) {
-                    return false;
-                }
-            };
-
-            const logout = () => {
-                api.logout();
-                setUser(null);
-                setNotifications([]);
-            };
-
-            const refreshNotifications = async () => {
-                try {
-                    const notifs = await api.getNotifications(0, 10);
-                    setNotifications(notifs);
-                } catch (error) {
-                    console.error('Error refreshing notifications:', error);
-                }
-            };
-
-            return { 
-                user, 
-                loading, 
-                login, 
-                register, 
-                logout, 
-                api,
-                notifications,
-                refreshNotifications
-            };
-        }
-
-        // Composants d'icônes avec Lucide
-        const Icon = ({ name, className = '', size = 20, ...props }) => {
-            const icons = {
-                brain: lucideReact.Brain,
-                code: lucideReact.Code2,
-                upload: lucideReact.Upload,
-                users: lucideReact.Users,
-                rocket: lucideReact.Rocket,
-                login: lucideReact.LogIn,
-                logout: lucideReact.LogOut,
-                user: lucideReact.User,
-                folder: lucideReact.Folder,
-                cpu: lucideReact.Cpu,
-                file: lucideReact.File,
-                star: lucideReact.Star,
-                search: lucideReact.Search,
-                plus: lucideReact.Plus,
-                trash: lucideReact.Trash2,
-                edit: lucideReact.Edit,
-                settings: lucideReact.Settings,
-                chevron: lucideReact.ChevronRight,
-                bell: lucideReact.Bell,
-                git: lucideReact.GitBranch,
-                workflow: lucideReact.Workflow,
-                badge: lucideReact.Award,
-                sponsor: lucideReact.Heart,
-                notebook: lucideReact.BookOpen,
-                inference: lucideReact.Sparkles,
-                trending: lucideReact.TrendingUp,
-                marketplace: lucideReact.Store,
-                admin: lucideReact.Shield
-            };
-
-            const IconComponent = icons[name];
-            return IconComponent ? React.createElement(IconComponent, { 
-                className, 
-                size,
-                ...props 
-            }) : React.createElement('span', { className }, '•');
-        };
-
-        // Composant de notification
-        function NotificationBell() {
-            const { notifications, refreshNotifications } = React.useContext(AuthContext);
-            const [showNotifications, setShowNotifications] = React.useState(false);
-            const unreadCount = notifications.filter(n => !n.is_read).length;
-
-            const handleMarkAsRead = async (notificationId) => {
-                try {
-                    await api.markNotificationRead(notificationId);
-                    refreshNotifications();
-                } catch (error) {
-                    console.error('Error marking notification as read:', error);
-                }
-            };
-
-            return React.createElement('div', { className: 'relative' },
-                React.createElement('button', {
-                    onClick: () => setShowNotifications(!showNotifications),
-                    className: 'relative p-2 text-gray-600 hover:text-primary transition-colors'
-                },
-                    React.createElement(Icon, { name: 'bell', size: 20 }),
-                    unreadCount > 0 && React.createElement('span', { 
-                        className: 'notification-dot' 
-                    })
-                ),
-
-                showNotifications && React.createElement('div', {
-                    className: 'absolute right-0 top-12 w-80 bg-white rounded-lg shadow-lg border z-50 animate-slide-in'
-                },
-                    React.createElement('div', { className: 'p-4 border-b' },
-                        React.createElement('h3', { className: 'font-semibold' }, 'Notifications'),
-                        unreadCount > 0 && React.createElement('span', { 
-                            className: 'ml-2 bg-primary text-white text-xs px-2 py-1 rounded-full' 
-                        }, unreadCount)
-                    ),
-                    React.createElement('div', { className: 'max-h-96 overflow-y-auto' },
-                        notifications.length > 0 ? notifications.map(notification => 
-                            React.createElement('div', {
-                                key: notification.id,
-                                className: `p-4 border-b hover:bg-gray-50 cursor-pointer ${!notification.is_read ? 'bg-blue-50' : ''}`,
-                                onClick: () => handleMarkAsRead(notification.id)
-                            },
-                                React.createElement('p', { className: 'font-medium text-sm' }, notification.title),
-                                React.createElement('p', { className: 'text-gray-600 text-xs mt-1' }, notification.message),
-                                React.createElement('p', { className: 'text-gray-400 text-xs mt-2' }, 
-                                    new Date(notification.created_at).toLocaleDateString()
-                                )
-                            )
-                        ) : React.createElement('div', { className: 'p-4 text-center text-gray-500' },
-                            'Aucune notification'
-                        )
-                    )
-                )
-            );
-        }
-
-        // Composant Header amélioré
-        function Header() {
-            const { user, logout } = React.useContext(AuthContext);
-            const [mobileMenu, setMobileMenu] = React.useState(false);
-            const [userMenu, setUserMenu] = React.useState(false);
-
-            const navigationItems = [
-                { id: 'dashboard', label: 'Dashboard', icon: 'rocket' },
-                { id: 'models', label: 'Modèles IA', icon: 'brain' },
-                { id: 'projects', label: 'Projets', icon: 'folder' },
-                { id: 'git', label: 'Git', icon: 'git' },
-                { id: 'notebooks', label: 'Notebooks', icon: 'notebook' },
-                { id: 'marketplace', label: 'Marketplace', icon: 'marketplace' },
-                { id: 'trending', label: 'Tendance', icon: 'trending' }
-            ];
-
-            if (user) {
-                navigationItems.push(
-                    { id: 'workflows', label: 'Workflows', icon: 'workflow' },
-                    { id: 'badges', label: 'Badges', icon: 'badge' }
-                );
-            }
-
-            return React.createElement('header', { className: 'bg-white shadow-sm border-b sticky top-0 z-40' },
-                React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
-                    React.createElement('div', { className: 'flex justify-between items-center h-16' },
-                        // Logo et navigation principale
-                        React.createElement('div', { className: 'flex items-center space-x-8' },
-                            React.createElement('a', { 
-                                href: '#home',
-                                className: 'flex items-center space-x-2'
-                            },
-                                React.createElement(Icon, { name: 'rocket', className: 'h-6 w-6 text-primary-600' }),
-                                React.createElement('span', { className: 'text-xl font-bold text-gray-900' }, 'initHUB')
-                            ),
-
-                            // Navigation Desktop
-                            React.createElement('nav', { className: 'hidden lg:flex items-center space-x-6' },
-                                navigationItems.map(item => 
-                                    React.createElement('a', { 
-                                        key: item.id,
-                                        href: `#${item.id}`,
-                                        className: 'flex items-center space-x-1 text-gray-700 hover:text-primary-600 font-medium transition-colors'
-                                    },
-                                        React.createElement(Icon, { name: item.icon, size: 16 }),
-                                        React.createElement('span', null, item.label)
-                                    )
-                                )
-                            )
-                        ),
-
-                        // Actions utilisateur
-                        React.createElement('div', { className: 'flex items-center space-x-4' },
-                            // Barre de recherche
-                            React.createElement('div', { className: 'hidden md:block' },
-                                React.createElement('div', { className: 'relative' },
-                                    React.createElement(Icon, { 
-                                        name: 'search', 
-                                        className: 'absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400',
-                                        size: 16 
-                                    }),
-                                    React.createElement('input', {
-                                        type: 'text',
-                                        placeholder: 'Rechercher...',
-                                        className: 'pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-500 w-64',
-                                        onKeyPress: (e) => {
-                                            if (e.key === 'Enter') {
-                                                window.location.hash = `search?q=${encodeURIComponent(e.target.value)}`;
-                                            }
-                                        }
-                                    })
-                                )
-                            ),
-
-                            // Bouton upload
-                            user && React.createElement('a', { 
-                                href: '#upload', 
-                                className: 'bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 font-medium flex items-center space-x-2 transition-colors' 
-                            },
-                                React.createElement(Icon, { name: 'upload', size: 16 }),
-                                React.createElement('span', null, 'Upload')
-                            ),
-
-                            // Notifications
-                            user && React.createElement(NotificationBell),
-
-                            // Menu utilisateur
-                            user ? React.createElement('div', { className: 'relative' },
-                                React.createElement('button', {
-                                    onClick: () => setUserMenu(!userMenu),
-                                    className: 'flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors'
-                                },
-                                    React.createElement('div', { className: 'w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center' },
-                                        React.createElement('span', { className: 'text-white text-sm font-medium' }, 
-                                            user.username.charAt(0).toUpperCase()
-                                        )
-                                    ),
-                                    React.createElement('span', { className: 'text-gray-700 hidden md:block' }, user.username),
-                                    React.createElement(Icon, { name: 'chevron', size: 16, className: 'text-gray-400' })
-                                ),
-
-                                userMenu && React.createElement('div', {
-                                    className: 'absolute right-0 top-12 w-48 bg-white rounded-lg shadow-lg border py-2 animate-slide-in'
-                                },
-                                    React.createElement('a', { 
-                                        href: '#profile',
-                                        className: 'flex items-center space-x-2 px-4 py-2 hover:bg-gray-50'
-                                    },
-                                        React.createElement(Icon, { name: 'user', size: 16 }),
-                                        React.createElement('span', null, 'Profil')
-                                    ),
-                                    React.createElement('a', { 
-                                        href: '#settings',
-                                        className: 'flex items-center space-x-2 px-4 py-2 hover:bg-gray-50'
-                                    },
-                                        React.createElement(Icon, { name: 'settings', size: 16 }),
-                                        React.createElement('span', null, 'Paramètres')
-                                    ),
-                                    user.username === 'admin' && React.createElement('a', { 
-                                        href: '#admin',
-                                        className: 'flex items-center space-x-2 px-4 py-2 hover:bg-gray-50 text-red-600'
-                                    },
-                                        React.createElement(Icon, { name: 'admin', size: 16 }),
-                                        React.createElement('span', null, 'Administration')
-                                    ),
-                                    React.createElement('hr', { className: 'my-2' }),
-                                    React.createElement('button', { 
-                                        onClick: logout,
-                                        className: 'flex items-center space-x-2 px-4 py-2 hover:bg-gray-50 text-red-600 w-full text-left'
-                                    },
-                                        React.createElement(Icon, { name: 'logout', size: 16 }),
-                                        React.createElement('span', null, 'Déconnexion')
-                                    )
-                                )
-                            ) : React.createElement('div', { className: 'flex items-center space-x-3' },
-                                React.createElement('a', { 
-                                    href: '#login', 
-                                    className: 'text-gray-700 hover:text-primary-600 font-medium transition-colors' 
-                                }, 'Connexion'),
-                                React.createElement('a', { 
-                                    href: '#register', 
-                                    className: 'bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 font-medium transition-colors' 
-                                }, 'Inscription')
-                            )
-                        ),
-
-                        // Menu mobile
-                        React.createElement('button', {
-                            onClick: () => setMobileMenu(!mobileMenu),
-                            className: 'lg:hidden text-gray-700 p-2'
-                        },
-                            React.createElement(Icon, { name: mobileMenu ? 'x' : 'menu', size: 24 })
-                        )
-                    ),
-
-                    // Menu mobile
-                    mobileMenu && React.createElement('div', { className: 'lg:hidden py-4 border-t animate-slide-in' },
-                        React.createElement('nav', { className: 'flex flex-col space-y-3' },
-                            navigationItems.map(item => 
-                                React.createElement('a', { 
-                                    key: item.id,
-                                    href: `#${item.id}`,
-                                    className: 'flex items-center space-x-2 text-gray-700 hover:text-primary-600 py-2'
-                                },
-                                    React.createElement(Icon, { name: item.icon, size: 16 }),
-                                    React.createElement('span', null, item.label)
-                                )
-                            )
-                        )
-                    )
-                )
-            );
-        }
-
-        // Composant Dashboard amélioré
-        function Dashboard() {
-            const { user, api } = React.useContext(AuthContext);
-            const [stats, setStats] = React.useState({});
-            const [recentActivity, setRecentActivity] = React.useState([]);
-            const [trendingModels, setTrendingModels] = React.useState([]);
-            const [loading, setLoading] = React.useState(true);
-
-            React.useEffect(() => {
-                if (user) loadDashboardData();
-            }, [user]);
-
-            const loadDashboardData = async () => {
-                try {
-                    const [analyticsData, activityData, trendingData] = await Promise.all([
-                        api.getAnalyticsDashboard(),
-                        api.getRecentActivity(10),
-                        api.getPopularModels(5)
-                    ]);
+                    <div class="tabs">
+                        <div class="tab active" data-tab="all-projects">Tous les projets</div>
+                        <div class="tab" data-tab="my-projects">Mes projets</div>
+                        <div class="tab" data-tab="create-project">Créer un projet</div>
+                    </div>
                     
-                    setStats(analyticsData.user_stats || {});
-                    setRecentActivity(activityData);
-                    setTrendingModels(trendingData);
-                } catch (error) {
-                    console.error('Error loading dashboard:', error);
-                } finally {
-                    setLoading(false);
-                }
-            };
+                    <div class="tab-content active" id="all-projects">
+                        <div class="projects-grid" id="projects-list">
+                            <!-- Projects will be loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="my-projects">
+                        <div class="projects-grid" id="user-projects">
+                            <!-- User projects will be loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="create-project">
+                        <div class="form-container">
+                            <h2 class="form-title">Créer un projet</h2>
+                            <form id="create-project-form">
+                                <div class="form-group">
+                                    <label for="project-name">Nom du projet</label>
+                                    <input type="text" id="project-name" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="project-description">Description</label>
+                                    <textarea id="project-description" class="form-control" rows="3"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="project-type">Type de projet</label>
+                                    <select id="project-type" class="form-control" required>
+                                        <option value="">Sélectionnez un type</option>
+                                        <option value="Research">Recherche</option>
+                                        <option value="Application">Application</option>
+                                        <option value="Library">Bibliothèque</option>
+                                        <option value="Tutorial">Tutoriel</option>
+                                        <option value="Other">Autre</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="project-language">Langage principal</label>
+                                    <select id="project-language" class="form-control" required>
+                                        <option value="">Sélectionnez un langage</option>
+                                        <option value="Python">Python</option>
+                                        <option value="R">R</option>
+                                        <option value="JavaScript">JavaScript</option>
+                                        <option value="Java">Java</option>
+                                        <option value="C++">C++</option>
+                                        <option value="Other">Autre</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="project-public" checked> Projet public
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">Créer le projet</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            if (!user) {
-                return React.createElement('div', { className: 'text-center py-16' },
-                    React.createElement('p', { className: 'text-gray-600' }, 'Veuillez vous connecter pour accéder au tableau de bord')
-                );
+        <!-- Analytics Page -->
+        <section id="analytics-page" class="page">
+            <div class="dashboard">
+                <div class="container">
+                    <div class="section-title">
+                        <h2>Analytics</h2>
+                        <p>Tableau de bord complet de vos activités et performances</p>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="models-count">0</div>
+                            <div class="stat-label">Modèles créés</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="projects-count">0</div>
+                            <div class="stat-label">Projets actifs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="inferences-count">0</div>
+                            <div class="stat-label">Inférences exécutées</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="tokens-count">0</div>
+                            <div class="stat-label">Tokens API actifs</div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-bottom: 20px;">Activité récente</h3>
+                    <div id="recent-activity">
+                        <!-- Recent activity will be loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Auth Modals -->
+        <div id="login-modal" class="modal" style="display: none;">
+            <div class="form-container">
+                <h2 class="form-title">Connexion</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Mot de passe</label>
+                        <input type="password" id="login-password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Se connecter</button>
+                </form>
+                <p style="text-align: center; margin-top: 20px;">
+                    Pas encore de compte? <a href="#" id="show-register">S'inscrire</a>
+                </p>
+            </div>
+        </div>
+
+        <div id="register-modal" class="modal" style="display: none;">
+            <div class="form-container">
+                <h2 class="form-title">Inscription</h2>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="register-username">Nom d'utilisateur</label>
+                        <input type="text" id="register-username" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-fullname">Nom complet</label>
+                        <input type="text" id="register-fullname" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Mot de passe</label>
+                        <input type="password" id="register-password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">S'inscrire</button>
+                </form>
+                <p style="text-align: center; margin-top: 20px;">
+                    Déjà un compte? <a href="#" id="show-login">Se connecter</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>initHUB</h3>
+                    <p>Plateforme complète pour le développement et le partage de modèles d'intelligence artificielle.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Navigation</h3>
+                    <ul>
+                        <li><a href="#">Accueil</a></li>
+                        <li><a href="#">Modèles IA</a></li>
+                        <li><a href="#">Projets</a></li>
+                        <li><a href="#">Analytics</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Ressources</h3>
+                    <ul>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API Reference</a></li>
+                        <li><a href="#">Tutoriels</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Légal</h3>
+                    <ul>
+                        <li><a href="#">Conditions d'utilisation</a></li>
+                        <li><a href="#">Politique de confidentialité</a></li>
+                        <li><a href="#">Licences</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 initHUB. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // API Base URL - Remplacer par votre URL de backend
+        const API_BASE_URL = 'https://hubs-ja2g.onrender.com';
+
+        // State management
+        let currentUser = null;
+        let authToken = localStorage.getItem('authToken');
+
+        // DOM Elements
+        const pages = document.querySelectorAll('.page');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const loginModal = document.getElementById('login-modal');
+        const registerModal = document.getElementById('register-modal');
+        const showRegister = document.getElementById('show-register');
+        const showLogin = document.getElementById('show-login');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is already logged in
+            if (authToken) {
+                fetchUserProfile();
             }
 
-            if (loading) {
-                return React.createElement('div', { className: 'flex justify-center items-center min-h-64' },
-                    React.createElement('div', { className: 'loading-spinner' })
-                );
-            }
+            // Load initial data
+            loadPopularModels();
+            loadAllModels();
+            loadAllProjects();
 
-            const statCards = [
-                { label: 'Mes Modèles', value: stats.models_count || 0, icon: 'brain', color: 'blue' },
-                { label: 'Mes Projets', value: stats.projects_count || 0, icon: 'folder', color: 'green' },
-                { label: 'Inférences', value: stats.inferences_count || 0, icon: 'inference', color: 'purple' },
-                { label: 'Tokens API', value: stats.tokens_count || 0, icon: 'key', color: 'orange' }
-            ];
-
-            return React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8' },
-                // En-tête
-                React.createElement('div', { className: 'mb-8' },
-                    React.createElement('h1', { className: 'text-3xl font-bold text-gray-900' }, 'Tableau de bord'),
-                    React.createElement('p', { className: 'text-gray-600 mt-2' }, 
-                        `Bon retour, ${user.username}! Voici votre activité récente.`
-                    )
-                ),
-
-                // Statistiques rapides
-                React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8' },
-                    statCards.map((stat, index) => 
-                        React.createElement('div', { 
-                            key: index,
-                            className: 'bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-shadow'
-                        },
-                            React.createElement('div', { className: 'flex items-center justify-between' },
-                                React.createElement('div', null,
-                                    React.createElement('p', { className: 'text-sm text-gray-600 mb-1' }, stat.label),
-                                    React.createElement('p', { className: 'text-2xl font-bold text-gray-900' }, stat.value)
-                                ),
-                                React.createElement('div', { 
-                                    className: `p-3 rounded-lg bg-${stat.color}-100 text-${stat.color}-600` 
-                                },
-                                    React.createElement(Icon, { name: stat.icon, size: 24 })
-                                )
-                            )
-                        )
-                    )
-                ),
-
-                React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-2 gap-8' },
-                    // Activité récente
-                    React.createElement('div', { className: 'bg-white rounded-xl shadow-sm border p-6' },
-                        React.createElement('div', { className: 'flex items-center justify-between mb-6' },
-                            React.createElement('h2', { className: 'text-xl font-bold text-gray-900' }, 'Activité récente'),
-                            React.createElement('a', { 
-                                href: '#activity',
-                                className: 'text-primary-600 hover:text-primary-700 text-sm font-medium'
-                            }, 'Voir tout')
-                        ),
-                        recentActivity.length > 0 ? 
-                            React.createElement('div', { className: 'space-y-4' },
-                                recentActivity.slice(0, 5).map(activity => 
-                                    React.createElement('div', { 
-                                        key: activity.id,
-                                        className: 'flex items-center space-x-4 p-3 border rounded-lg hover:bg-gray-50 transition-colors'
-                                    },
-                                        React.createElement('div', { 
-                                            className: `p-2 rounded-lg ${
-                                                activity.type === 'model' ? 'bg-blue-100 text-blue-600' :
-                                                activity.type === 'project' ? 'bg-green-100 text-green-600' :
-                                                'bg-purple-100 text-purple-600'
-                                            }` 
-                                        },
-                                            React.createElement(Icon, { 
-                                                name: activity.type === 'model' ? 'brain' : 
-                                                       activity.type === 'project' ? 'folder' : 'inference',
-                                                size: 16 
-                                            })
-                                        ),
-                                        React.createElement('div', { className: 'flex-1' },
-                                            React.createElement('p', { className: 'font-medium text-sm' }, 
-                                                activity.description || activity.name
-                                            ),
-                                            React.createElement('p', { className: 'text-gray-500 text-xs' },
-                                                new Date(activity.created_at).toLocaleDateString('fr-FR', {
-                                                    day: 'numeric',
-                                                    month: 'short',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit'
-                                                })
-                                            )
-                                        )
-                                    )
-                                )
-                            ) :
-                            React.createElement('p', { className: 'text-gray-500 text-center py-8' }, 
-                                'Aucune activité récente'
-                            )
-                    ),
-
-                    // Modèles tendance
-                    React.createElement('div', { className: 'bg-white rounded-xl shadow-sm border p-6' },
-                        React.createElement('div', { className: 'flex items-center justify-between mb-6' },
-                            React.createElement('h2', { className: 'text-xl font-bold text-gray-900' }, 'Modèles populaires'),
-                            React.createElement('a', { 
-                                href: '#models',
-                                className: 'text-primary-600 hover:text-primary-700 text-sm font-medium'
-                            }, 'Explorer')
-                        ),
-                        trendingModels.length > 0 ?
-                            React.createElement('div', { className: 'space-y-4' },
-                                trendingModels.slice(0, 5).map(model => 
-                                    React.createElement('a', {
-                                        key: model.id,
-                                        href: `#models/${model.id}`,
-                                        className: 'flex items-center space-x-4 p-3 border rounded-lg hover:bg-gray-50 transition-colors block'
-                                    },
-                                        React.createElement('div', { className: 'flex-1' },
-                                            React.createElement('p', { className: 'font-medium text-sm' }, model.name),
-                                            React.createElement('p', { className: 'text-gray-500 text-xs' },
-                                                `${model.framework} • ${model.task_type}`
-                                            )
-                                        ),
-                                        React.createElement('div', { className: 'flex items-center space-x-1 text-yellow-500' },
-                                            React.createElement(Icon, { name: 'star', size: 14 }),
-                                            React.createElement('span', { className: 'text-xs font-medium' }, model.like_count || 0)
-                                        )
-                                    )
-                                )
-                            ) :
-                            React.createElement('p', { className: 'text-gray-500 text-center py-8' }, 
-                                'Aucun modèle populaire'
-                            )
-                    )
-                ),
-
-                // Actions rapides
-                React.createElement('div', { className: 'mt-8' },
-                    React.createElement('h3', { className: 'text-lg font-bold text-gray-900 mb-4' }, 'Actions rapides'),
-                    React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-4' },
-                        [
-                            { label: 'Créer un modèle', icon: 'brain', href: '#create-model', color: 'blue' },
-                            { label: 'Nouveau projet', icon: 'folder', href: '#create-project', color: 'green' },
-                            { label: 'Lancer une inférence', icon: 'inference', href: '#inference', color: 'purple' }
-                        ].map((action, index) => 
-                            React.createElement('a', {
-                                key: index,
-                                href: action.href,
-                                className: `bg-${action.color}-50 border-${action.color}-200 text-${action.color}-700 p-4 rounded-lg hover:bg-${action.color}-100 transition-colors flex items-center space-x-3`
-                            },
-                                React.createElement(Icon, { name: action.icon, size: 20 }),
-                                React.createElement('span', { className: 'font-medium' }, action.label)
-                            )
-                        )
-                    )
-                )
-            );
-        }
-
-        // Composant Modèles IA amélioré
-        function Models() {
-            const { api, user } = React.useContext(AuthContext);
-            const [models, setModels] = React.useState([]);
-            const [loading, setLoading] = React.useState(true);
-            const [search, setSearch] = React.useState('');
-            const [filters, setFilters] = React.useState({
-                framework: '',
-                task_type: ''
+            // Navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const pageId = this.getAttribute('data-page') + '-page';
+                    showPage(pageId);
+                });
             });
 
-            React.useEffect(() => {
-                loadModels();
-            }, []);
-
-            const loadModels = async () => {
-                try {
-                    const data = await api.getModels();
-                    setModels(data);
-                } catch (error) {
-                    console.error('Error loading models:', error);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            const filteredModels = models.filter(model =>
-                model.name.toLowerCase().includes(search.toLowerCase()) ||
-                model.description?.toLowerCase().includes(search.toLowerCase()) ||
-                model.framework.toLowerCase().includes(search.toLowerCase()) ||
-                model.task_type.toLowerCase().includes(search.toLowerCase())
-            ).filter(model =>
-                (!filters.framework || model.framework === filters.framework) &&
-                (!filters.task_type || model.task_type === filters.task_type)
-            );
-
-            const frameworks = [...new Set(models.map(m => m.framework))];
-            const taskTypes = [...new Set(models.map(m => m.task_type))];
-
-            return React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8' },
-                // En-tête
-                React.createElement('div', { className: 'mb-8' },
-                    React.createElement('h1', { className: 'text-3xl font-bold text-gray-900 mb-4' }, 'Modèles IA'),
-                    React.createElement('p', { className: 'text-gray-600 mb-6' }, 
-                        'Découvrez et utilisez des modèles d\'intelligence artificielle'
-                    ),
-                    
-                    // Barre de recherche et filtres
-                    React.createElement('div', { className: 'space-y-4' },
-                        React.createElement('div', { className: 'flex flex-col lg:flex-row gap-4' },
-                            React.createElement('div', { className: 'flex-1' },
-                                React.createElement('div', { className: 'relative' },
-                                    React.createElement(Icon, { 
-                                        name: 'search', 
-                                        className: 'absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400',
-                                        size: 16 
-                                    }),
-                                    React.createElement('input', {
-                                        type: 'text',
-                                        placeholder: 'Rechercher un modèle...',
-                                        value: search,
-                                        onChange: (e) => setSearch(e.target.value),
-                                        className: 'w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:border-primary-500'
-                                    })
-                                )
-                            ),
-                            user && React.createElement('a', { 
-                                href: '#create-model',
-                                className: 'bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 font-medium flex items-center space-x-2 transition-colors'
-                            },
-                                React.createElement(Icon, { name: 'plus', size: 16 }),
-                                React.createElement('span', null, 'Nouveau modèle')
-                            )
-                        ),
-
-                        // Filtres
-                        React.createElement('div', { className: 'flex flex-wrap gap-4' },
-                            React.createElement('select', {
-                                value: filters.framework,
-                                onChange: (e) => setFilters({...filters, framework: e.target.value}),
-                                className: 'px-3 py-2 border rounded-lg focus:outline-none focus:border-primary-500'
-                            },
-                                React.createElement('option', { value: '' }, 'Tous les frameworks'),
-                                frameworks.map(framework => 
-                                    React.createElement('option', { key: framework, value: framework }, framework)
-                                )
-                            ),
-                            React.createElement('select', {
-                                value: filters.task_type,
-                                onChange: (e) => setFilters({...filters, task_type: e.target.value}),
-                                className: 'px-3 py-2 border rounded-lg focus:outline-none focus:border-primary-500'
-                            },
-                                React.createElement('option', { value: '' }, 'Tous les types'),
-                                taskTypes.map(taskType => 
-                                    React.createElement('option', { key: taskType, value: taskType }, taskType)
-                                )
-                            )
-                        )
-                    )
-                ),
-
-                // Liste des modèles
-                loading ? 
-                    React.createElement('div', { className: 'flex justify-center py-16' },
-                        React.createElement('div', { className: 'loading-spinner' })
-                    ) :
-                    React.createElement('div', null,
-                        React.createElement('div', { className: 'flex justify-between items-center mb-6' },
-                            React.createElement('p', { className: 'text-gray-600' },
-                                `${filteredModels.length} modèle${filteredModels.length > 1 ? 's' : ''} trouvé${filteredModels.length > 1 ? 's' : ''}`
-                            )
-                        ),
-                        React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' },
-                            filteredModels.map(model => 
-                                React.createElement('div', { 
-                                    key: model.id,
-                                    className: 'bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-all duration-200 group'
-                                },
-                                    React.createElement('div', { className: 'flex justify-between items-start mb-4' },
-                                        React.createElement('h3', { className: 'text-lg font-bold text-gray-900 group-hover:text-primary-600 transition-colors' }, 
-                                            model.name
-                                        ),
-                                        React.createElement('span', { 
-                                            className: `px-2 py-1 rounded text-xs font-medium ${
-                                                model.is_public ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                                            }` 
-                                        }, model.is_public ? 'Public' : 'Privé')
-                                    ),
-                                    React.createElement('p', { className: 'text-gray-600 mb-4 text-sm line-clamp-2' }, 
-                                        model.description || 'Aucune description'
-                                    ),
-                                    React.createElement('div', { className: 'flex flex-wrap gap-2 mb-4' },
-                                        React.createElement('span', { 
-                                            className: 'bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium'
-                                        }, model.framework),
-                                        React.createElement('span', { 
-                                            className: 'bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium'
-                                        }, model.task_type)
-                                    ),
-                                    React.createElement('div', { className: 'flex justify-between items-center text-sm text-gray-500' },
-                                        React.createElement('div', { className: 'flex items-center space-x-4' },
-                                            React.createElement('span', null, `v${model.version}`),
-                                            React.createElement('span', { className: 'flex items-center space-x-1' },
-                                                React.createElement(Icon, { name: 'star', size: 12 }),
-                                                React.createElement('span', null, model.like_count || 0)
-                                            )
-                                        ),
-                                        React.createElement('a', {
-                                            href: `#models/${model.id}`,
-                                            className: 'text-primary-600 hover:text-primary-700 font-medium'
-                                        }, 'Détails →')
-                                    )
-                                )
-                            )
-                        ),
-                        filteredModels.length === 0 && React.createElement('div', { className: 'text-center py-16' },
-                            React.createElement(Icon, { name: 'search', size: 48, className: 'text-gray-300 mx-auto mb-4' }),
-                            React.createElement('p', { className: 'text-gray-500' }, 'Aucun modèle trouvé'),
-                            React.createElement('p', { className: 'text-gray-400 text-sm mt-2' }, 
-                                'Essayez de modifier vos critères de recherche'
-                            )
-                        )
-                    )
-            );
-        }
-
-        // Composant Git
-        function GitRepositories() {
-            const { api, user } = React.useContext(AuthContext);
-            const [repos, setRepos] = React.useState([]);
-            const [loading, setLoading] = React.useState(true);
-
-            React.useEffect(() => {
-                if (user) loadRepositories();
-            }, [user]);
-
-            const loadRepositories = async () => {
-                try {
-                    const data = await api.getGitRepositories();
-                    setRepos(data);
-                } catch (error) {
-                    console.error('Error loading repositories:', error);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            if (!user) {
-                return React.createElement('div', { className: 'text-center py-16' },
-                    React.createElement('p', { className: 'text-gray-600' }, 'Veuillez vous connecter')
-                );
-            }
-
-            return React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8' },
-                React.createElement('div', { className: 'mb-8' },
-                    React.createElement('h1', { className: 'text-3xl font-bold text-gray-900 mb-4' }, 'Dépôts Git'),
-                    React.createElement('div', { className: 'flex justify-between items-center' },
-                        React.createElement('p', { className: 'text-gray-600' }, 
-                            'Gérez vos dépôts de code source'
-                        ),
-                        React.createElement('a', { 
-                            href: '#create-repo',
-                            className: 'bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 font-medium flex items-center space-x-2 transition-colors'
-                        },
-                            React.createElement(Icon, { name: 'plus', size: 16 }),
-                            React.createElement('span', null, 'Nouveau dépôt')
-                        )
-                    )
-                ),
-
-                loading ? 
-                    React.createElement('div', { className: 'flex justify-center py-16' },
-                        React.createElement('div', { className: 'loading-spinner' })
-                    ) :
-                    React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-2 gap-6' },
-                        repos.map(repo => 
-                            React.createElement('div', { 
-                                key: repo.id,
-                                className: 'bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow'
-                            },
-                                React.createElement('div', { className: 'flex justify-between items-start mb-4' },
-                                    React.createElement('h3', { className: 'text-xl font-bold text-gray-900' }, repo.name),
-                                    React.createElement('span', { 
-                                        className: `px-2 py-1 rounded text-xs font-medium ${
-                                            repo.is_public ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                                        }` 
-                                    }, repo.is_public ? 'Public' : 'Privé')
-                                ),
-                                React.createElement('p', { className: 'text-gray-600 mb-4' }, 
-                                    repo.description || 'Aucune description'
-                                ),
-                                repo.git_info && React.createElement('div', { className: 'space-y-2 text-sm text-gray-600' },
-                                    React.createElement('div', { className: 'flex items-center space-x-2' },
-                                        React.createElement(Icon, { name: 'git', size: 14 }),
-                                        React.createElement('span', null, 
-                                            `${repo.git_info.branches?.length || 0} branche${repo.git_info.branches?.length > 1 ? 's' : ''}`
-                                        )
-                                    ),
-                                    repo.git_info.last_commit && React.createElement('div', { className: 'flex items-center space-x-2' },
-                                        React.createElement(Icon, { name: 'code', size: 14 }),
-                                        React.createElement('span', { className: 'truncate' }, 
-                                            repo.git_info.last_commit.message
-                                        )
-                                    )
-                                ),
-                                React.createElement('div', { className: 'flex justify-between items-center mt-4 pt-4 border-t' },
-                                    React.createElement('span', { className: 'text-xs text-gray-500' },
-                                        new Date(repo.created_at).toLocaleDateString()
-                                    ),
-                                    React.createElement('a', {
-                                        href: `#git/${repo.id}`,
-                                        className: 'text-primary-600 hover:text-primary-700 font-medium text-sm'
-                                    }, 'Ouvrir →')
-                                )
-                            )
-                        )
-                    )
-            );
-        }
-
-        // Composant Notebooks
-        function Notebooks() {
-            const { api, user } = React.useContext(AuthContext);
-            const [notebooks, setNotebooks] = React.useState([]);
-            const [loading, setLoading] = React.useState(true);
-
-            React.useEffect(() => {
-                if (user) loadNotebooks();
-            }, [user]);
-
-            const loadNotebooks = async () => {
-                try {
-                    const data = await api.getNotebooks();
-                    setNotebooks(data);
-                } catch (error) {
-                    console.error('Error loading notebooks:', error);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            if (!user) {
-                return React.createElement('div', { className: 'text-center py-16' },
-                    React.createElement('p', { className: 'text-gray-600' }, 'Veuillez vous connecter')
-                );
-            }
-
-            return React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8' },
-                React.createElement('div', { className: 'mb-8' },
-                    React.createElement('h1', { className: 'text-3xl font-bold text-gray-900 mb-4' }, 'Notebooks Jupyter'),
-                    React.createElement('div', { className: 'flex justify-between items-center' },
-                        React.createElement('p', { className: 'text-gray-600' }, 
-                            'Créez et exécutez des notebooks interactifs'
-                        ),
-                        React.createElement('a', { 
-                            href: '#create-notebook',
-                            className: 'bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 font-medium flex items-center space-x-2 transition-colors'
-                        },
-                            React.createElement(Icon, { name: 'plus', size: 16 }),
-                            React.createElement('span', null, 'Nouveau notebook')
-                        )
-                    )
-                ),
-
-                loading ? 
-                    React.createElement('div', { className: 'flex justify-center py-16' },
-                        React.createElement('div', { className: 'loading-spinner' })
-                    ) :
-                    React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' },
-                        notebooks.map(notebook => 
-                            React.createElement('div', { 
-                                key: notebook.id,
-                                className: 'bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow group'
-                            },
-                                React.createElement('div', { className: 'flex justify-between items-start mb-4' },
-                                    React.createElement('h3', { className: 'text-lg font-bold text-gray-900 group-hover:text-primary-600 transition-colors' }, 
-                                        notebook.name
-                                    ),
-                                    React.createElement('span', { 
-                                        className: 'px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium'
-                                    }, notebook.language)
-                                ),
-                                React.createElement('p', { className: 'text-gray-600 mb-4 text-sm' }, 
-                                    notebook.description || 'Aucune description'
-                                ),
-                                React.createElement('div', { className: 'flex justify-between items-center text-sm text-gray-500' },
-                                    React.createElement('span', null,
-                                        new Date(notebook.updated_at).toLocaleDateString()
-                                    ),
-                                    React.createElement('a', {
-                                        href: `#notebooks/${notebook.id}`,
-                                        className: 'text-primary-600 hover:text-primary-700 font-medium'
-                                    }, 'Ouvrir →')
-                                )
-                            )
-                        )
-                    )
-            );
-        }
-
-        // Composant Login (inchangé mais conservé pour la structure)
-        function Login() {
-            const { login } = React.useContext(AuthContext);
-            const [form, setForm] = React.useState({ email: '', password: '' });
-            const [loading, setLoading] = React.useState(false);
-
-            const handleSubmit = async (e) => {
+            // Auth buttons
+            loginBtn.addEventListener('click', () => showModal('login-modal'));
+            registerBtn.addEventListener('click', () => showModal('register-modal'));
+            showRegister.addEventListener('click', (e) => {
                 e.preventDefault();
-                setLoading(true);
-                const success = await login(form.email, form.password);
-                setLoading(false);
-                if (success) window.location.hash = 'dashboard';
-            };
+                showModal('register-modal');
+            });
+            showLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                showModal('login-modal');
+            });
 
-            return React.createElement('div', { className: 'min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4' },
-                React.createElement('div', { className: 'max-w-md w-full bg-white rounded-xl shadow-md p-8' },
-                    React.createElement('h2', { className: 'text-2xl font-bold text-center mb-8' }, 'Connexion'),
-                    React.createElement('form', { onSubmit: handleSubmit },
-                        React.createElement('div', { className: 'mb-4' },
-                            React.createElement('label', { className: 'block text-gray-700 mb-2 font-medium' }, 'Email'),
-                            React.createElement('input', {
-                                type: 'email',
-                                required: true,
-                                value: form.email,
-                                onChange: (e) => setForm({...form, email: e.target.value}),
-                                className: 'w-full px-3 py-3 border rounded-lg focus:outline-none focus:border-primary-500',
-                                placeholder: 'votre@email.com'
-                            })
-                        ),
-                        React.createElement('div', { className: 'mb-6' },
-                            React.createElement('label', { className: 'block text-gray-700 mb-2 font-medium' }, 'Mot de passe'),
-                            React.createElement('input', {
-                                type: 'password',
-                                required: true,
-                                value: form.password,
-                                onChange: (e) => setForm({...form, password: e.target.value}),
-                                className: 'w-full px-3 py-3 border rounded-lg focus:outline-none focus:border-primary-500',
-                                placeholder: 'Votre mot de passe'
-                            })
-                        ),
-                        React.createElement('button', {
-                            type: 'submit',
-                            disabled: loading,
-                            className: 'w-full bg-primary-600 text-white py-3 rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50 flex items-center justify-center transition-colors'
-                        },
-                            loading && React.createElement('div', { className: 'loading-spinner mr-2' }),
-                            'Se connecter'
-                        )
-                    ),
-                    React.createElement('p', { className: 'text-center mt-4 text-gray-600' },
-                        'Pas de compte? ',
-                        React.createElement('a', { href: '#register', className: 'text-primary-600 hover:underline font-medium' }, 'Inscrivez-vous')
-                    )
-                )
-            );
-        }
+            // Tabs
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
 
-        // Composant Home amélioré
-        function Home() {
-            return React.createElement('div', { className: 'min-h-screen' },
-                // Hero Section
-                React.createElement('section', { className: 'gradient-bg text-white py-20' },
-                    React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center' },
-                        React.createElement('h1', { className: 'text-5xl md:text-6xl font-bold mb-6' },
-                            'initHUB ',
-                            React.createElement('span', { className: 'text-yellow-300' }, 'IA')
-                        ),
-                        React.createElement('p', { className: 'text-xl md:text-2xl mb-8 text-blue-100' },
-                            'Plateforme collaborative pour modèles et projets IA'
-                        ),
-                        React.createElement('div', { className: 'flex flex-col sm:flex-row gap-4 justify-center' },
-                            React.createElement('a', { 
-                                href: '#register',
-                                className: 'bg-white text-primary-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors'
-                            }, 'Commencer gratuitement'),
-                            React.createElement('a', { 
-                                href: '#models',
-                                className: 'border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-primary-600 transition-colors'
-                            }, 'Explorer les modèles')
-                        )
-                    )
-                ),
+            // Forms
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+            document.getElementById('register-form').addEventListener('submit', handleRegister);
+            document.getElementById('create-model-form').addEventListener('submit', handleCreateModel);
+            document.getElementById('create-project-form').addEventListener('submit', handleCreateProject);
 
-                // Features Section
-                React.createElement('section', { className: 'py-16 bg-white' },
-                    React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
-                        React.createElement('h2', { className: 'text-3xl md:text-4xl font-bold text-center mb-12' }, 
-                            'Fonctionnalités principales'
-                        ),
-                        React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8' },
-                            [
-                                { 
-                                    icon: 'brain', 
-                                    title: 'Modèles IA', 
-                                    description: 'Partagez et découvrez des modèles d\'IA entraînés' 
-                                },
-                                { 
-                                    icon: 'git', 
-                                    title: 'Git Intégré', 
-                                    description: 'Gestion de versions avec système Git complet' 
-                                },
-                                { 
-                                    icon: 'notebook', 
-                                    title: 'Notebooks', 
-                                    description: 'Environnement Jupyter intégré' 
-                                },
-                                { 
-                                    icon: 'workflow', 
-                                    title: 'Workflows', 
-                                    description: 'Automatisez vos pipelines de données' 
-                                },
-                                { 
-                                    icon: 'inference', 
-                                    title: 'Inférence', 
-                                    description: 'Exécutez des modèles en temps réel' 
-                                },
-                                { 
-                                    icon: 'badge', 
-                                    title: 'Badges', 
-                                    description: 'Système de récompenses et achievements' 
-                                },
-                                { 
-                                    icon: 'sponsor', 
-                                    title: 'Sponsors', 
-                                    description: 'Soutenez vos projets préférés' 
-                                },
-                                { 
-                                    icon: 'marketplace', 
-                                    title: 'Marketplace', 
-                                    description: 'Échangez modèles et datasets' 
-                                }
-                            ].map((feature, index) =>
-                                React.createElement('div', { 
-                                    key: index,
-                                    className: 'text-center p-6 hover:shadow-lg rounded-xl transition-shadow'
-                                },
-                                    React.createElement('div', { className: 'flex justify-center mb-4' },
-                                        React.createElement(Icon, { name: feature.icon, size: 48, className: 'text-primary-600' })
-                                    ),
-                                    React.createElement('h3', { className: 'text-xl font-bold mb-2' }, feature.title),
-                                    React.createElement('p', { className: 'text-gray-600' }, feature.description)
-                                )
-                            )
-                        )
-                    )
-                )
-            );
-        }
-
-        // Router principal étendu
-        function App() {
-            const auth = useAuth();
-            const [currentView, setCurrentView] = React.useState('home');
-
-            React.useEffect(() => {
-                const handleHashChange = () => {
-                    setCurrentView(window.location.hash.slice(1) || 'home');
-                };
-
-                window.addEventListener('hashchange', handleHashChange);
-                handleHashChange();
-
-                return () => window.removeEventListener('hashchange', handleHashChange);
-            }, []);
-
-            const renderView = () => {
-                if (auth.loading) {
-                    return React.createElement('div', { className: 'flex justify-center items-center min-h-screen' },
-                        React.createElement('div', { className: 'loading-spinner' })
-                    );
+            // Close modals when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
                 }
+            });
+        });
 
-                const views = {
-                    'home': Home,
-                    'login': Login,
-                    'register': Login, // Utilisation temporaire du composant Login pour register
-                    'dashboard': Dashboard,
-                    'models': Models,
-                    'projects': Models, // Temporaire
-                    'git': GitRepositories,
-                    'notebooks': Notebooks,
-                    'marketplace': Models, // Temporaire
-                    'trending': Models, // Temporaire
-                    'workflows': GitRepositories, // Temporaire
-                    'badges': GitRepositories // Temporaire
-                };
-
-                const ViewComponent = views[currentView] || Home;
-                return React.createElement(ViewComponent);
-            };
-
-            return React.createElement(AuthContext.Provider, { value: auth },
-                React.createElement('div', { className: 'min-h-screen flex flex-col' },
-                    React.createElement(Header),
-                    React.createElement('main', { className: 'flex-grow' }, renderView()),
-                    // Footer
-                    React.createElement('footer', { className: 'bg-dark text-white py-8' },
-                        React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
-                            React.createElement('div', { className: 'flex flex-col md:flex-row justify-between items-center' },
-                                React.createElement('div', { className: 'flex items-center space-x-2 mb-4 md:mb-0' },
-                                    React.createElement(Icon, { name: 'rocket', className: 'h-6 w-6 text-primary-500' }),
-                                    React.createElement('span', { className: 'text-xl font-bold' }, 'initHUB')
-                                ),
-                                React.createElement('p', { className: 'text-gray-400' }, 
-                                    'Plateforme IA collaborative initHUBS gopu-inc docs complet git/initHUBS © 2025'
-                                )
-                            )
-                        )
-                    )
-                )
-            );
+        // Page navigation
+        function showPage(pageId) {
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
         }
 
-        // Rendu
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(App));
+        // Tab navigation
+        function switchTab(tabId) {
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+            
+            // Load user-specific data if needed
+            if (tabId === 'my-models' && currentUser) {
+                loadUserModels();
+            } else if (tabId === 'my-projects' && currentUser) {
+                loadUserProjects();
+            } else if (tabId === 'analytics' && currentUser) {
+                loadAnalytics();
+            }
+        }
+
+        // Modal management
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Toast notifications
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toastContainer.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // API Functions
+        async function apiCall(endpoint, options = {}) {
+            const url = `${API_BASE_URL}${endpoint}`;
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                },
+                ...options
+            };
+
+            if (authToken) {
+                config.headers.Authorization = `Bearer ${authToken}`;
+            }
+
+            try {
+                const response = await fetch(url, config);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Une erreur est survenue');
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('API Error:', error);
+                showToast(error.message, 'error');
+                throw error;
+            }
+        }
+
+        // Authentication
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const result = await apiCall('/api/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+
+                authToken = result.access_token;
+                localStorage.setItem('authToken', authToken);
+                
+                await fetchUserProfile();
+                hideModal('login-modal');
+                showToast('Connexion réussie!');
+                
+                // Update UI for logged in user
+                updateAuthUI();
+            } catch (error) {
+                // Error handled in apiCall
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const fullName = document.getElementById('register-fullname').value;
+            const password = document.getElementById('register-password').value;
+
+            try {
+                await apiCall('/api/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, email, password, full_name: fullName })
+                });
+
+                hideModal('register-modal');
+                showToast('Inscription réussie! Vous pouvez maintenant vous connecter.', 'success');
+            } catch (error) {
+                // Error handled in apiCall
+            }
+        }
+
+        async function fetchUserProfile() {
+            try {
+                const user = await apiCall('/api/auth/me');
+                currentUser = user;
+                return user;
+            } catch (error) {
+                // If token is invalid, clear it
+                localStorage.removeItem('authToken');
+                authToken = null;
+                return null;
+            }
+        }
+
+        function updateAuthUI() {
+            if (currentUser) {
+                document.getElementById('login-btn').textContent = currentUser.username;
+                document.getElementById('register-btn').textContent = 'Déconnexion';
+                document.getElementById('register-btn').onclick = handleLogout;
+            } else {
+                document.getElementById('login-btn').textContent = 'Connexion';
+                document.getElementById('register-btn').textContent = 'Inscription';
+                document.getElementById('register-btn').onclick = () => showModal('register-modal');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('authToken');
+            authToken = null;
+            currentUser = null;
+            updateAuthUI();
+            showToast('Déconnexion réussie');
+        }
+
+        // Models
+        async function loadPopularModels() {
+            try {
+                const models = await apiCall('/api/models/popular?limit=3');
+                displayModels(models, 'popular-models');
+            } catch (error) {
+                // Error handled in apiCall
+            }
+        }
+
+        async function loadAllModels() {
+            try {
+                const models = await apiCall('/api/models');
+                displayModels(models, 'models-list');
+            } catch (error) {
+                // Error handled in apiCall
+            }
+        }
+
+        async function loadUserModels() {
+            if (!currentUser) {
+                showToast('Veuillez vous connecter pour voir vos modèles', 'warning');
+                return;
+            }
+
+            try {
+                // Note: L'API ne fournit pas directement les modèles de l'utilisateur
+                // Cette fonctionnalité nécessiterait un endpoint supplémentaire
+                showToast('Fonctionnalité à implémenter', 'warning');
+            } catch (error) {
+                // Error handled in apiCall
+            }
+        }
+
+        function displayModels(models, containerId) {
+            const container = document.getElementById(containerId);
+            if (!models || models.length === 0) {
+                container.innerHTML = '<p>Aucun modèle disponible</p>';
+                return;
+            }
+
+            container.innerHTML = models.map(model => `
+                <div class="model-card">
+                    <div class="card-header">
+                        <h3>${model.name}</h3>
+                        <p>${model.description || 'Aucune description'}</p>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Framework:</strong> ${model.framework}</p>
+                        <p><strong>Type:</strong> ${model.task_type}</p>
+                        <p><strong>Version:</strong> ${model.version}</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="tag tag-primary">${model.framework}</span>
+                        <span>Par ${model.author_username || 'Utilisateur'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function handleCreateModel(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                showToast('Veuillez vous connecter pour créer un modèle', 'warning');
+                return;
+            }
+
+            const name = document.getElementById('model-name').value;
+            const description = document.getElementById('model-description').value;
+            const framework = document.getElementById('model-framework').value;
+            const taskType = document.getElementById('model-task').value;
+            const version = document.getElementById('model-version').value;
+            const isPublic = document.getElementById('model-public').checked;
+
+            try {
+                await apiCall('/api/models', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        name,
+                        description,
+                        framework,
+                        task_type: taskType,
+                        version,
+                        is_public: isPublic
+                    })
+                });
+
+                document.getElementById('create-model-form').reset();
+                showToast('Modèle créé avec succès!');
+                
+                // Reload models
+                loadAllModels();
+                if (document.getElementById('my-models').classList.contains('active')) {
+                    loadUserModels();
+                }
+            } catch (error) {
+                // Error handled in apiCall
+            }
+        }
+
+        // Projects
+        async function loadAllProjects() {
+            try {
+                const projects = await apiCall('/api/projects');
+                displayProjects(projects, 'projects-list');
+            } catch (error) {
+                // Error handled in apiCall
+            }
+        }
+
+        async function loadUserProjects() {
+            if (!currentUser) {
+                showToast('Veuillez vous connecter pour voir vos projets', 'warning');
+                return;
+            }
+
+            try {
+                // Note: L'API ne fournit pas directement les projets de l'utilisateur
+                // Cette fonctionnalité nécessiterait un endpoint supplémentaire
+                showToast('Fonctionnalité à implémenter', 'warning');
+            } catch (error) {
+                // Error handled in apiCall
+            }
+        }
+
+        function displayProjects(projects, containerId) {
+            const container = document.getElementById(containerId);
+            if (!projects || projects.length === 0) {
+                container.innerHTML = '<p>Aucun projet disponible</p>';
+                return;
+            }
+
+            container.innerHTML = projects.map(project => `
+                <div class="project-card">
+                    <div class="card-header">
+                        <h3>${project.name}</h3>
+                        <p>${project.description || 'Aucune description'}</p>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Type:</strong> ${project.project_type}</p>
+                        <p><strong>Langage:</strong> ${project.primary_language}</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="tag tag-success">${project.project_type}</span>
+                        <span>Par ${project.author_username || 'Utilisateur'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function handleCreateProject(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                showToast('Veuillez vous connecter pour créer un projet', 'warning');
+                return;
+            }
+
+            const name = document.getElementById('project-name').value;
+            const description = document.getElementById('project-description').value;
+            const projectType = document.getElementById('project-type').value;
+            const primaryLanguage = document.getElementById('project-language').value;
+            const isPublic = document.getElementById('project-public').checked;
+
+            try {
+                await apiCall('/api/projects', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        name,
+                        description,
+                        project_type: projectType,
+                        primary_language: primaryLanguage,
+                        is_public: isPublic
+                    })
+                });
+
+                document.getElementById('create-project-form').reset();
+                showToast('Projet créé avec succès!');
+                
+                // Reload projects
+                loadAllProjects();
+                if (document.getElementById('my-projects').classList.contains('active')) {
+                    loadUserProjects();
+                }
+            } catch (error) {
+                // Error handled in apiCall
+            }
+        }
+
+        // Analytics
+        async function loadAnalytics() {
+            if (!currentUser) {
+                showToast('Veuillez vous connecter pour voir vos analytics', 'warning');
+                return;
+            }
+
+            try {
+                const analytics = await apiCall('/api/analytics/dashboard');
+                displayAnalytics(analytics);
+            } catch (error) {
+                // Error handled in apiCall
+            }
+        }
+
+        function displayAnalytics(analytics) {
+            if (!analytics) return;
+
+            const stats = analytics.user_stats;
+            if (stats) {
+                document.getElementById('models-count').textContent = stats.models_count || 0;
+                document.getElementById('projects-count').textContent = stats.projects_count || 0;
+                document.getElementById('inferences-count').textContent = stats.inferences_count || 0;
+                document.getElementById('tokens-count').textContent = stats.tokens_count || 0;
+            }
+
+            const activity = analytics.recent_activity;
+            const container = document.getElementById('recent-activity');
+            
+            if (!activity || activity.length === 0) {
+                container.innerHTML = '<p>Aucune activité récente</p>';
+                return;
+            }
+
+            container.innerHTML = activity.map(item => `
+                <div class="model-card" style="margin-bottom: 15px;">
+                    <div class="card-body">
+                        <p><strong>${item.description}</strong></p>
+                        <p>${new Date(item.created_at).toLocaleString('fr-FR')}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
     </script>
 </body>
 </html>
