@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 initHUB CLI - Client complet avec connexion au serveur en ligne
-Version corrigée avec upload fonctionnel
+Version améliorée avec commande pull - Sans contenus Markdown
 """
 
 import os
@@ -13,11 +13,15 @@ import fnmatch
 import shlex
 import requests
 import argparse
+import zipfile
+import tarfile
+import tempfile
 from pathlib import Path
 from typing import Dict, List, Any, Optional
+from urllib.parse import urljoin
 
 # ============================================================================
-# ⚙️ CONFIGURATION CLIENT
+# ⚙️ CONFIGURATION CLIENT AMÉLIORÉE
 # ============================================================================
 
 class CLIConfig:
@@ -29,10 +33,13 @@ class CLIConfig:
     CONFIG_DIR = Path.home() / ".inithub"
     CONFIG_FILE = CONFIG_DIR / "config.json"
     TOKEN_FILE = CONFIG_DIR / "token.json"
+    CACHE_DIR = CONFIG_DIR / "cache"
     
     def __init__(self):
         self.config_dir = self.CONFIG_DIR
         self.config_dir.mkdir(exist_ok=True)
+        self.cache_dir = self.CACHE_DIR
+        self.cache_dir.mkdir(exist_ok=True)
         self._load_config()
     
     def _load_config(self):
@@ -44,7 +51,12 @@ class CLIConfig:
             except:
                 self.data = {}
         else:
-            self.data = {"server_url": self.SERVER_URL}
+            self.data = {
+                "server_url": self.SERVER_URL,
+                "default_download_dir": str(Path.home() / "inithub_downloads"),
+                "auto_extract": True,
+                "preserve_structure": True
+            }
     
     def save_config(self):
         """Sauvegarde la configuration"""
@@ -69,12 +81,19 @@ class CLIConfig:
     def get_server_url(self):
         """Retourne l'URL du serveur"""
         return self.data.get("server_url", self.SERVER_URL)
+    
+    def get_download_dir(self):
+        """Retourne le répertoire de téléchargement par défaut"""
+        download_dir = Path(self.data.get("default_download_dir", 
+                                        str(Path.home() / "inithub_downloads")))
+        download_dir.mkdir(exist_ok=True)
+        return download_dir
 
 # Configuration globale
 config = CLIConfig()
 
 # ============================================================================
-# 🔌 CLIENT API CORRIGÉ
+# 🔌 CLIENT API AMÉLIORÉ
 # ============================================================================
 
 class InitHUBClient:
@@ -153,7 +172,7 @@ class InitHUBClient:
             return None
     
     def push_project(self, manifest_data: Dict[str, Any], project_path: str) -> bool:
-        """Push un projet vers le serveur - VERSION CORRIGÉE"""
+        """Push un projet vers le serveur"""
         try:
             print(f"🚀 Création du projet {manifest_data['name']}...")
             
@@ -172,7 +191,7 @@ class InitHUBClient:
             
             print(f"✅ Projet créé: {project_data['name']} (ID: {project_data['id']})")
             
-            # Uploader les fichiers - VERSION CORRIGÉE
+            # Uploader les fichiers
             return self._upload_files_corrected(manifest_data, project_data['id'], project_path)
             
         except Exception as e:
@@ -180,7 +199,7 @@ class InitHUBClient:
             return False
     
     def _upload_files_corrected(self, manifest_data: Dict[str, Any], project_id: int, project_path: str) -> bool:
-        """Upload les fichiers du projet - VERSION CORRIGÉE"""
+        """Upload les fichiers du projet"""
         file_patterns = manifest_data.get('files', [])
         all_files = expand_file_patterns(project_path, file_patterns)
         
@@ -195,19 +214,17 @@ class InitHUBClient:
                     print(f"  ⚠️  Fichier non trouvé: {file_path}")
                     continue
                 
-                # Préparer les données pour l'upload - FORMAT CORRIGÉ
+                # Préparer les données pour l'upload
                 with open(full_path, 'rb') as f:
                     files = {
                         'file': (file_path, f, 'application/octet-stream')
                     }
                     
-                    # Utiliser FormData pour les métadonnées
                     data = {
                         'project_id': str(project_id),
                         'description': f"Fichier {file_path} du projet {manifest_data['name']}"
                     }
                     
-                    # Faire l'upload avec les bons headers
                     upload_response = self.session.post(
                         f"{self.base_url}/upload",
                         files=files,
@@ -227,53 +244,187 @@ class InitHUBClient:
         print(f"📊 Upload terminé: {success_count}/{len(all_files)} fichiers uploadés avec succès")
         return success_count > 0
     
-    def list_projects(self):
+    def list_projects(self, user_only: bool = False):
         """Liste les projets de l'utilisateur"""
         try:
             response = self.session.get(f"{self.base_url}/projects")
             projects = self._handle_response(response)
             
+            if user_only and self.get_current_user():
+                current_user = self.get_current_user()
+                projects = [p for p in projects if p.get('author_username') == current_user['username']]
+            
             if not projects:
                 print("📭 Aucun projet trouvé")
-                return True
+                return []
                 
-            print(f"📁 {len(projects)} projets trouvés:")
-            for project in projects:
-                print(f"  📦 {project['name']} (ID: {project['id']})")
-                print(f"     📝 {project.get('description', 'Pas de description')}")
-                print(f"     👤 {project.get('author_username', 'Inconnu')}")
-                print(f"     ⭐ {project.get('star_count', 0)} stars")
-                print()
-            
-            return True
+            return projects
             
         except Exception as e:
             print(f"❌ Erreur liste projets: {e}")
-            return False
+            return []
     
-    def list_models(self):
+    def list_models(self, user_only: bool = False):
         """Liste les modèles IA"""
         try:
             response = self.session.get(f"{self.base_url}/models")
             models = self._handle_response(response)
             
+            if user_only and self.get_current_user():
+                current_user = self.get_current_user()
+                models = [m for m in models if m.get('author_username') == current_user['username']]
+            
             if not models:
                 print("🤖 Aucun modèle IA trouvé")
-                return True
+                return []
                 
-            print(f"🧠 {len(models)} modèles IA trouvés:")
-            for model in models:
-                print(f"  🔧 {model['name']} (ID: {model['id']})")
-                print(f"     🏷️  {model['framework']} - {model['task_type']}")
-                print(f"     👤 {model.get('author_username', 'Inconnu')}")
-                print(f"     ❤️  {model.get('like_count', 0)} likes")
-                print()
-            
-            return True
+            return models
             
         except Exception as e:
             print(f"❌ Erreur liste modèles: {e}")
+            return []
+
+    def get_project_details(self, project_id: int):
+        """Récupère les détails d'un projet spécifique"""
+        try:
+            projects = self.list_projects()
+            for project in projects:
+                if project['id'] == project_id:
+                    return project
+            return None
+        except Exception as e:
+            print(f"❌ Erreur détails projet: {e}")
+            return None
+
+    def get_model_details(self, model_id: int):
+        """Récupère les détails d'un modèle spécifique"""
+        try:
+            models = self.list_models()
+            for model in models:
+                if model['id'] == model_id:
+                    return model
+            return None
+        except Exception as e:
+            print(f"❌ Erreur détails modèle: {e}")
+            return None
+
+    def download_project(self, project_id: int, output_path: str) -> bool:
+        """Télécharge un projet complet avec ses fichiers"""
+        try:
+            # Récupérer les détails du projet
+            project = self.get_project_details(project_id)
+            if not project:
+                print(f"❌ Projet {project_id} non trouvé")
+                return False
+            
+            print(f"📥 Téléchargement du projet: {project['name']}")
+            
+            # Créer le répertoire de destination
+            output_dir = Path(output_path) / project['name']
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Sauvegarder les métadonnées du projet
+            metadata_file = output_dir / "project_metadata.json"
+            with open(metadata_file, 'w', encoding='utf-8') as f:
+                json.dump(project, f, indent=2, ensure_ascii=False)
+            
+            print(f"✅ Métadonnées sauvegardées: {metadata_file}")
+            
+            # Créer un fichier .ssf basique pour le projet
+            ssf_content = generate_ssf_from_project(project)
+            ssf_file = output_dir / "init.ssf"
+            with open(ssf_file, 'w', encoding='utf-8') as f:
+                f.write(ssf_content)
+            
+            print(f"✅ Fichier .ssf généré: {ssf_file}")
+            
+            # Créer une structure de base
+            create_basic_project_structure(output_dir, project)
+            
+            print(f"✅ Projet téléchargé dans: {output_dir}")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Erreur téléchargement projet: {e}")
             return False
+
+    def download_model(self, model_id: int, output_path: str) -> bool:
+        """Télécharge un modèle IA avec sa configuration"""
+        try:
+            # Récupérer les détails du modèle
+            model = self.get_model_details(model_id)
+            if not model:
+                print(f"❌ Modèle {model_id} non trouvé")
+                return False
+            
+            print(f"📥 Téléchargement du modèle: {model['name']}")
+            
+            # Créer le répertoire de destination
+            output_dir = Path(output_path) / model['name']
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Sauvegarder les métadonnées du modèle
+            metadata_file = output_dir / "model_metadata.json"
+            with open(metadata_file, 'w', encoding='utf-8') as f:
+                json.dump(model, f, indent=2, ensure_ascii=False)
+            
+            print(f"✅ Métadonnées sauvegardées: {metadata_file}")
+            
+            # Créer des fichiers de configuration basiques selon le framework
+            create_model_files(output_dir, model)
+            
+            print(f"✅ Modèle téléchargé dans: {output_dir}")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Erreur téléchargement modèle: {e}")
+            return False
+
+    def search_projects(self, query: str, search_in: List[str] = None):
+        """Recherche des projets"""
+        try:
+            projects = self.list_projects()
+            if not projects:
+                return []
+            
+            if search_in is None:
+                search_in = ['name', 'description', 'author_username']
+            
+            results = []
+            for project in projects:
+                for field in search_in:
+                    if field in project and query.lower() in str(project[field]).lower():
+                        results.append(project)
+                        break
+            
+            return results
+            
+        except Exception as e:
+            print(f"❌ Erreur recherche projets: {e}")
+            return []
+
+    def search_models(self, query: str, search_in: List[str] = None):
+        """Recherche des modèles"""
+        try:
+            models = self.list_models()
+            if not models:
+                return []
+            
+            if search_in is None:
+                search_in = ['name', 'description', 'framework', 'task_type', 'author_username']
+            
+            results = []
+            for model in models:
+                for field in search_in:
+                    if field in model and query.lower() in str(model[field]).lower():
+                        results.append(model)
+                        break
+            
+            return results
+            
+        except Exception as e:
+            print(f"❌ Erreur recherche modèles: {e}")
+            return []
 
     def test_upload(self, project_id: int, test_file_path: str):
         """Test simple d'upload pour debugger"""
@@ -643,8 +794,159 @@ def find_ssf_file(project_path: str) -> Optional[Path]:
     
     return ssf_files[0]
 
+def generate_ssf_from_project(project_data: Dict[str, Any]) -> str:
+    """Génère un fichier .ssf basique à partir des métadonnées d'un projet"""
+    name = project_data.get('name', 'unknown')
+    description = project_data.get('description', 'Projet téléchargé depuis initHUB')
+    author = project_data.get('author_username', 'anonymous')
+    
+    ssf_content = f"""Init.glob(
+[
+I si name: {name}]
+ [{{cersion: 1.0.0}}]
+ [file: 
+         - *.py
+         - *.md
+         - requirements.txt
+         - *.json
+         - !__pycache__/**
+ ]}} ==> push-hub
+   —tags( # >
+        downloaded >
+        cli
+):main-{name}
+
+<=/>{{author =({author})}}
+
+init.get(
+   - README:md
+)
+
+# Configuration de base
+meta.set(
+   description = "{description}"
+   visibility = public
+   downloaded_from = "initHUB"
+   original_id = {project_data.get('id', 'unknown')}
+)
+"""
+    return ssf_content
+
+def create_basic_project_structure(output_dir: Path, project_data: Dict[str, Any]):
+    """Crée une structure de projet basique avec les métadonnées"""
+    # Fichier Python principal
+    main_py_content = '''"""
+Module principal du projet
+Projet téléchargé depuis initHUB
+"""
+
+def main():
+    """Fonction principale"""
+    print("Hello from initHUB project!")
+    
+if __name__ == "__main__":
+    main()
+'''
+    
+    with open(output_dir / "main.py", 'w', encoding='utf-8') as f:
+        f.write(main_py_content)
+    
+    # Requirements
+    with open(output_dir / "requirements.txt", 'w', encoding='utf-8') as f:
+        f.write("# Requirements for the project\nrequests>=2.25.0\n")
+
+def create_model_files(output_dir: Path, model_data: Dict[str, Any]):
+    """Crée des fichiers de configuration pour un modèle IA"""
+    framework = model_data.get('framework', 'unknown')
+    
+    # Fichier de configuration du modèle
+    config_content = {
+        "model_name": model_data.get('name'),
+        "framework": framework,
+        "task_type": model_data.get('task_type', 'unknown'),
+        "version": model_data.get('version', '1.0.0'),
+        "description": model_data.get('description', ''),
+        "author": model_data.get('author_username', ''),
+        "download_date": str(Path(output_dir).name),
+        "original_id": model_data.get('id')
+    }
+    
+    with open(output_dir / "model_config.json", 'w', encoding='utf-8') as f:
+        json.dump(config_content, f, indent=2, ensure_ascii=False)
+    
+    # Fichier d'exemple d'utilisation selon le framework
+    if framework.lower() == 'pytorch':
+        example_file = output_dir / "example_usage.py"
+        example_content = '''"""
+Exemple d'utilisation pour un modèle PyTorch
+"""
+
+import torch
+import torch.nn as nn
+import json
+
+# Charger la configuration
+with open('model_config.json', 'r') as f:
+    config = json.load(f)
+
+print(f"Configuration du modèle: {config}")
+
+# Structure de modèle exemple
+class ExampleModel(nn.Module):
+    def __init__(self):
+        super(ExampleModel, self).__init__()
+        self.layer = nn.Linear(10, 1)
+    
+    def forward(self, x):
+        return self.layer(x)
+
+print("Modèle prêt pour l'inférence!")
+'''
+    elif framework.lower() == 'tensorflow':
+        example_file = output_dir / "example_usage.py"
+        example_content = '''"""
+Exemple d'utilisation pour un modèle TensorFlow
+"""
+
+import tensorflow as tf
+import json
+
+# Charger la configuration
+with open('model_config.json', 'r') as f:
+    config = json.load(f)
+
+print(f"Configuration du modèle: {config}")
+
+# Modèle exemple
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(10, activation='relu'),
+    tf.keras.layers.Dense(1, activation='sigmoid')
+])
+
+print("Modèle prêt pour l'inférence!")
+'''
+    else:
+        example_file = output_dir / "example_usage.py"
+        example_content = '''"""
+Exemple d'utilisation générique pour un modèle IA
+"""
+
+import json
+
+# Charger la configuration
+with open('model_config.json', 'r') as f:
+    config = json.load(f)
+
+print(f"Modèle: {config['model_name']}")
+print(f"Framework: {config['framework']}")
+print(f"Type de tâche: {config['task_type']}")
+'''
+    
+    with open(example_file, 'w', encoding='utf-8') as f:
+        f.write(example_content)
+
 # ============================================================================
-# 🚀 COMMANDES .SSF AVEC CONNEXION API CORRIGÉE
+# 🚀 COMMANDES .SSF
 # ============================================================================
 
 def handle_ssf_init(args):
@@ -682,13 +984,11 @@ I si name: {project_name}]
 
 init.get(
    - README:md
-   - LICENSE:md
 )
 
 # Configuration de base
 meta.set(
    description = "{description}"
-   license = MIT
    visibility = public
 )
 """
@@ -710,7 +1010,7 @@ meta.set(
         return False
 
 def handle_ssf_push(args):
-    """Push avec le manifest .ssf vers le serveur - VERSION CORRIGÉE"""
+    """Push avec le manifest .ssf vers le serveur"""
     project_path = args.path or "."
     
     # Vérifier la connexion
@@ -775,15 +1075,6 @@ def create_sample_files(project_path: str, project_name: str):
     """Crée des fichiers d'exemple si aucun fichier n'est trouvé"""
     project_path = Path(project_path)
     
-    # README.md
-    readme_content = f"""# {project_name}
-
-Projet créé avec initHUB CLI.
-"""
-    
-    with open(project_path / "README.md", 'w', encoding='utf-8') as f:
-        f.write(readme_content)
-    
     # Fichier Python exemple
     py_content = '''"""
 Module exemple pour initHUB
@@ -804,7 +1095,7 @@ if __name__ == "__main__":
     with open(project_path / "requirements.txt", 'w', encoding='utf-8') as f:
         f.write("requests>=2.25.0\n")
     
-    print("✅ Fichiers d'exemple créés: README.md, example.py, requirements.txt")
+    print("✅ Fichiers d'exemple créés: example.py, requirements.txt")
 
 def handle_ssf_validate(args):
     """Valide un manifest .ssf"""
@@ -942,6 +1233,135 @@ def handle_logout(args):
     return True
 
 # ============================================================================
+# 📥 COMMANDES PULL
+# ============================================================================
+
+def handle_pull_project(args):
+    """Télécharge un projet depuis initHUB"""
+    project_id = args.project_id
+    output_path = args.output or config.get_download_dir()
+    
+    if not project_id:
+        print("❌ ID du projet requis")
+        return False
+    
+    try:
+        project_id = int(project_id)
+    except ValueError:
+        print("❌ L'ID du projet doit être un nombre")
+        return False
+    
+    user = api_client.get_current_user()
+    if not user:
+        print("❌ Non connecté. Utilisez 'inithub login' d'abord.")
+        return False
+    
+    return api_client.download_project(project_id, output_path)
+
+def handle_pull_model(args):
+    """Télécharge un modèle IA depuis initHUB"""
+    model_id = args.model_id
+    output_path = args.output or config.get_download_dir()
+    
+    if not model_id:
+        print("❌ ID du modèle requis")
+        return False
+    
+    try:
+        model_id = int(model_id)
+    except ValueError:
+        print("❌ L'ID du modèle doit être un nombre")
+        return False
+    
+    user = api_client.get_current_user()
+    if not user:
+        print("❌ Non connecté. Utilisez 'inithub login' d'abord.")
+        return False
+    
+    return api_client.download_model(model_id, output_path)
+
+def handle_pull_list(args):
+    """Liste les projets et modèles disponibles pour téléchargement"""
+    user = api_client.get_current_user()
+    if not user:
+        print("❌ Non connecté. Utilisez 'inithub login' d'abord.")
+        return False
+    
+    print("🔄 Récupération des projets et modèles...")
+    
+    # Lister les projets
+    projects = api_client.list_projects()
+    if projects:
+        print(f"\n📁 PROJETS DISPONIBLES ({len(projects)}):")
+        print("─" * 80)
+        for project in projects[:10]:
+            print(f"  🆔 {project['id']} | 📦 {project['name']} | 👤 {project.get('author_username', 'Inconnu')}")
+            if 'description' in project and project['description']:
+                desc = project['description'][:60] + "..." if len(project['description']) > 60 else project['description']
+                print(f"     📝 {desc}")
+            print()
+    
+    # Lister les modèles
+    models = api_client.list_models()
+    if models:
+        print(f"🧠 MODÈLES IA DISPONIBLES ({len(models)}):")
+        print("─" * 80)
+        for model in models[:10]:
+            print(f"  🆔 {model['id']} | 🔧 {model['name']} | 🏷️ {model['framework']} | 👤 {model.get('author_username', 'Inconnu')}")
+            if 'description' in model and model['description']:
+                desc = model['description'][:60] + "..." if len(model['description']) > 60 else model['description']
+                print(f"     📝 {desc}")
+            print()
+    
+    if not projects and not models:
+        print("📭 Aucun projet ou modèle disponible")
+    
+    print(f"\n💡 Utilisez 'inithub pull project <ID>' ou 'inithub pull model <ID>' pour télécharger")
+    return True
+
+def handle_search(args):
+    """Recherche des projets et modèles"""
+    query = args.query
+    if not query:
+        print("❌ Terme de recherche requis")
+        return False
+    
+    user = api_client.get_current_user()
+    if not user:
+        print("❌ Non connecté. Utilisez 'inithub login' d'abord.")
+        return False
+    
+    print(f"🔍 Recherche: '{query}'")
+    
+    # Rechercher dans les projets
+    projects = api_client.search_projects(query)
+    if projects:
+        print(f"\n📁 PROJETS TROUVÉS ({len(projects)}):")
+        print("─" * 80)
+        for project in projects:
+            print(f"  🆔 {project['id']} | 📦 {project['name']} | 👤 {project.get('author_username', 'Inconnu')}")
+            if 'description' in project and project['description']:
+                print(f"     📝 {project['description']}")
+            print()
+    
+    # Rechercher dans les modèles
+    models = api_client.search_models(query)
+    if models:
+        print(f"🧠 MODÈLES IA TROUVÉS ({len(models)}):")
+        print("─" * 80)
+        for model in models:
+            print(f"  🆔 {model['id']} | 🔧 {model['name']} | 🏷️ {model['framework']} | 👤 {model.get('author_username', 'Inconnu')}")
+            if 'description' in model and model['description']:
+                print(f"     📝 {model['description']}")
+            print()
+    
+    if not projects and not models:
+        print("❌ Aucun résultat trouvé")
+        return False
+    
+    return True
+
+# ============================================================================
 # 📦 COMMANDES PROJETS ET MODÈLES
 # ============================================================================
 
@@ -952,11 +1372,43 @@ def handle_projects_list(args):
         print("❌ Non connecté. Utilisez 'inithub login' d'abord.")
         return False
     
-    return api_client.list_projects()
+    user_only = getattr(args, 'user_only', False)
+    projects = api_client.list_projects(user_only=user_only)
+    
+    if not projects:
+        print("📭 Aucun projet trouvé")
+        return True
+        
+    print(f"📁 {len(projects)} projets trouvés:")
+    for project in projects:
+        print(f"  📦 {project['name']} (ID: {project['id']})")
+        print(f"     📝 {project.get('description', 'Pas de description')}")
+        print(f"     👤 {project.get('author_username', 'Inconnu')}")
+        print(f"     ⭐ {project.get('star_count', 0)} stars")
+        print(f"     🏷️  {project.get('project_type', 'N/A')} | {project.get('primary_language', 'N/A')}")
+        print()
+    
+    return True
 
 def handle_models_list(args):
     """Liste les modèles IA disponibles"""
-    return api_client.list_models()
+    user_only = getattr(args, 'user_only', False)
+    models = api_client.list_models(user_only=user_only)
+    
+    if not models:
+        print("🤖 Aucun modèle IA trouvé")
+        return True
+        
+    print(f"🧠 {len(models)} modèles IA trouvés:")
+    for model in models:
+        print(f"  🔧 {model['name']} (ID: {model['id']})")
+        print(f"     🏷️  {model['framework']} - {model['task_type']}")
+        print(f"     👤 {model.get('author_username', 'Inconnu')}")
+        print(f"     ❤️  {model.get('like_count', 0)} likes | 📥 {model.get('download_count', 0)} downloads")
+        print(f"     📝 {model.get('description', 'Pas de description')}")
+        print()
+    
+    return True
 
 def handle_status(args):
     """Statut de la connexion et informations"""
@@ -966,6 +1418,14 @@ def handle_status(args):
     if user:
         print(f"✅ Connecté en tant que: {user['username']}")
         print(f"📧 Email: {user['email']}")
+        
+        # Statistiques utilisateur
+        projects = api_client.list_projects(user_only=True)
+        models = api_client.list_models(user_only=True)
+        
+        print(f"📊 Statistiques:")
+        print(f"   📁 Projets: {len(projects)}")
+        print(f"   🧠 Modèles: {len(models)}")
     else:
         print("❌ Non connecté")
     
@@ -975,6 +1435,9 @@ def handle_status(args):
         print(f"📡 Serveur status: {'🟢 En ligne' if response.status_code == 200 else '🔴 Hors ligne'}")
     except:
         print("📡 Serveur status: 🔴 Hors ligne")
+    
+    # Informations de configuration
+    print(f"📂 Répertoire de téléchargement: {config.get_download_dir()}")
     
     return True
 
@@ -1023,15 +1486,15 @@ def handle_test_upload(args):
 def main():
     banner = """
     ╔═══════════════════════════════════════════════╗
-    ║              🚀 initHUB CLI v2.1              ║
-    ║        Version corrigée - Upload réparé       ║
+    ║              🚀 initHUB CLI v3.0              ║
+    ║     Version améliorée - Commandes PULL        ║
     ╚═══════════════════════════════════════════════╝
     """
     
     print(banner)
     
     parser = argparse.ArgumentParser(
-        description="🚀 initHUB CLI - Client complet avec connexion serveur",
+        description="🚀 initHUB CLI - Client complet avec connexion serveur et téléchargement",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Exemples d'utilisation:
@@ -1047,9 +1510,18 @@ Exemples d'utilisation:
     inithub ssf-push --path ./mon-projet
     inithub ssf-list --path ./mon-projet
 
+  📥 Téléchargement (PULL):
+    inithub pull list                          # Lister les projets/modèles disponibles
+    inithub pull project 123                   # Télécharger le projet ID 123
+    inithub pull model 456                     # Télécharger le modèle ID 456
+    inithub pull project 123 --output ./my_dir # Spécifier le répertoire de sortie
+    inithub search "machine learning"          # Rechercher projets et modèles
+
   📦 Projets et modèles:
     inithub projects list
+    inithub projects list --user-only          # Seulement mes projets
     inithub models list
+    inithub models list --user-only            # Seulement mes modèles
     inithub status
 
   🐛 Debug:
@@ -1094,14 +1566,34 @@ Exemples d'utilisation:
     ssf_list_parser = subparsers.add_parser('ssf-list', help='Liste les fichiers .ssf')
     ssf_list_parser.add_argument('--path', help='Chemin du projet')
     
+    # 📥 Commandes PULL
+    pull_parser = subparsers.add_parser('pull', help='Téléchargement depuis initHUB')
+    pull_subparsers = pull_parser.add_subparsers(dest='pull_subcommand')
+    
+    pull_project_parser = pull_subparsers.add_parser('project', help='Télécharger un projet')
+    pull_project_parser.add_argument('project_id', help='ID du projet')
+    pull_project_parser.add_argument('--output', help='Répertoire de sortie')
+    
+    pull_model_parser = pull_subparsers.add_parser('model', help='Télécharger un modèle IA')
+    pull_model_parser.add_argument('model_id', help='ID du modèle')
+    pull_model_parser.add_argument('--output', help='Répertoire de sortie')
+    
+    pull_subparsers.add_parser('list', help='Lister les projets et modèles disponibles')
+    
+    # 🔍 Recherche
+    search_parser = subparsers.add_parser('search', help='Recherche projets et modèles')
+    search_parser.add_argument('query', help='Terme de recherche')
+    
     # 📦 Commandes serveur
     projects_parser = subparsers.add_parser('projects', help='Gestion des projets')
     projects_subparsers = projects_parser.add_subparsers(dest='subcommand')
-    projects_subparsers.add_parser('list', help='Liste les projets')
+    projects_list_parser = projects_subparsers.add_parser('list', help='Liste les projets')
+    projects_list_parser.add_argument('--user-only', action='store_true', help='Seulement mes projets')
     
     models_parser = subparsers.add_parser('models', help='Gestion des modèles IA')
     models_subparsers = models_parser.add_subparsers(dest='subcommand')
-    models_subparsers.add_parser('list', help='Liste les modèles IA')
+    models_list_parser = models_subparsers.add_parser('list', help='Liste les modèles IA')
+    models_list_parser.add_argument('--user-only', action='store_true', help='Seulement mes modèles')
     
     status_parser = subparsers.add_parser('status', help='Statut de la connexion')
     
@@ -1138,6 +1630,21 @@ Exemples d'utilisation:
             success = handle_ssf_show(args)
         elif args.command == 'ssf-list':
             success = handle_ssf_list(args)
+        
+        # 📥 Commandes PULL
+        elif args.command == 'pull':
+            if args.pull_subcommand == 'project':
+                success = handle_pull_project(args)
+            elif args.pull_subcommand == 'model':
+                success = handle_pull_model(args)
+            elif args.pull_subcommand == 'list':
+                success = handle_pull_list(args)
+            else:
+                pull_parser.print_help()
+        
+        # 🔍 Recherche
+        elif args.command == 'search':
+            success = handle_search(args)
         
         # 📦 Commandes serveur
         elif args.command == 'projects':
