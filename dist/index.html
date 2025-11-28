@@ -25,6 +25,7 @@
             --gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
         * {
@@ -47,9 +48,9 @@
             padding: 0 20px;
         }
 
-        /* Header */
+        /* Header amélioré */
         header {
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(10px);
             box-shadow: var(--shadow);
             position: sticky;
@@ -73,20 +74,19 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary);
             text-decoration: none;
         }
 
-        .logo i {
-            font-size: 1.8rem;
-            transition: transform 0.3s ease;
-        }
-
-        .logo:hover i {
-            transform: rotate(15deg);
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: var(--shadow);
         }
 
         nav ul {
@@ -142,6 +142,11 @@
             color: white;
             font-weight: 600;
             cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
         }
 
         .btn {
@@ -195,11 +200,16 @@
             font-size: 0.85rem;
         }
 
-        /* Hero Section */
+        .btn-lg {
+            padding: 12px 24px;
+            font-size: 1rem;
+        }
+
+        /* Hero Section améliorée */
         .hero {
             background: var(--gradient);
             color: white;
-            padding: 100px 0;
+            padding: 120px 0;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -228,6 +238,7 @@
             margin-bottom: 20px;
             font-weight: 800;
             line-height: 1.2;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .hero p {
@@ -244,7 +255,7 @@
             flex-wrap: wrap;
         }
 
-        /* Features Section */
+        /* Features Section améliorée */
         .features {
             padding: 100px 0;
             background-color: white;
@@ -298,7 +309,7 @@
 
         .feature-card:hover {
             transform: translateY(-10px);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-xl);
         }
 
         .feature-icon {
@@ -325,7 +336,7 @@
             color: var(--gray);
         }
 
-        /* Dashboard */
+        /* Dashboard amélioré */
         .dashboard {
             padding: 80px 0;
             background-color: #f8fafc;
@@ -351,6 +362,7 @@
 
         .stat-card:hover {
             transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
         }
 
         .stat-card::before {
@@ -398,7 +410,7 @@
 
         .model-card:hover, .project-card:hover {
             transform: translateY(-8px);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-xl);
         }
 
         .card-header {
@@ -503,7 +515,7 @@
             color: var(--warning);
         }
 
-        /* Modal Styles */
+        /* Modal Styles améliorés */
         .modal {
             display: none;
             position: fixed;
@@ -525,7 +537,7 @@
             max-width: 600px;
             max-height: 80vh;
             overflow-y: auto;
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-xl);
             animation: modalFadeIn 0.3s ease;
             position: relative;
         }
@@ -559,17 +571,24 @@
             cursor: pointer;
             color: var(--gray);
             transition: color 0.3s;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
         }
 
         .close-modal:hover {
             color: var(--dark);
+            background-color: var(--gray-light);
         }
 
         .modal-body {
             padding: 25px;
         }
 
-        /* File Explorer */
+        /* File Explorer amélioré */
         .file-explorer {
             border: 1px solid var(--gray-light);
             border-radius: 8px;
@@ -606,7 +625,7 @@
             font-size: 0.9rem;
         }
 
-        /* Toast notifications */
+        /* Toast notifications améliorées */
         .toast {
             position: fixed;
             top: 20px;
@@ -644,7 +663,7 @@
             background-color: var(--primary);
         }
 
-        /* Responsive */
+        /* Responsive amélioré */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -679,7 +698,7 @@
             }
         }
 
-        /* Tabs */
+        /* Tabs améliorés */
         .tabs {
             display: flex;
             border-bottom: 1px solid var(--gray-light);
@@ -717,7 +736,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Forms */
+        /* Forms améliorés */
         .form-container {
             max-width: 500px;
             margin: 50px auto;
@@ -773,7 +792,7 @@
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
-        /* Loading Spinner */
+        /* Loading Spinner amélioré */
         .spinner {
             display: inline-block;
             width: 20px;
@@ -788,7 +807,7 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Project/Model Detail View */
+        /* Project/Model Detail View amélioré */
         .detail-view {
             background: white;
             border-radius: 16px;
@@ -799,7 +818,7 @@
 
         .detail-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 25px;
         }
@@ -838,7 +857,7 @@
             }
         }
 
-        /* Fork and Star buttons */
+        /* Fork and Star buttons améliorés */
         .fork-btn, .star-btn {
             display: flex;
             align-items: center;
@@ -863,7 +882,7 @@
             border-color: var(--warning);
         }
 
-        /* Comment Section */
+        /* Comment Section améliorée */
         .comment-section {
             margin-top: 30px;
         }
@@ -873,11 +892,16 @@
             border: 1px solid var(--gray-light);
             border-radius: 8px;
             margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .comment:hover {
+            box-shadow: var(--shadow);
         }
 
         .comment-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             margin-bottom: 10px;
         }
 
@@ -895,7 +919,7 @@
             color: var(--dark);
         }
 
-        /* Footer */
+        /* Footer amélioré */
         footer {
             background-color: var(--darker);
             color: white;
@@ -955,6 +979,93 @@
             color: #9ca3af;
             font-size: 0.9rem;
         }
+
+        /* Nouveaux styles pour améliorer l'interface */
+        .search-bar {
+            display: flex;
+            margin-bottom: 30px;
+            max-width: 500px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px 0 0 8px;
+            font-size: 1rem;
+        }
+
+        .search-bar button {
+            padding: 12px 20px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--gray-light);
+        }
+
+        .card-progress {
+            height: 4px;
+            background: var(--gray-light);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .card-progress-bar {
+            height: 100%;
+            background: var(--gradient);
+            border-radius: 2px;
+        }
+
+        .floating-action-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-xl);
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .floating-action-btn:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -963,7 +1074,7 @@
         <div class="container">
             <div class="header-content">
                 <a href="#" class="logo">
-                    <i class="fas fa-brain"></i>
+                    <img class="logo-img" src="https://github.com/user-attachments/assets/d381e360-9daa-4423-a5c4-e6906b7f4afe" alt="initHUB Logo">
                     <span>initHUB</span>
                 </a>
                 <nav>
@@ -989,6 +1100,11 @@
 
     <!-- Toast Notifications -->
     <div id="toast-container"></div>
+
+    <!-- Floating Action Button -->
+    <div class="floating-action-btn" id="create-fab" title="Créer un nouveau projet">
+        <i class="fas fa-plus"></i>
+    </div>
 
     <!-- Main Content -->
     <main id="main-content">
@@ -1113,6 +1229,29 @@
                         <p>Explorez notre collection de modèles d'intelligence artificielle</p>
                     </div>
                     
+                    <div class="search-bar">
+                        <input type="text" id="model-search" placeholder="Rechercher un modèle...">
+                        <button id="model-search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                    
+                    <div class="filter-bar">
+                        <select class="filter-select" id="framework-filter">
+                            <option value="">Tous les frameworks</option>
+                            <option value="TensorFlow">TensorFlow</option>
+                            <option value="PyTorch">PyTorch</option>
+                            <option value="Keras">Keras</option>
+                            <option value="Scikit-learn">Scikit-learn</option>
+                        </select>
+                        <select class="filter-select" id="task-filter">
+                            <option value="">Tous les types</option>
+                            <option value="Classification">Classification</option>
+                            <option value="Regression">Régression</option>
+                            <option value="Clustering">Clustering</option>
+                            <option value="Computer Vision">Vision par ordinateur</option>
+                            <option value="NLP">Traitement du langage naturel</option>
+                        </select>
+                    </div>
+                    
                     <div class="tabs">
                         <div class="tab active" data-tab="all-models">
                             <i class="fas fa-th-large"></i>Tous les modèles
@@ -1198,6 +1337,29 @@
                     <div class="section-title">
                         <h2>Projets</h2>
                         <p>Gérez et découvrez des projets IA collaboratifs</p>
+                    </div>
+                    
+                    <div class="search-bar">
+                        <input type="text" id="project-search" placeholder="Rechercher un projet...">
+                        <button id="project-search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                    
+                    <div class="filter-bar">
+                        <select class="filter-select" id="project-type-filter">
+                            <option value="">Tous les types</option>
+                            <option value="Research">Recherche</option>
+                            <option value="Application">Application</option>
+                            <option value="Library">Bibliothèque</option>
+                            <option value="Tutorial">Tutoriel</option>
+                        </select>
+                        <select class="filter-select" id="language-filter">
+                            <option value="">Tous les langages</option>
+                            <option value="Python">Python</option>
+                            <option value="R">R</option>
+                            <option value="JavaScript">JavaScript</option>
+                            <option value="Java">Java</option>
+                            <option value="C++">C++</option>
+                        </select>
                     </div>
                     
                     <div class="tabs">
@@ -1299,6 +1461,36 @@
                         <div class="stat-card">
                             <div class="stat-value" id="user-downloads-count">0</div>
                             <div class="stat-label">Téléchargements</div>
+                        </div>
+                    </div>
+                    
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <h3>Activité Récente</h3>
+                            <div id="recent-activity">
+                                <p class="empty-state">
+                                    <i class="fas fa-chart-line"></i><br>
+                                    Aucune activité récente
+                                </p>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Modèles Populaires</h3>
+                            <div id="popular-user-models">
+                                <p class="empty-state">
+                                    <i class="fas fa-robot"></i><br>
+                                    Aucun modèle populaire
+                                </p>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Projets Populaires</h3>
+                            <div id="popular-user-projects">
+                                <p class="empty-state">
+                                    <i class="fas fa-project-diagram"></i><br>
+                                    Aucun projet populaire
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1659,6 +1851,7 @@
         const userMenu = document.getElementById('user-menu');
         const closeModalButtons = document.querySelectorAll('.close-modal');
         const modals = document.querySelectorAll('.modal');
+        const createFab = document.getElementById('create-fab');
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
@@ -1750,6 +1943,24 @@
                     header.classList.remove('header-scrolled');
                 }
             });
+
+            // Floating action button
+            createFab.addEventListener('click', function() {
+                showPage('projects-page');
+                switchTab('create-project');
+                navLinks.forEach(nav => nav.classList.remove('active'));
+                document.querySelector('[data-page="projects"]').classList.add('active');
+            });
+
+            // Search functionality
+            document.getElementById('model-search-btn').addEventListener('click', searchModels);
+            document.getElementById('project-search-btn').addEventListener('click', searchProjects);
+
+            // Filter functionality
+            document.getElementById('framework-filter').addEventListener('change', filterModels);
+            document.getElementById('task-filter').addEventListener('change', filterModels);
+            document.getElementById('project-type-filter').addEventListener('change', filterProjects);
+            document.getElementById('language-filter').addEventListener('change', filterProjects);
         });
 
         // API Functions
@@ -2007,7 +2218,13 @@
         function displayModels(models, containerId) {
             const container = document.getElementById(containerId);
             if (!models || models.length === 0) {
-                container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--gray);">Aucun modèle disponible</p>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-robot"></i>
+                        <h3>Aucun modèle disponible</h3>
+                        <p>Créez le premier modèle ou modifiez vos critères de recherche</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -2132,7 +2349,13 @@
         function displayProjects(projects, containerId) {
             const container = document.getElementById(containerId);
             if (!projects || projects.length === 0) {
-                container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--gray);">Aucun projet disponible</p>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-project-diagram"></i>
+                        <h3>Aucun projet disponible</h3>
+                        <p>Créez le premier projet ou modifiez vos critères de recherche</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -2160,8 +2383,7 @@
                         </div>
                     </div>
                     <div class="card-footer">
-                        <span class="tag tag-success">
-                       ${project.project_type}</span>
+                        <span class="tag tag-success">${project.project_type}</span>
                         <div class="card-actions">
                             <button class="action-btn" title="Voir les détails" onclick="showProjectDetail(${project.id})">
                                 <i class="fas fa-eye"></i>
@@ -2229,6 +2451,57 @@
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             }
+        }
+
+        // Search and Filter functions
+        function searchModels() {
+            const searchTerm = document.getElementById('model-search').value.toLowerCase();
+            const models = document.querySelectorAll('#models-list .model-card');
+            
+            models.forEach(model => {
+                const name = model.querySelector('h3').textContent.toLowerCase();
+                const description = model.querySelector('p').textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                    model.style.display = 'block';
+                } else {
+                    model.style.display = 'none';
+                }
+            });
+        }
+
+        function searchProjects() {
+            const searchTerm = document.getElementById('project-search').value.toLowerCase();
+            const projects = document.querySelectorAll('#projects-list .project-card');
+            
+            projects.forEach(project => {
+                const name = project.querySelector('h3').textContent.toLowerCase();
+                const description = project.querySelector('p').textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                    project.style.display = 'block';
+                } else {
+                    project.style.display = 'none';
+                }
+            });
+        }
+
+        function filterModels() {
+            const framework = document.getElementById('framework-filter').value;
+            const taskType = document.getElementById('task-filter').value;
+            
+            // In a real implementation, this would call the API with filters
+            // For now, we'll just show a message
+            showToast('Filtrage des modèles...', 'info');
+        }
+
+        function filterProjects() {
+            const projectType = document.getElementById('project-type-filter').value;
+            const language = document.getElementById('language-filter').value;
+            
+            // In a real implementation, this would call the API with filters
+            // For now, we'll just show a message
+            showToast('Filtrage des projets...', 'info');
         }
 
         // Project Detail Functions
@@ -2821,4 +3094,4 @@ results = model.predict(data)
         updateAuthUI();
     </script>
 </body>
-</html> 
+</html>
