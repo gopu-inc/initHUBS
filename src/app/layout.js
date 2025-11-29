@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'initHUB Cloud Enterprise',
-  description: 'Plateforme cloud complète avec Copilot, Dashboard, Releases et Analytics',
+  description: 'Plateforme cloud complète avec Copilot',
 }
 
 export default function RootLayout({ children }) {
