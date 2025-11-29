@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-initHUB CLI - Client complet avec connexion au serveur en ligne
-Version améliorée avec commande pull - Sans contenus Markdown
+initHUB CLI - Client complet avec toutes les routes du serveur
+Version Ultimate avec connexion totale
 """
 
 import os
@@ -26,7 +26,7 @@ from urllib.parse import urljoin
 
 class CLIConfig:
     # URL de votre serveur déployé
-    SERVER_URL = "https://hubs-ja2g.onrender.com"
+    SERVER_URL = "https://hubs-pro.onrender.com"
     API_BASE = f"{SERVER_URL}/api"
     
     # Chemins de configuration
@@ -93,7 +93,7 @@ class CLIConfig:
 config = CLIConfig()
 
 # ============================================================================
-# 🔌 CLIENT API AMÉLIORÉ
+# 🔌 CLIENT API COMPLET AVEC TOUTES LES ROUTES
 # ============================================================================
 
 class InitHUBClient:
@@ -120,14 +120,21 @@ class InitHUBClient:
         
         return data
     
+    def _make_request(self, method, endpoint, **kwargs):
+        """Fait une requête à l'API avec gestion d'erreur"""
+        url = f"{self.base_url}{endpoint}"
+        try:
+            response = self.session.request(method, url, **kwargs)
+            return self._handle_response(response)
+        except Exception as e:
+            raise Exception(f"Erreur API {endpoint}: {e}")
+    
+    # 🔐 AUTHENTIFICATION
     def login(self, email: str, password: str) -> bool:
         """Connexion au serveur"""
         try:
-            response = self.session.post(
-                f"{self.base_url}/auth/login",
-                json={"email": email, "password": password}
-            )
-            data = self._handle_response(response)
+            data = self._make_request("POST", "/auth/login", 
+                                    json={"email": email, "password": password})
             
             # Sauvegarder le token
             config.save_token(data)
@@ -145,1048 +152,237 @@ class InitHUBClient:
     def register(self, username: str, email: str, password: str, full_name: str = "") -> bool:
         """Inscription au serveur"""
         try:
-            response = self.session.post(
-                f"{self.base_url}/auth/register",
-                json={
-                    "username": username,
-                    "email": email,
-                    "password": password,
-                    "full_name": full_name
-                }
-            )
-            data = self._handle_response(response)
-            print(f"✅ Compte créé: {data['username']}")
+            self._make_request("POST", "/auth/register",
+                             json={
+                                 "username": username,
+                                 "email": email,
+                                 "password": password,
+                                 "full_name": full_name
+                             })
+            print(f"✅ Compte créé: {username}")
             return True
             
         except Exception as e:
             print(f"❌ Erreur inscription: {e}")
             return False
     
+    def refresh_token(self) -> bool:
+        """Rafraîchit le token"""
+        try:
+            if not self.token_data or 'refresh_token' not in self.token_data:
+                return False
+            
+            self.session.headers.update({
+                "Authorization": f"Bearer {self.token_data['refresh_token']}"
+            })
+            
+            data = self._make_request("POST", "/auth/refresh")
+            
+            # Sauvegarder le nouveau token
+            config.save_token(data)
+            self.session.headers.update({
+                "Authorization": f"Bearer {data['access_token']}"
+            })
+            
+            return True
+        except:
+            return False
+    
     def get_current_user(self):
         """Récupère les infos de l'utilisateur connecté"""
         try:
-            response = self.session.get(f"{self.base_url}/auth/me")
-            return self._handle_response(response)
-        except Exception as e:
-            print(f"❌ Erreur récupération utilisateur: {e}")
+            return self._make_request("GET", "/users/me")
+        except:
             return None
     
-    def push_project(self, manifest_data: Dict[str, Any], project_path: str) -> bool:
-        """Push un projet vers le serveur"""
-        try:
-            print(f"🚀 Création du projet {manifest_data['name']}...")
-            
-            # Créer le projet d'abord
-            project_response = self.session.post(
-                f"{self.base_url}/projects",
-                json={
-                    "name": manifest_data['name'],
-                    "description": manifest_data.get('metadata', {}).get('description', 'Projet créé via CLI'),
-                    "project_type": "ssf",
-                    "primary_language": "python",
-                    "is_public": True
-                }
-            )
-            project_data = self._handle_response(project_response)
-            
-            print(f"✅ Projet créé: {project_data['name']} (ID: {project_data['id']})")
-            
-            # Uploader les fichiers
-            return self._upload_files_corrected(manifest_data, project_data['id'], project_path)
-            
-        except Exception as e:
-            print(f"❌ Erreur création projet: {e}")
-            return False
+    # 📁 REPOSITORIES
+    def create_repo(self, name: str, description: str = "", is_private: bool = False):
+        """Crée un nouveau repository"""
+        return self._make_request("POST", "/repos",
+                                json={
+                                    "name": name,
+                                    "description": description,
+                                    "is_private": is_private,
+                                    "auto_init": True
+                                })
     
-    def _upload_files_corrected(self, manifest_data: Dict[str, Any], project_id: int, project_path: str) -> bool:
-        """Upload les fichiers du projet"""
-        file_patterns = manifest_data.get('files', [])
-        all_files = expand_file_patterns(project_path, file_patterns)
-        
-        print(f"📤 Upload de {len(all_files)} fichiers...")
-        
-        success_count = 0
-        for file_path in all_files:
-            try:
-                full_path = Path(project_path) / file_path
-                
-                if not full_path.exists():
-                    print(f"  ⚠️  Fichier non trouvé: {file_path}")
-                    continue
-                
-                # Préparer les données pour l'upload
-                with open(full_path, 'rb') as f:
-                    files = {
-                        'file': (file_path, f, 'application/octet-stream')
-                    }
-                    
-                    data = {
-                        'project_id': str(project_id),
-                        'description': f"Fichier {file_path} du projet {manifest_data['name']}"
-                    }
-                    
-                    upload_response = self.session.post(
-                        f"{self.base_url}/upload",
-                        files=files,
-                        data=data
-                    )
-                    
-                    if upload_response.status_code == 200:
-                        print(f"  ✅ {file_path}")
-                        success_count += 1
-                    else:
-                        error_detail = upload_response.json().get('detail', 'Erreur inconnue')
-                        print(f"  ❌ {file_path} - Erreur {upload_response.status_code}: {error_detail}")
-                        
-            except Exception as e:
-                print(f"  ❌ {file_path} - {e}")
-        
-        print(f"📊 Upload terminé: {success_count}/{len(all_files)} fichiers uploadés avec succès")
-        return success_count > 0
+    def list_repos(self, page: int = 1, per_page: int = 30):
+        """Liste les repositories"""
+        return self._make_request("GET", f"/repos?page={page}&per_page={per_page}")
     
-    def list_projects(self, user_only: bool = False):
-        """Liste les projets de l'utilisateur"""
-        try:
-            response = self.session.get(f"{self.base_url}/projects")
-            projects = self._handle_response(response)
-            
-            if user_only and self.get_current_user():
-                current_user = self.get_current_user()
-                projects = [p for p in projects if p.get('author_username') == current_user['username']]
-            
-            if not projects:
-                print("📭 Aucun projet trouvé")
-                return []
-                
-            return projects
-            
-        except Exception as e:
-            print(f"❌ Erreur liste projets: {e}")
-            return []
+    def get_repo(self, owner: str, repo: str):
+        """Récupère un repository spécifique"""
+        return self._make_request("GET", f"/repos/{owner}/{repo}")
     
-    def list_models(self, user_only: bool = False):
-        """Liste les modèles IA"""
-        try:
-            response = self.session.get(f"{self.base_url}/models")
-            models = self._handle_response(response)
-            
-            if user_only and self.get_current_user():
-                current_user = self.get_current_user()
-                models = [m for m in models if m.get('author_username') == current_user['username']]
-            
-            if not models:
-                print("🤖 Aucun modèle IA trouvé")
-                return []
-                
-            return models
-            
-        except Exception as e:
-            print(f"❌ Erreur liste modèles: {e}")
-            return []
-
-    def get_project_details(self, project_id: int):
-        """Récupère les détails d'un projet spécifique"""
-        try:
-            projects = self.list_projects()
-            for project in projects:
-                if project['id'] == project_id:
-                    return project
-            return None
-        except Exception as e:
-            print(f"❌ Erreur détails projet: {e}")
-            return None
-
-    def get_model_details(self, model_id: int):
-        """Récupère les détails d'un modèle spécifique"""
-        try:
-            models = self.list_models()
-            for model in models:
-                if model['id'] == model_id:
-                    return model
-            return None
-        except Exception as e:
-            print(f"❌ Erreur détails modèle: {e}")
-            return None
-
-    def download_project(self, project_id: int, output_path: str) -> bool:
-        """Télécharge un projet complet avec ses fichiers"""
-        try:
-            # Récupérer les détails du projet
-            project = self.get_project_details(project_id)
-            if not project:
-                print(f"❌ Projet {project_id} non trouvé")
-                return False
-            
-            print(f"📥 Téléchargement du projet: {project['name']}")
-            
-            # Créer le répertoire de destination
-            output_dir = Path(output_path) / project['name']
-            output_dir.mkdir(parents=True, exist_ok=True)
-            
-            # Sauvegarder les métadonnées du projet
-            metadata_file = output_dir / "project_metadata.json"
-            with open(metadata_file, 'w', encoding='utf-8') as f:
-                json.dump(project, f, indent=2, ensure_ascii=False)
-            
-            print(f"✅ Métadonnées sauvegardées: {metadata_file}")
-            
-            # Créer un fichier .ssf basique pour le projet
-            ssf_content = generate_ssf_from_project(project)
-            ssf_file = output_dir / "init.ssf"
-            with open(ssf_file, 'w', encoding='utf-8') as f:
-                f.write(ssf_content)
-            
-            print(f"✅ Fichier .ssf généré: {ssf_file}")
-            
-            # Créer une structure de base
-            create_basic_project_structure(output_dir, project)
-            
-            print(f"✅ Projet téléchargé dans: {output_dir}")
-            return True
-            
-        except Exception as e:
-            print(f"❌ Erreur téléchargement projet: {e}")
-            return False
-
-    def download_model(self, model_id: int, output_path: str) -> bool:
-        """Télécharge un modèle IA avec sa configuration"""
-        try:
-            # Récupérer les détails du modèle
-            model = self.get_model_details(model_id)
-            if not model:
-                print(f"❌ Modèle {model_id} non trouvé")
-                return False
-            
-            print(f"📥 Téléchargement du modèle: {model['name']}")
-            
-            # Créer le répertoire de destination
-            output_dir = Path(output_path) / model['name']
-            output_dir.mkdir(parents=True, exist_ok=True)
-            
-            # Sauvegarder les métadonnées du modèle
-            metadata_file = output_dir / "model_metadata.json"
-            with open(metadata_file, 'w', encoding='utf-8') as f:
-                json.dump(model, f, indent=2, ensure_ascii=False)
-            
-            print(f"✅ Métadonnées sauvegardées: {metadata_file}")
-            
-            # Créer des fichiers de configuration basiques selon le framework
-            create_model_files(output_dir, model)
-            
-            print(f"✅ Modèle téléchargé dans: {output_dir}")
-            return True
-            
-        except Exception as e:
-            print(f"❌ Erreur téléchargement modèle: {e}")
-            return False
-
-    def search_projects(self, query: str, search_in: List[str] = None):
-        """Recherche des projets"""
-        try:
-            projects = self.list_projects()
-            if not projects:
-                return []
-            
-            if search_in is None:
-                search_in = ['name', 'description', 'author_username']
-            
-            results = []
-            for project in projects:
-                for field in search_in:
-                    if field in project and query.lower() in str(project[field]).lower():
-                        results.append(project)
-                        break
-            
-            return results
-            
-        except Exception as e:
-            print(f"❌ Erreur recherche projets: {e}")
-            return []
-
-    def search_models(self, query: str, search_in: List[str] = None):
-        """Recherche des modèles"""
-        try:
-            models = self.list_models()
-            if not models:
-                return []
-            
-            if search_in is None:
-                search_in = ['name', 'description', 'framework', 'task_type', 'author_username']
-            
-            results = []
-            for model in models:
-                for field in search_in:
-                    if field in model and query.lower() in str(model[field]).lower():
-                        results.append(model)
-                        break
-            
-            return results
-            
-        except Exception as e:
-            print(f"❌ Erreur recherche modèles: {e}")
-            return []
-
-    def test_upload(self, project_id: int, test_file_path: str):
-        """Test simple d'upload pour debugger"""
-        try:
-            full_path = Path(test_file_path)
-            if not full_path.exists():
-                print(f"❌ Fichier de test non trouvé: {test_file_path}")
-                return False
-            
-            with open(full_path, 'rb') as f:
-                files = {'file': (full_path.name, f, 'text/plain')}
-                data = {'project_id': str(project_id)}
-                
-                response = self.session.post(
-                    f"{self.base_url}/upload",
-                    files=files,
-                    data=data
-                )
-                
-                print(f"📡 Statut: {response.status_code}")
-                print(f"📡 Réponse: {response.text}")
-                
-                if response.status_code == 200:
-                    print("✅ Upload test réussi!")
-                    return True
-                else:
-                    print(f"❌ Upload test échoué: {response.text}")
-                    return False
-                    
-        except Exception as e:
-            print(f"❌ Erreur test upload: {e}")
-            return False
+    def delete_repo(self, owner: str, repo: str):
+        """Supprime un repository"""
+        return self._make_request("DELETE", f"/repos/{owner}/{repo}")
+    
+    # ⭐ STARS & FORKS
+    def star_repo(self, owner: str, repo: str):
+        """Star un repository"""
+        return self._make_request("POST", f"/repos/{owner}/{repo}/star")
+    
+    def unstar_repo(self, owner: str, repo: str):
+        """Unstar un repository"""
+        return self._make_request("DELETE", f"/repos/{owner}/{repo}/star")
+    
+    def fork_repo(self, owner: str, repo: str):
+        """Fork un repository"""
+        return self._make_request("POST", f"/repos/{owner}/{repo}/forks")
+    
+    # 🔑 TOKENS PERSONNELS
+    def create_token(self, name: str, scopes: List[str] = None):
+        """Crée un token personnel"""
+        if scopes is None:
+            scopes = ["read"]
+        return self._make_request("POST", "/tokens",
+                                json={"name": name, "scopes": scopes})
+    
+    def list_tokens(self):
+        """Liste les tokens personnels"""
+        return self._make_request("GET", "/tokens")
+    
+    def delete_token(self, token_id: int):
+        """Supprime un token personnel"""
+        return self._make_request("DELETE", f"/tokens/{token_id}")
+    
+    # 📊 DASHBOARD & ANALYTICS
+    def get_dashboard(self):
+        """Récupère le dashboard utilisateur"""
+        return self._make_request("GET", "/dashboard")
+    
+    def get_repo_analytics(self, owner: str, repo: str):
+        """Récupère les analytics d'un repository"""
+        return self._make_request("GET", f"/analytics/repos/{owner}/{repo}")
+    
+    # 🤖 COPILOT
+    def ask_copilot(self, question: str, context: str = "", max_length: int = 150, language: str = "auto"):
+        """Pose une question à Copilot"""
+        return self._make_request("POST", "/copilot/ask",
+                                json={
+                                    "question": question,
+                                    "context": context,
+                                    "max_length": max_length,
+                                    "language": language
+                                })
+    
+    def analyze_code(self, code: str, language: str, analysis_type: str = "complexity"):
+        """Analyse du code avec Copilot"""
+        return self._make_request("POST", "/copilot/analyze-code",
+                                json={
+                                    "code": code,
+                                    "language": language,
+                                    "analysis_type": analysis_type
+                                })
+    
+    def suggest_commit(self, diff: str, files_changed: List[str]):
+        """Suggère des messages de commit"""
+        return self._make_request("POST", "/copilot/suggest-commit",
+                                json={
+                                    "diff": diff,
+                                    "files_changed": files_changed
+                                })
+    
+    def copilot_health(self):
+        """Vérifie l'état de Copilot"""
+        return self._make_request("GET", "/copilot/health")
+    
+    # 🏷️ RELEASES
+    def create_release(self, owner: str, repo: str, release_data: Dict):
+        """Crée une release"""
+        return self._make_request("POST", f"/repos/{owner}/{repo}/releases",
+                                json=release_data)
+    
+    def list_releases(self, owner: str, repo: str, page: int = 1, per_page: int = 30):
+        """Liste les releases d'un repository"""
+        return self._make_request("GET", f"/repos/{owner}/{repo}/releases?page={page}&per_page={per_page}")
+    
+    def upload_release_asset(self, owner: str, repo: str, tag_name: str, file_path: str):
+        """Upload un asset de release"""
+        with open(file_path, 'rb') as f:
+            files = {'file': (Path(file_path).name, f)}
+            return self._make_request("POST", f"/repos/{owner}/{repo}/releases/{tag_name}/assets",
+                                    files=files)
+    
+    # 📖 WIKI
+    def create_wiki_page(self, owner: str, repo: str, title: str, content: str):
+        """Crée une page wiki"""
+        return self._make_request("POST", f"/repos/{owner}/{repo}/wiki",
+                                json={"title": title, "content": content})
+    
+    def list_wiki_pages(self, owner: str, repo: str):
+        """Liste les pages wiki"""
+        return self._make_request("GET", f"/repos/{owner}/{repo}/wiki")
+    
+    # 🩺 SYSTÈME
+    def health_check(self):
+        """Vérifie la santé du serveur"""
+        return self._make_request("GET", "/health")
+    
+    def system_info(self):
+        """Récupère les infos système"""
+        return self._make_request("GET", "/system/info")
+    
+    # 👥 UTILISATEURS
+    def get_user(self, username: str):
+        """Récupère les infos d'un utilisateur"""
+        return self._make_request("GET", f"/users/{username}")
+    
+    def update_user(self, user_data: Dict):
+        """Met à jour le profil utilisateur"""
+        return self._make_request("PATCH", "/users/me", json=user_data)
+    
+    # 📁 PROJETS (pour compatibilité ancien code)
+    def list_projects(self):
+        """Liste les projets (alias pour repositories)"""
+        return self.list_repos()
+    
+    def create_project(self, name: str, description: str = ""):
+        """Crée un projet (alias pour repository)"""
+        return self.create_repo(name, description)
 
 # Client global
 api_client = InitHUBClient()
 
 # ============================================================================
-# 📄 PARSER MANIFEST .SSF (LZL-ZOBA)
+# 🛠️ UTILITAIRES
 # ============================================================================
 
-class SSFParser:
-    def __init__(self):
-        self.manifest_data = {}
-    
-    def parse_ssf(self, content: str) -> Dict[str, Any]:
-        """Parse le contenu d'un fichier .ssf"""
-        lines = content.split('\n')
-        self.manifest_data = {
-            'name': 'unknown',
-            'version': '1.0.0',
-            'files': [],
-            'tags': [],
-            'branch': 'main',
-            'author': 'anonymous',
-            'init_files': [],
-            'model_config': {},
-            'dependencies': {'python': '', 'packages': []},
-            'scripts': {},
-            'metadata': {}
-        }
-        
-        i = 0
-        while i < len(lines):
-            line = lines[i].strip()
-            
-            if not line or line.startswith('#'):
-                i += 1
-                continue
-                
-            try:
-                if line.startswith('I si name:'):
-                    self._parse_name(line)
-                elif line.startswith('[{cersion:'):
-                    self._parse_version(line)
-                elif line.startswith('[file:'):
-                    i = self._parse_files(lines, i)
-                elif line.startswith('—tags('):
-                    i = self._parse_tags(lines, i)
-                elif line.startswith(':') and '#' in line:
-                    self._parse_branch(line)
-                elif line.startswith('<=/>'):
-                    i = self._parse_author(lines, i)
-                elif line.startswith('init.get('):
-                    i = self._parse_init_get(lines, i)
-                elif line.startswith('model.config('):
-                    i = self._parse_model_config(lines, i)
-                elif line.startswith('deps.require('):
-                    i = self._parse_dependencies(lines, i)
-                elif line.startswith('scripts.run('):
-                    i = self._parse_scripts(lines, i)
-                elif line.startswith('meta.set('):
-                    i = self._parse_metadata(lines, i)
-            except Exception as e:
-                print(f"⚠️  Erreur parsing ligne {i}: {e}")
-            
-            i += 1
-        
-        return self.manifest_data
-    
-    def _parse_name(self, line: str):
-        """Parse le nom du projet"""
-        match = re.search(r'I si name:\s*([^\]\s]+)', line)
-        if match:
-            self.manifest_data['name'] = match.group(1).strip()
-    
-    def _parse_version(self, line: str):
-        """Parse la version"""
-        match = re.search(r'\[{cersion:\s*([^}]+)}', line)
-        if match:
-            self.manifest_data['version'] = match.group(1).strip()
-    
-    def _parse_files(self, lines: List[str], start_idx: int) -> int:
-        """Parse la section fichiers"""
-        i = start_idx + 1
-        files = []
-        
-        while i < len(lines):
-            line = lines[i].strip()
-            
-            if line == ']} ==> push-hub':
-                break
-            
-            if line.startswith('-'):
-                file_pattern = line[1:].strip()
-                if file_pattern:
-                    files.append(file_pattern)
-            
-            i += 1
-        
-        self.manifest_data['files'] = files
-        return i
-    
-    def _parse_tags(self, lines: List[str], start_idx: int) -> int:
-        """Parse les tags"""
-        i = start_idx
-        tags = []
-        
-        while i < len(lines):
-            line = lines[i].strip()
-            
-            if line.startswith('):'):
-                break
-            
-            if line.startswith('>'):
-                tag = line[1:].strip()
-                if tag:
-                    tags.append(tag)
-            
-            i += 1
-        
-        self.manifest_data['tags'] = tags
-        return i
-    
-    def _parse_branch(self, line: str):
-        """Parse la branche"""
-        if '#' in line:
-            parts = line.split('#')
-            branch_part = parts[0].strip(': ')
-            comment = parts[1].strip()
-            
-            if '@' in comment:
-                fork_match = re.search(r'@([\w-]+)', comment)
-                if fork_match:
-                    self.manifest_data['fork'] = fork_match.group(1)
-            
-            self.manifest_data['branch'] = branch_part
-    
-    def _parse_author(self, lines: List[str], start_idx: int) -> int:
-        """Parse l'auteur"""
-        i = start_idx
-        if i + 1 < len(lines):
-            author_line = lines[i + 1].strip()
-            match = re.search(r'{author\s*=\s*\(([^)]+)\)', author_line)
-            if match:
-                self.manifest_data['author'] = match.group(1).strip()
-            return i + 1
-        return i
-    
-    def _parse_init_get(self, lines: List[str], start_idx: int) -> int:
-        """Parse init.get()"""
-        i = start_idx
-        init_files = []
-        
-        while i < len(lines):
-            line = lines[i].strip()
-            
-            if line == ')':
-                break
-            
-            if line.startswith('-'):
-                file_spec = line[1:].strip()
-                if ':' in file_spec:
-                    name, ext = file_spec.split(':', 1)
-                    init_files.append(f"{name}.{ext}")
-                else:
-                    init_files.append(file_spec)
-            
-            i += 1
-        
-        self.manifest_data['init_files'] = init_files
-        return i
-    
-    def _parse_model_config(self, lines: List[str], start_idx: int) -> int:
-        """Parse model.config()"""
-        i = start_idx
-        model_config = {}
-        
-        while i < len(lines):
-            line = lines[i].strip()
-            
-            if line == ')':
-                break
-            
-            if '=' in line:
-                key, value = line.split('=', 1)
-                key = key.strip()
-                value = value.strip()
-                
-                if value.startswith('[') and value.endswith(']'):
-                    value = [v.strip() for v in value[1:-1].split(',')]
-                
-                model_config[key] = value
-            
-            i += 1
-        
-        self.manifest_data['model_config'] = model_config
-        return i
-    
-    def _parse_dependencies(self, lines: List[str], start_idx: int) -> int:
-        """Parse deps.require()"""
-        i = start_idx
-        dependencies = {
-            'python': '',
-            'packages': []
-        }
-        
-        while i < len(lines):
-            line = lines[i].strip()
-            
-            if line == ')':
-                break
-            
-            if '>=' in line:
-                parts = line.split('>=')
-                if len(parts) == 2:
-                    pkg = parts[0].strip()
-                    version = '>=' + parts[1].strip()
-                    
-                    if pkg == 'python':
-                        dependencies['python'] = version
-                    else:
-                        dependencies['packages'].append(f"{pkg}{version}")
-            
-            i += 1
-        
-        self.manifest_data['dependencies'] = dependencies
-        return i
-    
-    def _parse_scripts(self, lines: List[str], start_idx: int) -> int:
-        """Parse scripts.run()"""
-        i = start_idx
-        scripts = {}
-        
-        while i < len(lines):
-            line = lines[i].strip()
-            
-            if line == ')':
-                break
-            
-            if '=' in line:
-                key, value = line.split('=', 1)
-                key = key.strip()
-                value = value.strip().strip('"')
-                scripts[key] = value
-            
-            i += 1
-        
-        self.manifest_data['scripts'] = scripts
-        return i
-    
-    def _parse_metadata(self, lines: List[str], start_idx: int) -> int:
-        """Parse meta.set()"""
-        i = start_idx
-        metadata = {}
-        
-        while i < len(lines):
-            line = lines[i].strip()
-            
-            if line == ')':
-                break
-            
-            if '=' in line:
-                key, value = line.split('=', 1)
-                key = key.strip()
-                value = value.strip()
-                
-                if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
-                    value = value[1:-1]
-                
-                metadata[key] = value
-            
-            i += 1
-        
-        self.manifest_data['metadata'] = metadata
-        return i
+def print_success(message):
+    """Affiche un message de succès"""
+    print(f"✅ {message}")
+
+def print_error(message):
+    """Affiche un message d'erreur"""
+    print(f"❌ {message}")
+
+def print_info(message):
+    """Affiche un message d'information"""
+    print(f"ℹ️  {message}")
+
+def print_warning(message):
+    """Affiche un message d'avertissement"""
+    print(f"⚠️  {message}")
+
+def format_size(size_bytes):
+    """Formate une taille en octets en format lisible"""
+    if size_bytes == 0:
+        return "0B"
+    size_names = ["B", "KB", "MB", "GB"]
+    i = 0
+    while size_bytes >= 1024 and i < len(size_names) - 1:
+        size_bytes /= 1024.0
+        i += 1
+    return f"{size_bytes:.1f}{size_names[i]}"
+
+def confirm_action(message: str) -> bool:
+    """Demande confirmation à l'utilisateur"""
+    response = input(f"❓ {message} (y/N): ")
+    return response.lower() in ['y', 'yes', 'oui']
 
 # ============================================================================
-# 🛠️ UTILITAIRES FICHIERS
-# ============================================================================
-
-def expand_file_patterns(base_path: str, patterns: List[str]) -> List[str]:
-    """Étend les patterns de fichiers .ssf de manière robuste"""
-    base = Path(base_path)
-    all_files = set()
-    
-    for pattern in patterns:
-        if pattern.startswith('!'):
-            continue
-        
-        clean_pattern = pattern.strip()
-        if not clean_pattern:
-            continue
-            
-        try:
-            # Essayer d'abord avec glob
-            matches = glob.glob(str(base / clean_pattern), recursive=True)
-            
-            for match in matches:
-                file_path = Path(match)
-                if file_path.is_file():
-                    try:
-                        rel_path = file_path.relative_to(base)
-                        all_files.add(str(rel_path))
-                    except ValueError:
-                        pass
-            
-            # Si pas de résultats avec glob, essayer de traiter comme un fichier simple
-            if not matches:
-                simple_path = base / clean_pattern
-                if simple_path.exists() and simple_path.is_file():
-                    all_files.add(clean_pattern)
-                    
-        except Exception as e:
-            print(f"⚠️  Erreur pattern '{pattern}': {e}")
-    
-    exclude_patterns = [p[1:] for p in patterns if p.startswith('!')]
-    final_files = []
-    
-    for file_path in all_files:
-        if not any(fnmatch.fnmatch(file_path, excl) for excl in exclude_patterns):
-            final_files.append(file_path)
-    
-    return sorted(final_files)
-
-def find_ssf_file(project_path: str) -> Optional[Path]:
-    """Trouve le fichier .ssf dans le projet"""
-    path = Path(project_path)
-    
-    ssf_files = list(path.glob("*.ssf"))
-    
-    if not ssf_files:
-        return None
-    
-    for ssf_file in ssf_files:
-        if ssf_file.name == "init.ssf":
-            return ssf_file
-    
-    return ssf_files[0]
-
-def generate_ssf_from_project(project_data: Dict[str, Any]) -> str:
-    """Génère un fichier .ssf basique à partir des métadonnées d'un projet"""
-    name = project_data.get('name', 'unknown')
-    description = project_data.get('description', 'Projet téléchargé depuis initHUB')
-    author = project_data.get('author_username', 'anonymous')
-    
-    ssf_content = f"""Init.glob(
-[
-I si name: {name}]
- [{{cersion: 1.0.0}}]
- [file: 
-         - *.py
-         - *.md
-         - requirements.txt
-         - *.json
-         - !__pycache__/**
- ]}} ==> push-hub
-   —tags( # >
-        downloaded >
-        cli
-):main-{name}
-
-<=/>{{author =({author})}}
-
-init.get(
-   - README:md
-)
-
-# Configuration de base
-meta.set(
-   description = "{description}"
-   visibility = public
-   downloaded_from = "initHUB"
-   original_id = {project_data.get('id', 'unknown')}
-)
-"""
-    return ssf_content
-
-def create_basic_project_structure(output_dir: Path, project_data: Dict[str, Any]):
-    """Crée une structure de projet basique avec les métadonnées"""
-    # Fichier Python principal
-    main_py_content = '''"""
-Module principal du projet
-Projet téléchargé depuis initHUB
-"""
-
-def main():
-    """Fonction principale"""
-    print("Hello from initHUB project!")
-    
-if __name__ == "__main__":
-    main()
-'''
-    
-    with open(output_dir / "main.py", 'w', encoding='utf-8') as f:
-        f.write(main_py_content)
-    
-    # Requirements
-    with open(output_dir / "requirements.txt", 'w', encoding='utf-8') as f:
-        f.write("# Requirements for the project\nrequests>=2.25.0\n")
-
-def create_model_files(output_dir: Path, model_data: Dict[str, Any]):
-    """Crée des fichiers de configuration pour un modèle IA"""
-    framework = model_data.get('framework', 'unknown')
-    
-    # Fichier de configuration du modèle
-    config_content = {
-        "model_name": model_data.get('name'),
-        "framework": framework,
-        "task_type": model_data.get('task_type', 'unknown'),
-        "version": model_data.get('version', '1.0.0'),
-        "description": model_data.get('description', ''),
-        "author": model_data.get('author_username', ''),
-        "download_date": str(Path(output_dir).name),
-        "original_id": model_data.get('id')
-    }
-    
-    with open(output_dir / "model_config.json", 'w', encoding='utf-8') as f:
-        json.dump(config_content, f, indent=2, ensure_ascii=False)
-    
-    # Fichier d'exemple d'utilisation selon le framework
-    if framework.lower() == 'pytorch':
-        example_file = output_dir / "example_usage.py"
-        example_content = '''"""
-Exemple d'utilisation pour un modèle PyTorch
-"""
-
-import torch
-import torch.nn as nn
-import json
-
-# Charger la configuration
-with open('model_config.json', 'r') as f:
-    config = json.load(f)
-
-print(f"Configuration du modèle: {config}")
-
-# Structure de modèle exemple
-class ExampleModel(nn.Module):
-    def __init__(self):
-        super(ExampleModel, self).__init__()
-        self.layer = nn.Linear(10, 1)
-    
-    def forward(self, x):
-        return self.layer(x)
-
-print("Modèle prêt pour l'inférence!")
-'''
-    elif framework.lower() == 'tensorflow':
-        example_file = output_dir / "example_usage.py"
-        example_content = '''"""
-Exemple d'utilisation pour un modèle TensorFlow
-"""
-
-import tensorflow as tf
-import json
-
-# Charger la configuration
-with open('model_config.json', 'r') as f:
-    config = json.load(f)
-
-print(f"Configuration du modèle: {config}")
-
-# Modèle exemple
-model = tf.keras.Sequential([
-    tf.keras.layers.Dense(10, activation='relu'),
-    tf.keras.layers.Dense(1, activation='sigmoid')
-])
-
-print("Modèle prêt pour l'inférence!")
-'''
-    else:
-        example_file = output_dir / "example_usage.py"
-        example_content = '''"""
-Exemple d'utilisation générique pour un modèle IA
-"""
-
-import json
-
-# Charger la configuration
-with open('model_config.json', 'r') as f:
-    config = json.load(f)
-
-print(f"Modèle: {config['model_name']}")
-print(f"Framework: {config['framework']}")
-print(f"Type de tâche: {config['task_type']}")
-'''
-    
-    with open(example_file, 'w', encoding='utf-8') as f:
-        f.write(example_content)
-
-# ============================================================================
-# 🚀 COMMANDES .SSF
-# ============================================================================
-
-def handle_ssf_init(args):
-    """Crée un nouveau manifest .ssf"""
-    project_path = args.path or "."
-    project_name = args.name or Path(project_path).name
-    
-    print(f"🚀 Création du manifest .ssf pour {project_name}...")
-    
-    ssf_path = Path(project_path) / "init.ssf"
-    if ssf_path.exists() and not args.force:
-        print("❌ Un fichier init.ssf existe déjà. Utilisez --force pour écraser.")
-        return False
-    
-    description = args.description or "Nouveau projet initHUB"
-    author = args.author or "anonymous"
-    namespace = args.namespace or "default"
-    
-    ssf_content = f"""Init.glob(
-[
-I si name: {project_name}]
- [{{cersion: 1.0.0}}]
- [file: 
-         - *.py
-         - *.md
-         - requirements.txt
-         - !__pycache__/**
- ]}} ==> push-hub
-   —tags( # >
-        {namespace} >
-        cli
-):main-{project_name}
-
-<=/>{{author =({author})}}
-
-init.get(
-   - README:md
-)
-
-# Configuration de base
-meta.set(
-   description = "{description}"
-   visibility = public
-)
-"""
-    
-    try:
-        ssf_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(ssf_path, 'w', encoding='utf-8') as f:
-            f.write(ssf_content)
-        
-        print(f"✅ Manifest créé: {ssf_path}")
-        print(f"📊 Nom: {project_name}")
-        print(f"📊 Auteur: {author}")
-        print(f"📊 Namespace: {namespace}")
-        
-        return True
-        
-    except Exception as e:
-        print(f"❌ Erreur création: {e}")
-        return False
-
-def handle_ssf_push(args):
-    """Push avec le manifest .ssf vers le serveur"""
-    project_path = args.path or "."
-    
-    # Vérifier la connexion
-    user = api_client.get_current_user()
-    if not user:
-        print("❌ Non connecté. Utilisez 'inithub login' d'abord.")
-        return False
-    
-    print(f"👤 Connecté en tant que: {user['username']}")
-    
-    # Trouver le fichier .ssf
-    ssf_path = find_ssf_file(project_path)
-    if not ssf_path:
-        print("❌ Aucun fichier .ssf trouvé dans le projet")
-        return False
-    
-    print(f"📦 Chargement du manifest: {ssf_path.name}")
-    
-    # Parser le manifest
-    parser = SSFParser()
-    try:
-        with open(ssf_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        manifest = parser.parse_ssf(content)
-        print(f"📦 Manifest chargé: {manifest['name']} v{manifest.get('version', '1.0.0')}")
-        
-        # Vérifier les fichiers
-        file_patterns = manifest.get('files', [])
-        all_files = expand_file_patterns(project_path, file_patterns)
-        
-        if not all_files:
-            print("⚠️  Aucun fichier trouvé avec les patterns définis")
-            print("📋 Patterns:", file_patterns)
-            create_sample = input("📝 Créer des fichiers d'exemple? (y/n): ")
-            if create_sample.lower() == 'y':
-                create_sample_files(project_path, manifest['name'])
-                all_files = expand_file_patterns(project_path, file_patterns)
-        
-        print(f"📁 Fichiers à uploader ({len(all_files)}):")
-        for file_path in all_files:
-            full_path = Path(project_path) / file_path
-            if full_path.exists():
-                print(f"  ✅ {file_path} ({full_path.stat().st_size} bytes)")
-            else:
-                print(f"  ❌ {file_path} (NON TROUVÉ)")
-        
-        # Demander confirmation
-        confirm = input(f"🚀 Pousser le projet vers initHUB? (y/n): ")
-        if confirm.lower() != 'y':
-            print("❌ Opération annulée")
-            return False
-        
-        # Push vers le serveur
-        return api_client.push_project(manifest, project_path)
-        
-    except Exception as e:
-        print(f"❌ Erreur: {e}")
-        return False
-
-def create_sample_files(project_path: str, project_name: str):
-    """Crée des fichiers d'exemple si aucun fichier n'est trouvé"""
-    project_path = Path(project_path)
-    
-    # Fichier Python exemple
-    py_content = '''"""
-Module exemple pour initHUB
-"""
-
-def hello_world():
-    """Fonction d'exemple"""
-    print("Hello initHUB!")
-    
-if __name__ == "__main__":
-    hello_world()
-'''
-    
-    with open(project_path / "example.py", 'w', encoding='utf-8') as f:
-        f.write(py_content)
-    
-    # Requirements
-    with open(project_path / "requirements.txt", 'w', encoding='utf-8') as f:
-        f.write("requests>=2.25.0\n")
-    
-    print("✅ Fichiers d'exemple créés: example.py, requirements.txt")
-
-def handle_ssf_validate(args):
-    """Valide un manifest .ssf"""
-    project_path = args.path or "."
-    
-    ssf_path = find_ssf_file(project_path)
-    if not ssf_path:
-        print("❌ Aucun fichier .ssf trouvé")
-        return False
-    
-    parser = SSFParser()
-    try:
-        with open(ssf_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        manifest = parser.parse_ssf(content)
-        
-        required = ['name', 'files', 'branch']
-        missing = [field for field in required if field not in manifest]
-        
-        if missing:
-            print(f"❌ Champs manquants: {', '.join(missing)}")
-            return False
-        
-        file_patterns = manifest.get('files', [])
-        if not file_patterns:
-            print("⚠️  Aucun pattern de fichiers défini")
-        
-        all_files = expand_file_patterns(project_path, file_patterns)
-        if not all_files:
-            print("⚠️  Aucun fichier trouvé avec les patterns définis")
-        
-        print("✅ Manifest .ssf valide!")
-        print(f"📊 Nom: {manifest['name']}")
-        print(f"📊 Version: {manifest.get('version', '1.0.0')}")
-        print(f"📊 Fichiers: {len(all_files)} fichiers trouvés")
-        print(f"📊 Tags: {len(manifest.get('tags', []))}")
-        print(f"📊 Branche: {manifest['branch']}")
-        
-        if 'author' in manifest:
-            print(f"📊 Auteur: {manifest['author']}")
-        
-        return True
-        
-    except Exception as e:
-        print(f"❌ Erreur validation: {e}")
-        return False
-
-def handle_ssf_show(args):
-    """Affiche le contenu parsé d'un manifest .ssf"""
-    project_path = args.path or "."
-    
-    ssf_path = find_ssf_file(project_path)
-    if not ssf_path:
-        print("❌ Aucun fichier .ssf trouvé")
-        return False
-    
-    parser = SSFParser()
-    try:
-        with open(ssf_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        manifest = parser.parse_ssf(content)
-        
-        print(f"📄 Contenu parsé de {ssf_path.name}:")
-        print(json.dumps(manifest, indent=2, ensure_ascii=False))
-        return True
-        
-    except Exception as e:
-        print(f"❌ Erreur parsing: {e}")
-        return False
-
-def handle_ssf_list(args):
-    """Liste tous les fichiers .ssf du projet"""
-    project_path = args.path or "."
-    path = Path(project_path)
-    
-    ssf_files = list(path.glob("**/*.ssf"))
-    
-    if not ssf_files:
-        print("❌ Aucun fichier .ssf trouvé")
-        return False
-    
-    print(f"📁 Fichiers .ssf trouvés dans {project_path}:")
-    for ssf_file in ssf_files:
-        print(f"  📄 {ssf_file.relative_to(path)}")
-    
-    return True
-
-# ============================================================================
-# 🔐 COMMANDES AUTHENTIFICATION
+# 🚀 COMMANDES PRINCIPALES
 # ============================================================================
 
 def handle_login(args):
@@ -1195,7 +391,7 @@ def handle_login(args):
     password = args.password
     
     if not email or not password:
-        print("❌ Email et mot de passe requis")
+        print_error("Email et mot de passe requis")
         return False
     
     return api_client.login(email, password)
@@ -1208,7 +404,7 @@ def handle_register(args):
     full_name = args.full_name or ""
     
     if not all([username, email, password]):
-        print("❌ Username, email et mot de passe requis")
+        print_error("Username, email et mot de passe requis")
         return False
     
     return api_client.register(username, email, password, full_name)
@@ -1217,266 +413,536 @@ def handle_whoami(args):
     """Affiche l'utilisateur connecté"""
     user = api_client.get_current_user()
     if user:
-        print(f"👤 Utilisateur connecté:")
-        print(f"   📛 Nom: {user['username']}")
+        print_success("Utilisateur connecté:")
+        print(f"   📛 Username: {user['username']}")
         print(f"   📧 Email: {user['email']}")
         print(f"   👤 Nom complet: {user.get('full_name', 'Non défini')}")
+        print(f"   🏢 Company: {user.get('company', 'Non défini')}")
+        print(f"   📍 Location: {user.get('location', 'Non défini')}")
+        print(f"   📝 Bio: {user.get('bio', 'Non défini')}")
         return True
     else:
-        print("❌ Non connecté")
+        print_error("Non connecté")
         return False
 
 def handle_logout(args):
     """Déconnexion du serveur"""
     config.TOKEN_FILE.unlink(missing_ok=True)
-    print("✅ Déconnecté avec succès")
-    return True
-
-# ============================================================================
-# 📥 COMMANDES PULL
-# ============================================================================
-
-def handle_pull_project(args):
-    """Télécharge un projet depuis initHUB"""
-    project_id = args.project_id
-    output_path = args.output or config.get_download_dir()
-    
-    if not project_id:
-        print("❌ ID du projet requis")
-        return False
-    
-    try:
-        project_id = int(project_id)
-    except ValueError:
-        print("❌ L'ID du projet doit être un nombre")
-        return False
-    
-    user = api_client.get_current_user()
-    if not user:
-        print("❌ Non connecté. Utilisez 'inithub login' d'abord.")
-        return False
-    
-    return api_client.download_project(project_id, output_path)
-
-def handle_pull_model(args):
-    """Télécharge un modèle IA depuis initHUB"""
-    model_id = args.model_id
-    output_path = args.output or config.get_download_dir()
-    
-    if not model_id:
-        print("❌ ID du modèle requis")
-        return False
-    
-    try:
-        model_id = int(model_id)
-    except ValueError:
-        print("❌ L'ID du modèle doit être un nombre")
-        return False
-    
-    user = api_client.get_current_user()
-    if not user:
-        print("❌ Non connecté. Utilisez 'inithub login' d'abord.")
-        return False
-    
-    return api_client.download_model(model_id, output_path)
-
-def handle_pull_list(args):
-    """Liste les projets et modèles disponibles pour téléchargement"""
-    user = api_client.get_current_user()
-    if not user:
-        print("❌ Non connecté. Utilisez 'inithub login' d'abord.")
-        return False
-    
-    print("🔄 Récupération des projets et modèles...")
-    
-    # Lister les projets
-    projects = api_client.list_projects()
-    if projects:
-        print(f"\n📁 PROJETS DISPONIBLES ({len(projects)}):")
-        print("─" * 80)
-        for project in projects[:10]:
-            print(f"  🆔 {project['id']} | 📦 {project['name']} | 👤 {project.get('author_username', 'Inconnu')}")
-            if 'description' in project and project['description']:
-                desc = project['description'][:60] + "..." if len(project['description']) > 60 else project['description']
-                print(f"     📝 {desc}")
-            print()
-    
-    # Lister les modèles
-    models = api_client.list_models()
-    if models:
-        print(f"🧠 MODÈLES IA DISPONIBLES ({len(models)}):")
-        print("─" * 80)
-        for model in models[:10]:
-            print(f"  🆔 {model['id']} | 🔧 {model['name']} | 🏷️ {model['framework']} | 👤 {model.get('author_username', 'Inconnu')}")
-            if 'description' in model and model['description']:
-                desc = model['description'][:60] + "..." if len(model['description']) > 60 else model['description']
-                print(f"     📝 {desc}")
-            print()
-    
-    if not projects and not models:
-        print("📭 Aucun projet ou modèle disponible")
-    
-    print(f"\n💡 Utilisez 'inithub pull project <ID>' ou 'inithub pull model <ID>' pour télécharger")
-    return True
-
-def handle_search(args):
-    """Recherche des projets et modèles"""
-    query = args.query
-    if not query:
-        print("❌ Terme de recherche requis")
-        return False
-    
-    user = api_client.get_current_user()
-    if not user:
-        print("❌ Non connecté. Utilisez 'inithub login' d'abord.")
-        return False
-    
-    print(f"🔍 Recherche: '{query}'")
-    
-    # Rechercher dans les projets
-    projects = api_client.search_projects(query)
-    if projects:
-        print(f"\n📁 PROJETS TROUVÉS ({len(projects)}):")
-        print("─" * 80)
-        for project in projects:
-            print(f"  🆔 {project['id']} | 📦 {project['name']} | 👤 {project.get('author_username', 'Inconnu')}")
-            if 'description' in project and project['description']:
-                print(f"     📝 {project['description']}")
-            print()
-    
-    # Rechercher dans les modèles
-    models = api_client.search_models(query)
-    if models:
-        print(f"🧠 MODÈLES IA TROUVÉS ({len(models)}):")
-        print("─" * 80)
-        for model in models:
-            print(f"  🆔 {model['id']} | 🔧 {model['name']} | 🏷️ {model['framework']} | 👤 {model.get('author_username', 'Inconnu')}")
-            if 'description' in model and model['description']:
-                print(f"     📝 {model['description']}")
-            print()
-    
-    if not projects and not models:
-        print("❌ Aucun résultat trouvé")
-        return False
-    
-    return True
-
-# ============================================================================
-# 📦 COMMANDES PROJETS ET MODÈLES
-# ============================================================================
-
-def handle_projects_list(args):
-    """Liste les projets de l'utilisateur"""
-    user = api_client.get_current_user()
-    if not user:
-        print("❌ Non connecté. Utilisez 'inithub login' d'abord.")
-        return False
-    
-    user_only = getattr(args, 'user_only', False)
-    projects = api_client.list_projects(user_only=user_only)
-    
-    if not projects:
-        print("📭 Aucun projet trouvé")
-        return True
-        
-    print(f"📁 {len(projects)} projets trouvés:")
-    for project in projects:
-        print(f"  📦 {project['name']} (ID: {project['id']})")
-        print(f"     📝 {project.get('description', 'Pas de description')}")
-        print(f"     👤 {project.get('author_username', 'Inconnu')}")
-        print(f"     ⭐ {project.get('star_count', 0)} stars")
-        print(f"     🏷️  {project.get('project_type', 'N/A')} | {project.get('primary_language', 'N/A')}")
-        print()
-    
-    return True
-
-def handle_models_list(args):
-    """Liste les modèles IA disponibles"""
-    user_only = getattr(args, 'user_only', False)
-    models = api_client.list_models(user_only=user_only)
-    
-    if not models:
-        print("🤖 Aucun modèle IA trouvé")
-        return True
-        
-    print(f"🧠 {len(models)} modèles IA trouvés:")
-    for model in models:
-        print(f"  🔧 {model['name']} (ID: {model['id']})")
-        print(f"     🏷️  {model['framework']} - {model['task_type']}")
-        print(f"     👤 {model.get('author_username', 'Inconnu')}")
-        print(f"     ❤️  {model.get('like_count', 0)} likes | 📥 {model.get('download_count', 0)} downloads")
-        print(f"     📝 {model.get('description', 'Pas de description')}")
-        print()
-    
+    print_success("Déconnecté avec succès")
     return True
 
 def handle_status(args):
     """Statut de la connexion et informations"""
     print(f"🌐 Serveur: {config.get_server_url()}")
     
+    # Vérifier la santé du serveur
+    try:
+        health = api_client.health_check()
+        print_success("Serveur en ligne")
+        print(f"📊 Version: {health.get('version', 'N/A')}")
+        print(f"🗄️  Database: {health.get('database', 'N/A')}")
+        
+        services = health.get('services', {})
+        print("🔧 Services:")
+        for service, status in services.items():
+            status_icon = "🟢" if status == "online" or status == "running" else "🔴"
+            print(f"   {status_icon} {service}: {status}")
+            
+    except Exception as e:
+        print_error(f"Serveur hors ligne: {e}")
+        return False
+    
+    # Informations utilisateur
     user = api_client.get_current_user()
     if user:
-        print(f"✅ Connecté en tant que: {user['username']}")
-        print(f"📧 Email: {user['email']}")
+        print_success(f"Connecté en tant que: {user['username']}")
         
-        # Statistiques utilisateur
-        projects = api_client.list_projects(user_only=True)
-        models = api_client.list_models(user_only=True)
-        
-        print(f"📊 Statistiques:")
-        print(f"   📁 Projets: {len(projects)}")
-        print(f"   🧠 Modèles: {len(models)}")
+        # Récupérer le dashboard pour les stats
+        try:
+            dashboard = api_client.get_dashboard()
+            stats = dashboard
+            print("📊 Statistiques personnelles:")
+            print(f"   📁 Repositories: {stats.get('total_repos', 0)}")
+            print(f"   ⭐ Stars: {stats.get('total_stars', 0)}")
+            print(f"   🔀 Forks: {stats.get('total_forks', 0)}")
+        except:
+            print_warning("Impossible de récupérer les statistiques")
     else:
-        print("❌ Non connecté")
-    
-    # Test de connexion au serveur
-    try:
-        response = requests.get(config.get_server_url(), timeout=5)
-        print(f"📡 Serveur status: {'🟢 En ligne' if response.status_code == 200 else '🔴 Hors ligne'}")
-    except:
-        print("📡 Serveur status: 🔴 Hors ligne")
-    
-    # Informations de configuration
-    print(f"📂 Répertoire de téléchargement: {config.get_download_dir()}")
+        print_warning("Non connecté")
     
     return True
 
-def handle_test_upload(args):
-    """Test d'upload pour debugger"""
+# ============================================================================
+# 📁 COMMANDES REPOSITORIES
+# ============================================================================
+
+def handle_repo_create(args):
+    """Crée un nouveau repository"""
+    name = args.name
+    description = args.description or ""
+    is_private = args.private
+    
     user = api_client.get_current_user()
     if not user:
-        print("❌ Non connecté")
+        print_error("Non connecté. Utilisez 'inithub login' d'abord.")
         return False
     
-    # Créer un projet de test
     try:
-        project_response = api_client.session.post(
-            f"{api_client.base_url}/projects",
-            json={
-                "name": "test-upload",
-                "description": "Projet de test pour upload",
-                "project_type": "test",
-                "primary_language": "python",
-                "is_public": False
-            }
-        )
-        project_data = api_client._handle_response(project_response)
-        print(f"✅ Projet test créé: {project_data['id']}")
-        
-        # Tester l'upload
-        test_file = Path("test_upload.txt")
-        with open(test_file, 'w') as f:
-            f.write("Ceci est un fichier de test pour initHUB")
-        
-        success = api_client.test_upload(project_data['id'], "test_upload.txt")
-        
-        # Nettoyer
-        test_file.unlink(missing_ok=True)
-        
-        return success
-        
+        repo = api_client.create_repo(name, description, is_private)
+        print_success(f"Repository créé: {repo['full_name']}")
+        print(f"📝 Description: {repo['description']}")
+        print(f"🔒 Visibilité: {'Privé' if repo['is_private'] else 'Public'}")
+        print(f"🌐 URL: {repo['html_url']}")
+        print(f"🔗 Clone: {repo['clone_url']}")
+        return True
     except Exception as e:
-        print(f"❌ Erreur test: {e}")
+        print_error(f"Erreur création repository: {e}")
+        return False
+
+def handle_repo_list(args):
+    """Liste les repositories"""
+    page = args.page or 1
+    per_page = args.per_page or 30
+    
+    try:
+        repos = api_client.list_repos(page, per_page)
+        
+        if not repos:
+            print_info("Aucun repository trouvé")
+            return True
+        
+        print(f"📁 Repositories ({len(repos)}):")
+        print("─" * 80)
+        
+        for repo in repos:
+            visibility = "🔒" if repo['is_private'] else "🌐"
+            print(f"{visibility} {repo['full_name']}")
+            print(f"   📝 {repo['description'] or 'Pas de description'}")
+            print(f"   ⭐ {repo['stars_count']} stars | 🔀 {repo['forks_count']} forks | 👀 {repo['watchers_count']} watchers")
+            print(f"   🏷️  {repo['default_branch']} | 📅 {repo['updated_at'][:10]}")
+            print()
+        
+        return True
+    except Exception as e:
+        print_error(f"Erreur liste repositories: {e}")
+        return False
+
+def handle_repo_view(args):
+    """Affiche les détails d'un repository"""
+    owner = args.owner
+    repo_name = args.repo
+    
+    try:
+        repo = api_client.get_repo(owner, repo_name)
+        
+        print_success(f"Repository: {repo['full_name']}")
+        print(f"📝 Description: {repo['description']}")
+        print(f"🔒 Visibilité: {'Privé' if repo['is_private'] else 'Public'}")
+        print(f"👤 Propriétaire: {repo['owner']['username']}")
+        print(f"📊 Statistiques:")
+        print(f"   ⭐ Stars: {repo['stars_count']}")
+        print(f"   🔀 Forks: {repo['forks_count']}")
+        print(f"   👀 Watchers: {repo['watchers_count']}")
+        print(f"   🐛 Issues: {repo['open_issues_count']}")
+        print(f"   🔀 PRs: {repo['open_pr_count']}")
+        print(f"🌐 URLs:")
+        print(f"   📄 HTML: {repo['html_url']}")
+        print(f"   🔗 Clone: {repo['clone_url']}")
+        print(f"   🔑 SSH: {repo['ssh_url']}")
+        print(f"📅 Dates:")
+        print(f"   Créé: {repo['created_at']}")
+        print(f"   Modifié: {repo['updated_at']}")
+        print(f"   Dernier push: {repo['pushed_at']}")
+        
+        # Récupérer les analytics si disponibles
+        try:
+            analytics = api_client.get_repo_analytics(owner, repo_name)
+            print(f"📈 Analytics:")
+            print(f"   👥 Contributeurs: {analytics.get('stats', {}).get('stargazers', 0)}")
+            print(f"   📊 Vues: {analytics.get('traffic', {}).get('views', 0)}")
+            print(f"   📥 Clones: {analytics.get('traffic', {}).get('clones', 0)}")
+        except:
+            print_warning("Analytics non disponibles")
+        
+        return True
+    except Exception as e:
+        print_error(f"Erreur vue repository: {e}")
+        return False
+
+def handle_repo_delete(args):
+    """Supprime un repository"""
+    owner = args.owner
+    repo_name = args.repo
+    
+    if not confirm_action(f"Supprimer le repository {owner}/{repo_name} ? Cette action est irréversible."):
+        print_info("Suppression annulée")
+        return False
+    
+    try:
+        api_client.delete_repo(owner, repo_name)
+        print_success(f"Repository {owner}/{repo_name} supprimé")
+        return True
+    except Exception as e:
+        print_error(f"Erreur suppression repository: {e}")
+        return False
+
+# ============================================================================
+# ⭐ COMMANDES STARS & FORKS
+# ============================================================================
+
+def handle_repo_star(args):
+    """Star un repository"""
+    owner = args.owner
+    repo_name = args.repo
+    
+    try:
+        api_client.star_repo(owner, repo_name)
+        print_success(f"Repository {owner}/{repo_name} staré")
+        return True
+    except Exception as e:
+        print_error(f"Erreur star repository: {e}")
+        return False
+
+def handle_repo_unstar(args):
+    """Unstar un repository"""
+    owner = args.owner
+    repo_name = args.repo
+    
+    try:
+        api_client.unstar_repo(owner, repo_name)
+        print_success(f"Repository {owner}/{repo_name} unstaré")
+        return True
+    except Exception as e:
+        print_error(f"Erreur unstar repository: {e}")
+        return False
+
+def handle_repo_fork(args):
+    """Fork un repository"""
+    owner = args.owner
+    repo_name = args.repo
+    
+    try:
+        fork = api_client.fork_repo(owner, repo_name)
+        print_success(f"Repository forké: {fork['full_name']}")
+        print(f"🌐 URL: {fork['html_url']}")
+        return True
+    except Exception as e:
+        print_error(f"Erreur fork repository: {e}")
+        return False
+
+# ============================================================================
+# 🔑 COMMANDES TOKENS
+# ============================================================================
+
+def handle_token_create(args):
+    """Crée un token personnel"""
+    name = args.name
+    scopes = args.scopes or ["read"]
+    
+    try:
+        token = api_client.create_token(name, scopes)
+        print_success(f"Token créé: {token['name']}")
+        print(f"🔑 Token: {token['token']}")
+        print(f"⚠️  IMPORTANT: Sauvegardez ce token, il ne sera plus affiché!")
+        print(f"📋 Scopes: {', '.join(token['scopes'])}")
+        print(f"📅 Créé: {token['created_at']}")
+        return True
+    except Exception as e:
+        print_error(f"Erreur création token: {e}")
+        return False
+
+def handle_token_list(args):
+    """Liste les tokens personnels"""
+    try:
+        tokens = api_client.list_tokens()
+        
+        if not tokens:
+            print_info("Aucun token personnel trouvé")
+            return True
+        
+        print(f"🔑 Tokens personnels ({len(tokens)}):")
+        print("─" * 80)
+        
+        for token in tokens:
+            print(f"📛 {token['name']} (ID: {token['id']})")
+            print(f"   📋 Scopes: {', '.join(token['scopes'])}")
+            print(f"   📅 Créé: {token['created_at']}")
+            if token['last_used']:
+                print(f"   🔄 Dernière utilisation: {token['last_used']}")
+            print()
+        
+        return True
+    except Exception as e:
+        print_error(f"Erreur liste tokens: {e}")
+        return False
+
+def handle_token_delete(args):
+    """Supprime un token personnel"""
+    token_id = args.token_id
+    
+    if not confirm_action(f"Supprimer le token {token_id} ?"):
+        print_info("Suppression annulée")
+        return False
+    
+    try:
+        api_client.delete_token(token_id)
+        print_success(f"Token {token_id} supprimé")
+        return True
+    except Exception as e:
+        print_error(f"Erreur suppression token: {e}")
+        return False
+
+# ============================================================================
+# 🤖 COMMANDES COPILOT
+# ============================================================================
+
+def handle_copilot_ask(args):
+    """Pose une question à Copilot"""
+    question = args.question
+    context = args.context or ""
+    max_length = args.max_length or 150
+    language = args.language or "auto"
+    
+    try:
+        # Vérifier d'abord la santé de Copilot
+        health = api_client.copilot_health()
+        if not health.get('online', False):
+            print_error("Copilot n'est pas disponible")
+            return False
+        
+        response = api_client.ask_copilot(question, context, max_length, language)
+        
+        print_success("Réponse de Copilot:")
+        print("─" * 80)
+        print(response['response'])
+        print("─" * 80)
+        print(f"📅 {response['timestamp']} | 🌐 {'En ligne' if response['copilot_online'] else 'Hors ligne'}")
+        
+        return True
+    except Exception as e:
+        print_error(f"Erreur Copilot: {e}")
+        return False
+
+def handle_copilot_analyze(args):
+    """Analyse du code avec Copilot"""
+    code = args.code
+    language = args.language
+    analysis_type = args.analysis_type or "complexity"
+    
+    if not code:
+        # Lire le code depuis un fichier
+        if args.file:
+            try:
+                with open(args.file, 'r') as f:
+                    code = f.read()
+            except Exception as e:
+                print_error(f"Erreur lecture fichier: {e}")
+                return False
+        else:
+            print_error("Code ou fichier requis")
+            return False
+    
+    try:
+        analysis = api_client.analyze_code(code, language, analysis_type)
+        
+        print_success(f"Analyse {analysis_type} du code {language}:")
+        print("─" * 80)
+        print(analysis['result'])
+        print("─" * 80)
+        
+        return True
+    except Exception as e:
+        print_error(f"Erreur analyse code: {e}")
+        return False
+
+def handle_copilot_suggest(args):
+    """Suggère des messages de commit"""
+    diff = args.diff
+    files = args.files or []
+    
+    if not diff:
+        print_error("Diff requis")
+        return False
+    
+    try:
+        suggestions = api_client.suggest_commit(diff, files)
+        
+        print_success("Suggestions de messages de commit:")
+        print("─" * 80)
+        for i, suggestion in enumerate(suggestions['suggestions'], 1):
+            print(f"{i}. {suggestion}")
+        print("─" * 80)
+        
+        return True
+    except Exception as e:
+        print_error(f"Erreur suggestions commit: {e}")
+        return False
+
+def handle_copilot_health(args):
+    """Vérifie l'état de Copilot"""
+    try:
+        health = api_client.copilot_health()
+        
+        status = "🟢 EN LIGNE" if health['online'] else "🔴 HORS LIGNE"
+        print(f"🤖 Copilot: {status}")
+        print(f"🌐 URL: {health['base_url']}")
+        print(f"📅 Dernière vérification: {health['timestamp']}")
+        
+        return health['online']
+    except Exception as e:
+        print_error(f"Erreur vérification Copilot: {e}")
+        return False
+
+# ============================================================================
+# 🏷️ COMMANDES RELEASES
+# ============================================================================
+
+def handle_release_create(args):
+    """Crée une release"""
+    owner = args.owner
+    repo = args.repo
+    tag_name = args.tag_name
+    name = args.name or tag_name
+    body = args.body or ""
+    target = args.target or "main"
+    draft = args.draft
+    prerelease = args.prerelease
+    
+    release_data = {
+        "tag_name": tag_name,
+        "target_commitish": target,
+        "name": name,
+        "body": body,
+        "draft": draft,
+        "prerelease": prerelease
+    }
+    
+    try:
+        release = api_client.create_release(owner, repo, release_data)
+        print_success(f"Release créée: {release['tag_name']}")
+        print(f"📛 Nom: {release['name']}")
+        print(f"📝 Description: {release['body']}")
+        print(f"🏷️  Tag: {release['tag_name']}")
+        print(f"🎯 Target: {release['target_commitish']}")
+        print(f"📦 Assets: {len(release['assets'])}")
+        print(f"👤 Auteur: {release['author']['username']}")
+        print(f"📅 Créée: {release['created_at']}")
+        
+        return True
+    except Exception as e:
+        print_error(f"Erreur création release: {e}")
+        return False
+
+def handle_release_list(args):
+    """Liste les releases d'un repository"""
+    owner = args.owner
+    repo = args.repo
+    page = args.page or 1
+    per_page = args.per_page or 30
+    
+    try:
+        releases = api_client.list_releases(owner, repo, page, per_page)
+        
+        if not releases:
+            print_info("Aucune release trouvée")
+            return True
+        
+        print(f"📦 Releases de {owner}/{repo} ({len(releases)}):")
+        print("─" * 80)
+        
+        for release in releases:
+            draft = "📝" if release['draft'] else "📦"
+            prerelease = "🚧" if release['prerelease'] else "✅"
+            print(f"{draft}{prerelease} {release['tag_name']} - {release['name']}")
+            print(f"   📝 {release['body'][:100]}{'...' if len(release['body']) > 100 else ''}")
+            print(f"   👤 {release['author']['username']} | 📅 {release['created_at'][:10]}")
+            print(f"   📊 Assets: {len(release['assets'])}")
+            print()
+        
+        return True
+    except Exception as e:
+        print_error(f"Erreur liste releases: {e}")
+        return False
+
+def handle_release_upload(args):
+    """Upload un asset de release"""
+    owner = args.owner
+    repo = args.repo
+    tag_name = args.tag_name
+    file_path = args.file
+    
+    if not os.path.exists(file_path):
+        print_error(f"Fichier non trouvé: {file_path}")
+        return False
+    
+    try:
+        asset = api_client.upload_release_asset(owner, repo, tag_name, file_path)
+        print_success(f"Asset uploadé: {asset['name']}")
+        print(f"📏 Taille: {format_size(asset['size'])}")
+        print(f"📄 Type: {asset['content_type']}")
+        print(f"🔗 URL: {asset['download_url']}")
+        print(f"📅 Uploadé: {asset['uploaded_at']}")
+        
+        return True
+    except Exception as e:
+        print_error(f"Erreur upload asset: {e}")
+        return False
+
+# ============================================================================
+# 📖 COMMANDES WIKI
+# ============================================================================
+
+def handle_wiki_create(args):
+    """Crée une page wiki"""
+    owner = args.owner
+    repo = args.repo
+    title = args.title
+    content = args.content or ""
+    
+    if not content and args.file:
+        try:
+            with open(args.file, 'r') as f:
+                content = f.read()
+        except Exception as e:
+            print_error(f"Erreur lecture fichier: {e}")
+            return False
+    
+    try:
+        page = api_client.create_wiki_page(owner, repo, title, content)
+        print_success(f"Page wiki créée: {page['title']}")
+        print(f"📝 Contenu: {len(page['content'])} caractères")
+        print(f"👤 Auteur: {page['author']['username']}")
+        print(f"📅 Créée: {page['created_at']}")
+        
+        return True
+    except Exception as e:
+        print_error(f"Erreur création page wiki: {e}")
+        return False
+
+def handle_wiki_list(args):
+    """Liste les pages wiki"""
+    owner = args.owner
+    repo = args.repo
+    
+    try:
+        pages = api_client.list_wiki_pages(owner, repo)
+        
+        if not pages:
+            print_info("Aucune page wiki trouvée")
+            return True
+        
+        print(f"📖 Pages wiki de {owner}/{repo} ({len(pages)}):")
+        print("─" * 80)
+        
+        for page in pages:
+            print(f"📄 {page['title']}")
+            print(f"   📝 {page['content'][:100]}{'...' if len(page['content']) > 100 else ''}")
+            print(f"   👤 {page['author']['username']} | 📅 {page['updated_at'][:10]}")
+            print()
+        
+        return True
+    except Exception as e:
+        print_error(f"Erreur liste pages wiki: {e}")
         return False
 
 # ============================================================================
@@ -1486,15 +952,15 @@ def handle_test_upload(args):
 def main():
     banner = """
     ╔═══════════════════════════════════════════════╗
-    ║              🚀 initHUB CLI v3.0              ║
-    ║     Version améliorée - Commandes PULL        ║
+    ║              🚀 initHUB CLI ULTIMATE          ║
+    ║     Version complète - Toutes les routes      ║
     ╚═══════════════════════════════════════════════╝
     """
     
     print(banner)
     
     parser = argparse.ArgumentParser(
-        description="🚀 initHUB CLI - Client complet avec connexion serveur et téléchargement",
+        description="🚀 initHUB CLI - Client complet avec toutes les routes du serveur",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Exemples d'utilisation:
@@ -1503,102 +969,182 @@ Exemples d'utilisation:
     inithub register --username john --email john@example.com --password secret
     inithub whoami
     inithub logout
-
-  📁 Gestion projets .ssf:
-    inithub ssf-init --name mon-projet
-    inithub ssf-validate --path ./mon-projet
-    inithub ssf-push --path ./mon-projet
-    inithub ssf-list --path ./mon-projet
-
-  📥 Téléchargement (PULL):
-    inithub pull list                          # Lister les projets/modèles disponibles
-    inithub pull project 123                   # Télécharger le projet ID 123
-    inithub pull model 456                     # Télécharger le modèle ID 456
-    inithub pull project 123 --output ./my_dir # Spécifier le répertoire de sortie
-    inithub search "machine learning"          # Rechercher projets et modèles
-
-  📦 Projets et modèles:
-    inithub projects list
-    inithub projects list --user-only          # Seulement mes projets
-    inithub models list
-    inithub models list --user-only            # Seulement mes modèles
     inithub status
 
-  🐛 Debug:
-    inithub test-upload
+  📁 Repositories:
+    inithub repo create --name mon-projet --description "Mon super projet"
+    inithub repo list
+    inithub repo view --owner user --repo mon-projet
+    inithub repo delete --owner user --repo mon-projet
+
+  ⭐ Social:
+    inithub repo star --owner user --repo mon-projet
+    inithub repo unstar --owner user --repo mon-projet  
+    inithub repo fork --owner user --repo mon-projet
+
+  🔑 Tokens:
+    inithub token create --name "Mon token"
+    inithub token list
+    inithub token delete --token-id 123
+
+  🤖 Copilot:
+    inithub copilot ask --question "Comment faire X?"
+    inithub copilot analyze --file mon_script.py --language python
+    inithub copilot suggest --diff "git diff" --files file1.py file2.py
+    inithub copilot health
+
+  🏷️ Releases:
+    inithub release create --owner user --repo mon-projet --tag-name v1.0.0
+    inithub release list --owner user --repo mon-projet
+    inithub release upload --owner user --repo mon-projet --tag-name v1.0.0 --file build.zip
+
+  📖 Wiki:
+    inithub wiki create --owner user --repo mon-projet --title "Documentation"
+    inithub wiki list --owner user --repo mon-projet
+
+  🩺 Système:
+    inithub system health
+    inithub system info
         """
     )
     
     subparsers = parser.add_subparsers(dest='command', help='Commandes disponibles')
     
     # 🔐 Authentification
-    login_parser = subparsers.add_parser('login', help='Connexion au serveur')
+    auth_parser = subparsers.add_parser('auth', help='Authentification')
+    auth_subparsers = auth_parser.add_subparsers(dest='auth_command')
+    
+    login_parser = auth_subparsers.add_parser('login', help='Connexion')
     login_parser.add_argument('--email', required=True, help='Email')
     login_parser.add_argument('--password', required=True, help='Mot de passe')
     
-    register_parser = subparsers.add_parser('register', help='Inscription au serveur')
+    register_parser = auth_subparsers.add_parser('register', help='Inscription')
     register_parser.add_argument('--username', required=True, help='Nom d\'utilisateur')
     register_parser.add_argument('--email', required=True, help='Email')
     register_parser.add_argument('--password', required=True, help='Mot de passe')
     register_parser.add_argument('--full-name', help='Nom complet')
     
-    whoami_parser = subparsers.add_parser('whoami', help='Affiche l\'utilisateur connecté')
-    logout_parser = subparsers.add_parser('logout', help='Déconnexion')
+    auth_subparsers.add_parser('whoami', help='Utilisateur connecté')
+    auth_subparsers.add_parser('logout', help='Déconnexion')
+    auth_subparsers.add_parser('status', help='Statut connexion')
     
-    # 📁 Commandes .ssf
-    ssf_init_parser = subparsers.add_parser('ssf-init', help='Crée un manifest .ssf')
-    ssf_init_parser.add_argument('--name', help='Nom du projet')
-    ssf_init_parser.add_argument('--path', help='Chemin du projet')
-    ssf_init_parser.add_argument('--namespace', help='Namespace')
-    ssf_init_parser.add_argument('--author', help='Auteur')
-    ssf_init_parser.add_argument('--description', help='Description')
-    ssf_init_parser.add_argument('--force', action='store_true', help='Écraser le fichier existant')
+    # 📁 Repositories
+    repo_parser = subparsers.add_parser('repo', help='Gestion des repositories')
+    repo_subparsers = repo_parser.add_subparsers(dest='repo_command')
     
-    ssf_push_parser = subparsers.add_parser('ssf-push', help='Push vers le serveur')
-    ssf_push_parser.add_argument('--path', help='Chemin du projet')
+    repo_create_parser = repo_subparsers.add_parser('create', help='Créer un repository')
+    repo_create_parser.add_argument('--name', required=True, help='Nom du repository')
+    repo_create_parser.add_argument('--description', help='Description')
+    repo_create_parser.add_argument('--private', action='store_true', help='Repository privé')
     
-    ssf_validate_parser = subparsers.add_parser('ssf-validate', help='Valide un manifest .ssf')
-    ssf_validate_parser.add_argument('--path', help='Chemin du projet')
+    repo_subparsers.add_parser('list', help='Lister les repositories')
     
-    ssf_show_parser = subparsers.add_parser('ssf-show', help='Affiche le manifest parsé')
-    ssf_show_parser.add_argument('--path', help='Chemin du projet')
+    repo_view_parser = repo_subparsers.add_parser('view', help='Voir un repository')
+    repo_view_parser.add_argument('--owner', required=True, help='Propriétaire')
+    repo_view_parser.add_argument('--repo', required=True, help='Nom du repository')
     
-    ssf_list_parser = subparsers.add_parser('ssf-list', help='Liste les fichiers .ssf')
-    ssf_list_parser.add_argument('--path', help='Chemin du projet')
+    repo_delete_parser = repo_subparsers.add_parser('delete', help='Supprimer un repository')
+    repo_delete_parser.add_argument('--owner', required=True, help='Propriétaire')
+    repo_delete_parser.add_argument('--repo', required=True, help='Nom du repository')
     
-    # 📥 Commandes PULL
-    pull_parser = subparsers.add_parser('pull', help='Téléchargement depuis initHUB')
-    pull_subparsers = pull_parser.add_subparsers(dest='pull_subcommand')
+    # ⭐ Social
+    social_parser = subparsers.add_parser('social', help='Actions sociales')
+    social_subparsers = social_parser.add_subparsers(dest='social_command')
     
-    pull_project_parser = pull_subparsers.add_parser('project', help='Télécharger un projet')
-    pull_project_parser.add_argument('project_id', help='ID du projet')
-    pull_project_parser.add_argument('--output', help='Répertoire de sortie')
+    star_parser = social_subparsers.add_parser('star', help='Star un repository')
+    star_parser.add_argument('--owner', required=True, help='Propriétaire')
+    star_parser.add_argument('--repo', required=True, help='Nom du repository')
     
-    pull_model_parser = pull_subparsers.add_parser('model', help='Télécharger un modèle IA')
-    pull_model_parser.add_argument('model_id', help='ID du modèle')
-    pull_model_parser.add_argument('--output', help='Répertoire de sortie')
+    unstar_parser = social_subparsers.add_parser('unstar', help='Unstar un repository')
+    unstar_parser.add_argument('--owner', required=True, help='Propriétaire')
+    unstar_parser.add_argument('--repo', required=True, help='Nom du repository')
     
-    pull_subparsers.add_parser('list', help='Lister les projets et modèles disponibles')
+    fork_parser = social_subparsers.add_parser('fork', help='Fork un repository')
+    fork_parser.add_argument('--owner', required=True, help='Propriétaire')
+    fork_parser.add_argument('--repo', required=True, help='Nom du repository')
     
-    # 🔍 Recherche
-    search_parser = subparsers.add_parser('search', help='Recherche projets et modèles')
-    search_parser.add_argument('query', help='Terme de recherche')
+    # 🔑 Tokens
+    token_parser = subparsers.add_parser('token', help='Tokens personnels')
+    token_subparsers = token_parser.add_subparsers(dest='token_command')
     
-    # 📦 Commandes serveur
-    projects_parser = subparsers.add_parser('projects', help='Gestion des projets')
-    projects_subparsers = projects_parser.add_subparsers(dest='subcommand')
-    projects_list_parser = projects_subparsers.add_parser('list', help='Liste les projets')
-    projects_list_parser.add_argument('--user-only', action='store_true', help='Seulement mes projets')
+    token_create_parser = token_subparsers.add_parser('create', help='Créer un token')
+    token_create_parser.add_argument('--name', required=True, help='Nom du token')
+    token_create_parser.add_argument('--scopes', nargs='+', help='Scopes du token')
     
-    models_parser = subparsers.add_parser('models', help='Gestion des modèles IA')
-    models_subparsers = models_parser.add_subparsers(dest='subcommand')
-    models_list_parser = models_subparsers.add_parser('list', help='Liste les modèles IA')
-    models_list_parser.add_argument('--user-only', action='store_true', help='Seulement mes modèles')
+    token_subparsers.add_parser('list', help='Lister les tokens')
     
-    status_parser = subparsers.add_parser('status', help='Statut de la connexion')
+    token_delete_parser = token_subparsers.add_parser('delete', help='Supprimer un token')
+    token_delete_parser.add_argument('--token-id', required=True, type=int, help='ID du token')
     
-    # 🐛 Debug
-    test_upload_parser = subparsers.add_parser('test-upload', help='Test d\'upload')
+    # 🤖 Copilot
+    copilot_parser = subparsers.add_parser('copilot', help='Assistant IA Copilot')
+    copilot_subparsers = copilot_parser.add_subparsers(dest='copilot_command')
+    
+    copilot_ask_parser = copilot_subparsers.add_parser('ask', help='Poser une question')
+    copilot_ask_parser.add_argument('--question', required=True, help='Question à poser')
+    copilot_ask_parser.add_argument('--context', help='Contexte')
+    copilot_ask_parser.add_argument('--max-length', type=int, help='Longueur max réponse')
+    copilot_ask_parser.add_argument('--language', help='Langue de réponse')
+    
+    copilot_analyze_parser = copilot_subparsers.add_parser('analyze', help='Analyser du code')
+    copilot_analyze_parser.add_argument('--code', help='Code à analyser')
+    copilot_analyze_parser.add_argument('--file', help='Fichier à analyser')
+    copilot_analyze_parser.add_argument('--language', required=True, help='Langage du code')
+    copilot_analyze_parser.add_argument('--analysis-type', help='Type d\'analyse')
+    
+    copilot_suggest_parser = copilot_subparsers.add_parser('suggest', help='Suggérer commits')
+    copilot_suggest_parser.add_argument('--diff', required=True, help='Diff git')
+    copilot_suggest_parser.add_argument('--files', nargs='+', help='Fichiers modifiés')
+    
+    copilot_subparsers.add_parser('health', help='Santé de Copilot')
+    
+    # 🏷️ Releases
+    release_parser = subparsers.add_parser('release', help='Gestion des releases')
+    release_subparsers = release_parser.add_subparsers(dest='release_command')
+    
+    release_create_parser = release_subparsers.add_parser('create', help='Créer une release')
+    release_create_parser.add_argument('--owner', required=True, help='Propriétaire')
+    release_create_parser.add_argument('--repo', required=True, help='Repository')
+    release_create_parser.add_argument('--tag-name', required=True, help='Nom du tag')
+    release_create_parser.add_argument('--name', help='Nom de la release')
+    release_create_parser.add_argument('--body', help='Description')
+    release_create_parser.add_argument('--target', help='Branche cible')
+    release_create_parser.add_argument('--draft', action='store_true', help='Release brouillon')
+    release_create_parser.add_argument('--prerelease', action='store_true', help='Pre-release')
+    
+    release_list_parser = release_subparsers.add_parser('list', help='Lister les releases')
+    release_list_parser.add_argument('--owner', required=True, help='Propriétaire')
+    release_list_parser.add_argument('--repo', required=True, help='Repository')
+    release_list_parser.add_argument('--page', type=int, help='Page')
+    release_list_parser.add_argument('--per-page', type=int, help='Éléments par page')
+    
+    release_upload_parser = release_subparsers.add_parser('upload', help='Uploader un asset')
+    release_upload_parser.add_argument('--owner', required=True, help='Propriétaire')
+    release_upload_parser.add_argument('--repo', required=True, help='Repository')
+    release_upload_parser.add_argument('--tag-name', required=True, help='Tag de la release')
+    release_upload_parser.add_argument('--file', required=True, help='Fichier à uploader')
+    
+    # 📖 Wiki
+    wiki_parser = subparsers.add_parser('wiki', help='Documentation wiki')
+    wiki_subparsers = wiki_parser.add_subparsers(dest='wiki_command')
+    
+    wiki_create_parser = wiki_subparsers.add_parser('create', help='Créer une page')
+    wiki_create_parser.add_argument('--owner', required=True, help='Propriétaire')
+    wiki_create_parser.add_argument('--repo', required=True, help='Repository')
+    wiki_create_parser.add_argument('--title', required=True, help='Titre de la page')
+    wiki_create_parser.add_argument('--content', help='Contenu')
+    wiki_create_parser.add_argument('--file', help='Fichier de contenu')
+    
+    wiki_list_parser = wiki_subparsers.add_parser('list', help='Lister les pages')
+    wiki_list_parser.add_argument('--owner', required=True, help='Propriétaire')
+    wiki_list_parser.add_argument('--repo', required=True, help='Repository')
+    
+    # 🩺 Système
+    system_parser = subparsers.add_parser('system', help='Système et santé')
+    system_subparsers = system_parser.add_subparsers(dest='system_command')
+    
+    system_subparsers.add_parser('health', help='Santé du serveur')
+    system_subparsers.add_parser('info', help='Informations système')
     
     args = parser.parse_args()
     
@@ -1610,62 +1156,105 @@ Exemples d'utilisation:
         success = False
         
         # 🔐 Authentification
-        if args.command == 'login':
-            success = handle_login(args)
-        elif args.command == 'register':
-            success = handle_register(args)
-        elif args.command == 'whoami':
-            success = handle_whoami(args)
-        elif args.command == 'logout':
-            success = handle_logout(args)
-        
-        # 📁 Commandes .ssf
-        elif args.command == 'ssf-init':
-            success = handle_ssf_init(args)
-        elif args.command == 'ssf-push':
-            success = handle_ssf_push(args)
-        elif args.command == 'ssf-validate':
-            success = handle_ssf_validate(args)
-        elif args.command == 'ssf-show':
-            success = handle_ssf_show(args)
-        elif args.command == 'ssf-list':
-            success = handle_ssf_list(args)
-        
-        # 📥 Commandes PULL
-        elif args.command == 'pull':
-            if args.pull_subcommand == 'project':
-                success = handle_pull_project(args)
-            elif args.pull_subcommand == 'model':
-                success = handle_pull_model(args)
-            elif args.pull_subcommand == 'list':
-                success = handle_pull_list(args)
+        if args.command == 'auth':
+            if args.auth_command == 'login':
+                success = handle_login(args)
+            elif args.auth_command == 'register':
+                success = handle_register(args)
+            elif args.auth_command == 'whoami':
+                success = handle_whoami(args)
+            elif args.auth_command == 'logout':
+                success = handle_logout(args)
+            elif args.auth_command == 'status':
+                success = handle_status(args)
             else:
-                pull_parser.print_help()
+                auth_parser.print_help()
         
-        # 🔍 Recherche
-        elif args.command == 'search':
-            success = handle_search(args)
-        
-        # 📦 Commandes serveur
-        elif args.command == 'projects':
-            if args.subcommand == 'list':
-                success = handle_projects_list(args)
+        # 📁 Repositories
+        elif args.command == 'repo':
+            if args.repo_command == 'create':
+                success = handle_repo_create(args)
+            elif args.repo_command == 'list':
+                success = handle_repo_list(args)
+            elif args.repo_command == 'view':
+                success = handle_repo_view(args)
+            elif args.repo_command == 'delete':
+                success = handle_repo_delete(args)
             else:
-                projects_parser.print_help()
-        elif args.command == 'models':
-            if args.subcommand == 'list':
-                success = handle_models_list(args)
-            else:
-                models_parser.print_help()
-        elif args.command == 'status':
-            success = handle_status(args)
+                repo_parser.print_help()
         
-        # 🐛 Debug
-        elif args.command == 'test-upload':
-            success = handle_test_upload(args)
+        # ⭐ Social
+        elif args.command == 'social':
+            if args.social_command == 'star':
+                success = handle_repo_star(args)
+            elif args.social_command == 'unstar':
+                success = handle_repo_unstar(args)
+            elif args.social_command == 'fork':
+                success = handle_repo_fork(args)
+            else:
+                social_parser.print_help()
+        
+        # 🔑 Tokens
+        elif args.command == 'token':
+            if args.token_command == 'create':
+                success = handle_token_create(args)
+            elif args.token_command == 'list':
+                success = handle_token_list(args)
+            elif args.token_command == 'delete':
+                success = handle_token_delete(args)
+            else:
+                token_parser.print_help()
+        
+        # 🤖 Copilot
+        elif args.command == 'copilot':
+            if args.copilot_command == 'ask':
+                success = handle_copilot_ask(args)
+            elif args.copilot_command == 'analyze':
+                success = handle_copilot_analyze(args)
+            elif args.copilot_command == 'suggest':
+                success = handle_copilot_suggest(args)
+            elif args.copilot_command == 'health':
+                success = handle_copilot_health(args)
+            else:
+                copilot_parser.print_help()
+        
+        # 🏷️ Releases
+        elif args.command == 'release':
+            if args.release_command == 'create':
+                success = handle_release_create(args)
+            elif args.release_command == 'list':
+                success = handle_release_list(args)
+            elif args.release_command == 'upload':
+                success = handle_release_upload(args)
+            else:
+                release_parser.print_help()
+        
+        # 📖 Wiki
+        elif args.command == 'wiki':
+            if args.wiki_command == 'create':
+                success = handle_wiki_create(args)
+            elif args.wiki_command == 'list':
+                success = handle_wiki_list(args)
+            else:
+                wiki_parser.print_help()
+        
+        # 🩺 Système
+        elif args.command == 'system':
+            if args.system_command == 'health':
+                success = handle_status(args)  # Réutilise status pour health
+            elif args.system_command == 'info':
+                try:
+                    info = api_client.system_info()
+                    print(json.dumps(info, indent=2))
+                    success = True
+                except Exception as e:
+                    print_error(f"Erreur info système: {e}")
+                    success = False
+            else:
+                system_parser.print_help()
         
         else:
-            print(f"❌ Commande inconnue: {args.command}")
+            print_error(f"Commande inconnue: {args.command}")
             success = False
         
         sys.exit(0 if success else 1)
@@ -1674,7 +1263,7 @@ Exemples d'utilisation:
         print("\n👋 Opération annulée!")
         sys.exit(1)
     except Exception as e:
-        print(f"💥 Erreur inattendue: {e}")
+        print_error(f"Erreur inattendue: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
