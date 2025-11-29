@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Header from '../../components/Header'
 import Sidebar from '../../components/Sidebar'
 import RepositoryCard from '../../components/RepositoryCard'
-import { Plus, Search, Filter } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 
 export default function ReposPage() {
   const { user, token } = useAuth()
@@ -19,47 +19,51 @@ export default function ReposPage() {
       router.push('/')
       return
     }
-    fetchRepositories()
-  }, [user, router])
 
-  const fetchRepositories = async () => {
-    try {
-      // Simuler le chargement des repositories
-      // Dans une vraie implémentation, vous appelleriez votre API
-      setTimeout(() => {
-        setRepos([
-          {
-            id: 1,
-            name: 'mon-projet',
-            full_name: `${user.username}/mon-projet`,
-            description: 'Mon premier projet sur initHUB',
-            is_private: false,
-            stars_count: 5,
-            forks_count: 2,
-            updated_at: new Date().toISOString()
-          },
-          {
-            id: 2,
-            name: 'api-backend',
-            full_name: `${user.username}/api-backend`,
-            description: 'Backend API en Node.js',
-            is_private: true,
-            stars_count: 3,
-            forks_count: 1,
-            updated_at: new Date().toISOString()
-          }
-        ])
-        setLoading(false)
-      }, 1000)
-    } catch (error) {
-      console.error('Erreur chargement repositories:', error)
+    // Données simulées pour les repositories
+    setTimeout(() => {
+      setRepos([
+        {
+          id: 1,
+          name: 'mon-projet',
+          full_name: `${user.username}/mon-projet`,
+          description: 'Mon premier projet sur initHUB avec une description plus longue pour tester',
+          is_private: false,
+          stars_count: 5,
+          forks_count: 2,
+          language: 'JavaScript',
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 2,
+          name: 'api-backend',
+          full_name: `${user.username}/api-backend`,
+          description: 'Backend API en Node.js avec Express et MongoDB',
+          is_private: true,
+          stars_count: 3,
+          forks_count: 1,
+          language: 'Python',
+          updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: 3,
+          name: 'frontend-app',
+          full_name: `${user.username}/frontend-app`,
+          description: 'Application React avec Tailwind CSS',
+          is_private: false,
+          stars_count: 8,
+          forks_count: 4,
+          language: 'TypeScript',
+          updated_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+        }
+      ])
       setLoading(false)
-    }
-  }
+    }, 1000)
+  }, [user, router])
 
   const filteredRepos = repos.filter(repo =>
     repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    repo.description.toLowerCase().includes(searchTerm.toLowerCase())
+    (repo.description && repo.description.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
   if (!user) return null
@@ -86,31 +90,17 @@ export default function ReposPage() {
               </button>
             </div>
 
-            {/* Barre de recherche et filtres */}
+            {/* Barre de recherche */}
             <div className="github-card mb-6">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    type="text"
-                    placeholder="Rechercher un repository..."
-                    className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-github-border rounded-md text-white"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                
-                <select className="px-4 py-2 bg-gray-800 border border-github-border rounded-md text-white">
-                  <option value="all">Tous les types</option>
-                  <option value="public">Public</option>
-                  <option value="private">Privé</option>
-                </select>
-                
-                <select className="px-4 py-2 bg-gray-800 border border-github-border rounded-md text-white">
-                  <option value="updated">Dernière mise à jour</option>
-                  <option value="name">Nom</option>
-                  <option value="stars">Étoiles</option>
-                </select>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Rechercher un repository..."
+                  className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-github-border rounded-md text-white"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
             </div>
 
@@ -127,23 +117,4 @@ export default function ReposPage() {
                 ))}
                 
                 {filteredRepos.length === 0 && (
-                  <div className="github-card text-center py-12">
-                    <p className="text-gray-400 text-lg">
-                      {searchTerm ? 'Aucun repository trouvé' : 'Aucun repository'}
-                    </p>
-                    {!searchTerm && (
-                      <button className="btn-primary mt-4">
-                        <Plus size={20} className="mr-2" />
-                        Créer votre premier repository
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </main>
-      </div>
-    </div>
-  )
-}
+                  <div
