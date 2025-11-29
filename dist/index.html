@@ -9,31 +9,192 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
-        .github-dark { background-color: #0d1117; color: #c9d1d9; }
-        .github-card { background: #161b22; border: 1px solid #30363d; border-radius: 0.5rem; padding: 1.5rem; }
-        .btn-primary { background: #2563eb; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s; }
-        .btn-primary:hover { background: #1d4ed8; }
-        .btn-secondary { background: #161b22; border: 1px solid #30363d; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s; }
-        .btn-secondary:hover { background: #374151; }
-        .sidebar { width: 16rem; background: #161b22; border-right: 1px solid #30363d; min-height: 100vh; }
-        .nav-item { display: flex; align-items: center; padding: 0.75rem 1rem; margin: 0.25rem 0; border-radius: 0.5rem; transition: all 0.2s; }
-        .nav-item.active { background: #2563eb; color: white; }
-        .nav-item:not(.active):hover { background: #374151; color: white; }
-        .logo-container { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border-bottom: 1px solid #30363d; }
-        .logo { width: 2rem; height: 2rem; border-radius: 0.5rem; }
+        :root {
+            --inithub-primary: #6366f1;
+            --inithub-secondary: #8b5cf6;
+            --inithub-accent: #06b6d4;
+            --inithub-dark: #0f172a;
+            --inithub-darker: #020617;
+            --inithub-card: #1e293b;
+            --inithub-border: #334155;
+        }
+        
+        body { 
+            background: linear-gradient(135deg, var(--inithub-darker) 0%, var(--inithub-dark) 100%);
+            color: #f8fafc;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        
+        .glass-card {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--inithub-primary) 0%, var(--inithub-secondary) 50%, var(--inithub-accent) 100%);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--inithub-primary) 0%, var(--inithub-secondary) 50%, var(--inithub-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--inithub-primary) 0%, var(--inithub-secondary) 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            margin: 0.375rem 0;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--inithub-primary) 0%, var(--inithub-secondary) 100%);
+            color: white;
+            box-shadow: 0 4px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+        
+        .nav-item:not(.active):hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+            transform: translateX(4px);
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--inithub-primary) 0%, var(--inithub-secondary) 100%);
+        }
+        
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .floating-card {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .github-stats {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .repo-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .repo-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-message {
+            max-width: 70%;
+            padding: 1rem 1.25rem;
+            border-radius: 1.25rem;
+            margin: 0.5rem 0;
+        }
+
+        .chat-user {
+            background: linear-gradient(135deg, var(--inithub-primary) 0%, var(--inithub-secondary) 100%);
+            margin-left: auto;
+        }
+
+        .chat-bot {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="github-dark min-h-screen">
+<body class="min-h-screen">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, createContext, useContext } = React;
+        const { useState, useEffect, createContext, useContext, useRef } = React;
         const { 
             Home, GitBranch, Bot, BarChart3, Download, BookOpen, 
             LogOut, User, Settings, Plus, Search, Star, GitFork, 
             Lock, Globe, Eye, Code, MessageSquare, Send,
-            ChevronDown, Bell, Mail
+            ChevronDown, Bell, Mail, TrendingUp, Users, Zap,
+            GitPullRequest, GitCommit, GitMerge, Activity,
+            FolderGit2, Server, Cloud, Database, Calendar,
+            Clock, MessageCircle, GitCompare, Tag
         } = lucideReact;
 
         // Context d'authentification
@@ -76,7 +237,8 @@
                         id: 1,
                         username: email.split('@')[0],
                         email: email,
-                        full_name: 'Utilisateur initHUB'
+                        full_name: 'Utilisateur initHUB',
+                        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0])}&background=6366f1&color=fff`
                     };
                     
                     localStorage.setItem('inithub_token', data.access_token);
@@ -151,15 +313,22 @@
 
         // Composants UI
         function Logo() {
-            return React.createElement('div', { className: 'logo-container' },
+            return React.createElement('div', { 
+                className: 'flex items-center gap-3 p-6 border-b border-gray-800'
+            },
                 React.createElement('img', {
-                    src: 'https://github.com/user-attachments/assets/d381e360-9daa-4423-a5c4-e6906b7f4afe',
+                    src: 'https://github.com/gopu-inc/initHUBS/raw/main/logo.png',
                     alt: 'initHUB Logo',
-                    className: 'logo'
+                    className: 'w-10 h-10 rounded-xl'
                 }),
-                React.createElement('span', { 
-                    className: 'text-white font-bold text-lg'
-                }, 'initHUB')
+                React.createElement('div', null,
+                    React.createElement('div', { 
+                        className: 'text-white font-bold text-xl gradient-text'
+                    }, 'initHUB'),
+                    React.createElement('div', { 
+                        className: 'text-sm text-gray-400'
+                    }, 'Cloud Enterprise')
+                )
             );
         }
 
@@ -169,34 +338,49 @@
             if (!user) return null;
 
             return React.createElement('header', {
-                className: 'bg-gray-800 border-b border-gray-700'
+                className: 'bg-gray-900/80 backdrop-blur-lg border-b border-gray-800'
             }, 
-                React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
-                    React.createElement('div', { className: 'flex justify-between items-center h-16' },
+                React.createElement('div', { className: 'max-w-7xl mx-auto px-6' },
+                    React.createElement('div', { className: 'flex justify-between items-center h-20' },
                         React.createElement('div', { className: 'flex items-center' },
-                            React.createElement('h1', { className: 'text-xl font-bold text-white' }, 'Tableau de bord')
+                            React.createElement('h1', { 
+                                className: 'text-2xl font-bold gradient-text'
+                            }, 'Tableau de Bord')
                         ),
                         React.createElement('div', { className: 'flex items-center space-x-4' },
-                            React.createElement('button', { className: 'p-2 text-gray-400 hover:text-white' },
-                                React.createElement(Bell, { size: 20 })
+                            React.createElement('button', { 
+                                className: 'p-3 text-gray-400 hover:text-white transition-colors relative'
+                            },
+                                React.createElement(Bell, { size: 20 }),
+                                React.createElement('span', {
+                                    className: 'absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full pulse-dot'
+                                })
                             ),
-                            React.createElement('button', { className: 'p-2 text-gray-400 hover:text-white' },
-                                React.createElement(Mail, { size: 20 })
+                            React.createElement('button', { 
+                                className: 'p-3 text-gray-400 hover:text-white transition-colors relative'
+                            },
+                                React.createElement(Mail, { size: 20 }),
+                                React.createElement('span', {
+                                    className: 'absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full pulse-dot'
+                                })
                             ),
-                            React.createElement('div', { className: 'flex items-center space-x-2' },
-                                React.createElement('div', { 
-                                    className: 'w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center'
-                                },
-                                    React.createElement('span', { className: 'text-white text-sm font-bold' }, 
-                                        user.username ? user.username.charAt(0).toUpperCase() : 'U'
-                                    )
+                            React.createElement('div', { 
+                                className: 'flex items-center space-x-3 bg-gray-800/50 rounded-xl p-2'
+                            },
+                                React.createElement('img', {
+                                    src: user.avatar,
+                                    alt: user.username,
+                                    className: 'w-8 h-8 rounded-full'
+                                }),
+                                React.createElement('div', { className: 'hidden sm:block' },
+                                    React.createElement('div', { className: 'text-sm font-medium text-white' }, user.username),
+                                    React.createElement('div', { className: 'text-xs text-gray-400' }, 'Développeur')
                                 ),
-                                React.createElement('span', { className: 'text-sm text-gray-300' }, user.username),
                                 React.createElement(ChevronDown, { size: 16, className: 'text-gray-400' })
                             ),
                             React.createElement('button', {
                                 onClick: logout,
-                                className: 'p-2 text-gray-400 hover:text-red-400',
+                                className: 'p-3 text-gray-400 hover:text-red-400 transition-colors',
                                 title: 'Déconnexion'
                             }, React.createElement(LogOut, { size: 20 }))
                         )
@@ -210,37 +394,58 @@
             const [currentRoute, setCurrentRoute] = useState(window.location.hash.replace('#', '') || 'dashboard');
 
             const navigation = [
-                { name: 'Dashboard', href: 'dashboard', icon: Home },
-                { name: 'Repositories', href: 'repos', icon: GitBranch },
-                { name: 'Copilot', href: 'copilot', icon: Bot },
-                { name: 'Releases', href: 'releases', icon: Download },
-                { name: 'Wiki', href: 'wiki', icon: BookOpen },
-                { name: 'Analytics', href: 'analytics', icon: BarChart3 },
+                { name: 'Dashboard', href: 'dashboard', icon: Home, badge: null },
+                { name: 'Repositories', href: 'repos', icon: GitBranch, badge: '12' },
+                { name: 'Copilot', href: 'copilot', icon: Bot, badge: 'Nouveau' },
+                { name: 'Releases', href: 'releases', icon: Download, badge: '3' },
+                { name: 'Wiki', href: 'wiki', icon: BookOpen, badge: null },
+                { name: 'Analytics', href: 'analytics', icon: BarChart3, badge: 'Pro' },
             ];
 
             if (!user) return null;
 
-            return React.createElement('div', { className: 'sidebar' },
+            return React.createElement('div', { className: 'sidebar min-h-screen' },
                 React.createElement(Logo),
-                React.createElement('nav', { className: 'mt-4 px-4' },
-                    React.createElement('ul', { className: 'space-y-1' },
+                React.createElement('nav', { className: 'p-4' },
+                    React.createElement('ul', { className: 'space-y-2' },
                         navigation.map((item) => {
                             const Icon = item.icon;
                             const isActive = currentRoute === item.href;
                             
                             return React.createElement('li', { key: item.name },
                                 React.createElement('button', {
-                                    className: `nav-item w-full text-left ${isActive ? 'active' : 'text-gray-300'}`,
+                                    className: `nav-item w-full text-left ${isActive ? 'active' : ''}`,
                                     onClick: () => {
                                         setCurrentRoute(item.href);
                                         window.location.hash = item.href;
                                     }
                                 },
                                     React.createElement(Icon, { size: 20, className: 'mr-3' }),
-                                    item.name
+                                    item.name,
+                                    item.badge && React.createElement('span', {
+                                        className: `ml-auto px-2 py-1 text-xs rounded-full ${
+                                            item.badge === 'Nouveau' ? 'bg-green-500/20 text-green-400' :
+                                            item.badge === 'Pro' ? 'gradient-bg text-white' :
+                                            'bg-gray-700 text-gray-300'
+                                        }`
+                                    }, item.badge)
                                 )
                             );
                         })
+                    )
+                ),
+                React.createElement('div', { className: 'p-4 border-t border-gray-800 mt-8' },
+                    React.createElement('div', { className: 'glass-card p-4 rounded-xl' },
+                        React.createElement('div', { className: 'flex items-center space-x-3' },
+                            React.createElement(Zap, { size: 20, className: 'text-yellow-400' }),
+                            React.createElement('div', null,
+                                React.createElement('div', { className: 'text-sm font-medium text-white' }, 'initHUB Pro'),
+                                React.createElement('div', { className: 'text-xs text-gray-400' }, 'Débloquez toutes les fonctionnalités')
+                            )
+                        ),
+                        React.createElement('button', {
+                            className: 'btn-primary w-full mt-3 text-sm py-2'
+                        }, 'Mettre à niveau')
                     )
                 )
             );
@@ -255,9 +460,134 @@
 
             return React.createElement('div', { className: 'flex' },
                 React.createElement(Sidebar),
-                React.createElement('div', { className: 'flex-1 flex flex-col' },
+                React.createElement('div', { className: 'flex-1 flex flex-col min-h-screen' },
                     React.createElement(Header),
-                    React.createElement('main', { className: 'flex-1 p-8' }, children)
+                    React.createElement('main', { className: 'flex-1 p-6' }, children)
+                )
+            );
+        }
+
+        // Composants de Graphiques
+        function ActivityChart() {
+            const chartRef = useRef(null);
+
+            useEffect(() => {
+                if (chartRef.current) {
+                    const ctx = chartRef.current.getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                            datasets: [{
+                                label: 'Commits',
+                                data: [12, 19, 8, 15, 22, 18, 25],
+                                borderColor: '#6366f1',
+                                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }, {
+                                label: 'Pull Requests',
+                                data: [5, 8, 12, 6, 15, 10, 8],
+                                borderColor: '#8b5cf6',
+                                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }, []);
+
+            return React.createElement('div', { className: 'glass-card p-6' },
+                React.createElement('div', { className: 'flex items-center justify-between mb-6' },
+                    React.createElement('h3', { className: 'text-lg font-semibold text-white' }, 'Activité Hebdomadaire'),
+                    React.createElement(TrendingUp, { size: 20, className: 'text-green-400' })
+                ),
+                React.createElement('canvas', { ref: chartRef, height: '300' })
+            );
+        }
+
+        function LanguageChart() {
+            const chartRef = useRef(null);
+
+            useEffect(() => {
+                if (chartRef.current) {
+                    new Chart(chartRef.current, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['JavaScript', 'Python', 'TypeScript', 'HTML', 'CSS', 'Autres'],
+                            datasets: [{
+                                data: [35, 25, 20, 10, 5, 5],
+                                backgroundColor: [
+                                    '#6366f1',
+                                    '#8b5cf6',
+                                    '#06b6d4',
+                                    '#10b981',
+                                    '#f59e0b',
+                                    '#6b7280'
+                                ],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            cutout: '70%',
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                }
+            }, []);
+
+            return React.createElement('div', { className: 'glass-card p-6' },
+                React.createElement('h3', { className: 'text-lg font-semibold text-white mb-6' }, 'Langages Utilisés'),
+                React.createElement('div', { className: 'flex justify-center' },
+                    React.createElement('canvas', { ref: chartRef, width: '250', height: '250' })
+                )
+            );
+        }
+
+        function StatsCard({ title, value, icon, description, trend }) {
+            return React.createElement('div', { className: 'stats-card' },
+                React.createElement('div', { className: 'flex items-start justify-between' },
+                    React.createElement('div', null,
+                        React.createElement('p', { className: 'text-gray-400 text-sm font-medium mb-2' }, title),
+                        React.createElement('p', { className: 'text-3xl font-bold text-white mb-1' }, value),
+                        React.createElement('p', { className: 'text-gray-500 text-sm' }, description)
+                    ),
+                    React.createElement('div', { className: 'p-3 rounded-xl bg-white/5' }, icon)
+                ),
+                trend && React.createElement('div', { 
+                    className: `flex items-center mt-3 text-sm ${
+                        trend > 0 ? 'text-green-400' : 'text-red-400'
+                    }` 
+                },
+                    React.createElement(TrendingUp, { size: 16, className: 'mr-1' }),
+                    `${Math.abs(trend)}% ${trend > 0 ? 'augmentation' : 'diminution'}`
                 )
             );
         }
@@ -311,98 +641,134 @@
 
             const features = [
                 {
-                    icon: React.createElement(GitBranch, { size: 32 }),
-                    title: 'Git Repository Hosting',
-                    description: 'Hébergement de repositories Git avec support LFS'
+                    icon: React.createElement(Server, { size: 32 }),
+                    title: 'Git Enterprise',
+                    description: 'Hébergement Git haute performance avec LFS et CI/CD intégré'
                 },
                 {
                     icon: React.createElement(Bot, { size: 32 }),
-                    title: 'Copilot IA intégré',
-                    description: 'Assistant IA pour le développement'
+                    title: 'Copilot IA Avancé',
+                    description: 'Assistant IA contextuel pour le développement full-stack'
                 },
                 {
                     icon: React.createElement(BarChart3, { size: 32 }),
-                    title: 'Dashboard Analytics',
-                    description: 'Analyses détaillées et métriques'
+                    title: 'Analytics Temps Réel',
+                    description: 'Métriques avancées et tableaux de bord interactifs'
                 },
                 {
-                    icon: React.createElement(Download, { size: 32 }),
-                    title: 'Releases & Assets',
-                    description: 'Gestion des releases et assets'
+                    icon: React.createElement(Cloud, { size: 32 }),
+                    title: 'Cloud Native',
+                    description: 'Infrastructure scalable avec déploiement automatique'
                 },
                 {
-                    icon: React.createElement(BookOpen, { size: 32 }),
-                    title: 'Wiki Documentation',
-                    description: 'Documentation intégrée avec wiki'
+                    icon: React.createElement(Database, { size: 32 }),
+                    title: 'Data Insights',
+                    description: 'Analyse approfondie de vos données de développement'
+                },
+                {
+                    icon: React.createElement(Users, { size: 32 }),
+                    title: 'Team Collaboration',
+                    description: 'Outils de collaboration avancés pour les équipes'
                 }
             ];
 
             return React.createElement('div', { className: 'min-h-screen' },
+                React.createElement('div', { className: 'absolute inset-0 -z-10' },
+                    React.createElement('div', { 
+                        className: 'absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-cyan-900/20'
+                    })
+                ),
                 React.createElement('div', { className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' },
-                    React.createElement('div', { className: 'pt-8 pb-16 text-center' },
-                        React.createElement('div', { className: 'flex items-center justify-center mb-6' },
+                    React.createElement('div', { className: 'pt-16 pb-20 text-center' },
+                        React.createElement('div', { className: 'flex items-center justify-center mb-8 floating-card' },
                             React.createElement('img', {
-                                src: 'https://github.com/user-attachments/assets/d381e360-9daa-4423-a5c4-e6906b7f4afe',
+                                src: 'https://github.com/gopu-inc/initHUBS/raw/main/logo.png',
                                 alt: 'initHUB Logo',
-                                className: 'w-16 h-16 rounded-lg mr-4'
+                                className: 'w-20 h-20 rounded-2xl mr-6'
                             }),
-                            React.createElement('h1', { className: 'text-5xl font-bold text-white' }, 'initHUB Cloud')
+                            React.createElement('div', { className: 'text-left' },
+                                React.createElement('h1', { 
+                                    className: 'text-6xl font-bold gradient-text mb-2'
+                                }, 'initHUB'),
+                                React.createElement('p', { 
+                                    className: 'text-2xl text-gray-300'
+                                }, 'Cloud Enterprise')
+                            )
                         ),
-                        React.createElement('p', { className: 'text-xl text-gray-300 mb-8' }, 'Plateforme cloud complète avec Copilot, Dashboard, Releases et Analytics')
+                        React.createElement('p', { 
+                            className: 'text-xl text-gray-400 max-w-3xl mx-auto mb-12'
+                        }, 'Plateforme de développement cloud nouvelle génération avec IA intégrée, analytics avancés et collaboration d\'équipe')
                     ),
 
-                    React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16' },
-                        React.createElement('div', { className: 'github-card' },
-                            React.createElement('h2', { className: 'text-2xl font-bold text-white mb-6' },
-                                isLogin ? 'Connexion' : 'Inscription'
-                            ),
+                    React.createElement('div', { className: 'grid grid-cols-1 xl:grid-cols-2 gap-12 mb-20' },
+                        React.createElement('div', { className: 'glass-card p-8 rounded-2xl' },
+                            React.createElement('h2', { 
+                                className: 'text-3xl font-bold gradient-text mb-2'
+                            }, isLogin ? 'Connexion' : 'Rejoindre initHUB'),
+                            React.createElement('p', { 
+                                className: 'text-gray-400 mb-8'
+                            }, isLogin ? 'Accédez à votre espace de développement' : 'Créez votre compte et commencez à développer'),
                             
                             message && React.createElement('div', {
-                                className: `p-3 rounded-lg mb-4 ${
-                                    message.includes('✅') ? 'bg-green-500' : 'bg-red-500'
-                                } text-white`
+                                className: `p-4 rounded-xl mb-6 ${
+                                    message.includes('✅') ? 'bg-green-500/20 border border-green-500/30' : 'bg-red-500/20 border border-red-500/30'
+                                }`
                             }, message),
                             
-                            React.createElement('form', { onSubmit: handleSubmit, className: 'space-y-4' },
+                            React.createElement('form', { onSubmit: handleSubmit, className: 'space-y-6' },
                                 !isLogin && [
-                                    React.createElement('div', { key: 'username' },
-                                        React.createElement('label', { className: 'block text-sm font-medium text-gray-300 mb-2' }, 'Nom d\'utilisateur'),
-                                        React.createElement('input', {
-                                            type: 'text',
-                                            required: true,
-                                            className: 'w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white',
-                                            value: formData.username,
-                                            onChange: (e) => setFormData({...formData, username: e.target.value})
-                                        })
-                                    ),
-                                    React.createElement('div', { key: 'fullname' },
-                                        React.createElement('label', { className: 'block text-sm font-medium text-gray-300 mb-2' }, 'Nom complet'),
-                                        React.createElement('input', {
-                                            type: 'text',
-                                            className: 'w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white',
-                                            value: formData.full_name,
-                                            onChange: (e) => setFormData({...formData, full_name: e.target.value})
-                                        })
+                                    React.createElement('div', { key: 'username', className: 'grid grid-cols-2 gap-4' },
+                                        React.createElement('div', null,
+                                            React.createElement('label', { 
+                                                className: 'block text-sm font-medium text-gray-300 mb-2'
+                                            }, 'Nom d\'utilisateur'),
+                                            React.createElement('input', {
+                                                type: 'text',
+                                                required: true,
+                                                className: 'w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                                                placeholder: 'votre-username',
+                                                value: formData.username,
+                                                onChange: (e) => setFormData({...formData, username: e.target.value})
+                                            })
+                                        ),
+                                        React.createElement('div', null,
+                                            React.createElement('label', { 
+                                                className: 'block text-sm font-medium text-gray-300 mb-2'
+                                            }, 'Nom complet'),
+                                            React.createElement('input', {
+                                                type: 'text',
+                                                className: 'w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                                                placeholder: 'John Doe',
+                                                value: formData.full_name,
+                                                onChange: (e) => setFormData({...formData, full_name: e.target.value})
+                                            })
+                                        )
                                     )
                                 ],
                                 
-                                React.createElement('div', { key: 'email' },
-                                    React.createElement('label', { className: 'block text-sm font-medium text-gray-300 mb-2' }, 'Email'),
+                                React.createElement('div', null,
+                                    React.createElement('label', { 
+                                        className: 'block text-sm font-medium text-gray-300 mb-2'
+                                    }, 'Email'),
                                     React.createElement('input', {
                                         type: 'email',
                                         required: true,
-                                        className: 'w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white',
+                                        className: 'w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                                        placeholder: 'vous@entreprise.com',
                                         value: formData.email,
                                         onChange: (e) => setFormData({...formData, email: e.target.value})
                                     })
                                 ),
                                 
-                                React.createElement('div', { key: 'password' },
-                                    React.createElement('label', { className: 'block text-sm font-medium text-gray-300 mb-2' }, 'Mot de passe'),
+                                React.createElement('div', null,
+                                    React.createElement('label', { 
+                                        className: 'block text-sm font-medium text-gray-300 mb-2'
+                                    }, 'Mot de passe'),
                                     React.createElement('input', {
                                         type: 'password',
                                         required: true,
-                                        className: 'w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white',
+                                        className: 'w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                                        placeholder: '••••••••',
                                         value: formData.password,
                                         onChange: (e) => setFormData({...formData, password: e.target.value})
                                     })
@@ -411,54 +777,43 @@
                                 React.createElement('button', {
                                     type: 'submit',
                                     disabled: loading,
-                                    className: 'w-full btn-primary py-3'
+                                    className: 'btn-primary w-full py-4 text-lg font-semibold'
                                 }, loading ? 'Chargement...' : (isLogin ? 'Se connecter' : 'Créer un compte'))
                             ),
                             
-                            React.createElement('div', { className: 'mt-4 text-center' },
+                            React.createElement('div', { className: 'text-center' },
                                 React.createElement('button', {
                                     onClick: () => setIsLogin(!isLogin),
-                                    className: 'text-blue-400 hover:text-blue-300'
-                                }, isLogin ? 'Créer un compte' : 'Déjà un compte ? Se connecter')
+                                    className: 'text-blue-400 hover:text-blue-300 font-medium'
+                                }, isLogin ? 'Nouveau sur initHUB ? Créer un compte' : 'Déjà un compte ? Se connecter')
                             )
                         ),
 
                         React.createElement('div', null,
-                            React.createElement('h3', { className: 'text-2xl font-bold text-white mb-6' }, 'Fonctionnalités'),
-                            React.createElement('div', { className: 'grid gap-4' },
+                            React.createElement('h3', { 
+                                className: 'text-2xl font-bold text-white mb-8'
+                            }, 'Pourquoi choisir initHUB ?'),
+                            React.createElement('div', { className: 'grid gap-6' },
                                 features.map((feature, index) =>
                                     React.createElement('div', {
                                         key: index,
-                                        className: 'github-card flex items-start space-x-4'
+                                        className: 'glass-card p-6 rounded-xl hover:transform hover:scale-105 transition-all duration-300'
                                     },
-                                        React.createElement('div', { className: 'text-blue-400 flex-shrink-0' }, feature.icon),
-                                        React.createElement('div', null,
-                                            React.createElement('h4', { className: 'text-lg font-semibold text-white mb-1' }, feature.title),
-                                            React.createElement('p', { className: 'text-gray-400' }, feature.description)
+                                        React.createElement('div', { className: 'flex items-start space-x-4' },
+                                            React.createElement('div', { className: 'text-blue-400 flex-shrink-0' }, feature.icon),
+                                            React.createElement('div', null,
+                                                React.createElement('h4', { 
+                                                    className: 'text-lg font-semibold text-white mb-2'
+                                                }, feature.title),
+                                                React.createElement('p', { 
+                                                    className: 'text-gray-400'
+                                                }, feature.description)
+                                            )
                                         )
                                     )
                                 )
                             )
                         )
-                    )
-                )
-            );
-        }
-
-        function StatsCard({ title, value, icon, color = 'blue' }) {
-            const colorClasses = {
-                blue: 'bg-blue-500',
-                green: 'bg-green-500',
-                yellow: 'bg-yellow-500',
-                purple: 'bg-purple-500',
-            };
-
-            return React.createElement('div', { className: 'github-card' },
-                React.createElement('div', { className: 'flex items-center' },
-                    React.createElement('div', { className: `p-3 rounded-lg ${colorClasses[color]} text-white` }, icon),
-                    React.createElement('div', { className: 'ml-4' },
-                        React.createElement('p', { className: 'text-sm font-medium text-gray-300' }, title),
-                        React.createElement('p', { className: 'text-2xl font-bold text-white' }, value)
                     )
                 )
             );
@@ -480,7 +835,9 @@
                     total_repos: 12,
                     total_stars: 45,
                     total_forks: 8,
-                    total_contributors: 5
+                    total_contributors: 5,
+                    total_commits: 1247,
+                    active_prs: 8
                 });
 
                 setRecentActivity([
@@ -488,70 +845,152 @@
                         type: 'repo',
                         title: 'mon-projet',
                         date: new Date().toISOString(),
-                        description: 'Repository créé'
+                        description: 'Repository créé',
+                        icon: React.createElement(FolderGit2, { size: 16 }),
+                        color: 'text-blue-400'
                     },
                     {
                         type: 'commit',
                         title: 'Initial commit',
                         date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-                        description: 'Commit pushed'
+                        description: 'Commit pushed sur main',
+                        icon: React.createElement(GitCommit, { size: 16 }),
+                        color: 'text-green-400'
                     },
                     {
                         type: 'pr',
                         title: 'Add new feature',
                         date: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-                        description: 'Pull request opened'
+                        description: 'Pull request opened',
+                        icon: React.createElement(GitPullRequest, { size: 16 }),
+                        color: 'text-purple-400'
+                    },
+                    {
+                        type: 'issue',
+                        title: 'Fix bug #123',
+                        date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+                        description: 'Issue closed',
+                        icon: React.createElement(GitMerge, { size: 16 }),
+                        color: 'text-red-400'
                     }
                 ]);
             }, [user]);
 
             if (!user) return null;
 
-            return React.createElement('div', { className: 'max-w-7xl mx-auto' },
-                React.createElement('h1', { className: 'text-3xl font-bold text-white mb-8' }, 'Dashboard'),
-                
-                stats && React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8' },
+            return React.createElement('div', { className: 'max-w-7xl mx-auto space-y-8' },
+                React.createElement('div', { className: 'flex items-center justify-between' },
+                    React.createElement('div', null,
+                        React.createElement('h1', { className: 'text-4xl font-bold gradient-text mb-2' }, 'Tableau de Bord'),
+                        React.createElement('p', { className: 'text-gray-400' }, 'Bienvenue sur votre espace de travail initHUB')
+                    ),
+                    React.createElement('div', { className: 'flex items-center space-x-4' },
+                        React.createElement('button', { className: 'btn-secondary flex items-center' },
+                            React.createElement(Calendar, { size: 16, className: 'mr-2' }),
+                            new Date().toLocaleDateString('fr-FR')
+                        ),
+                        React.createElement('button', { className: 'btn-primary flex items-center' },
+                            React.createElement(Plus, { size: 16, className: 'mr-2' }),
+                            'Nouveau Projet'
+                        )
+                    )
+                ),
+
+                React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' },
                     React.createElement(StatsCard, {
                         title: 'Repositories',
-                        value: stats.total_repos,
-                        icon: React.createElement(GitBranch, { size: 24 }),
-                        color: 'blue'
+                        value: stats?.total_repos || 0,
+                        description: 'Dépôts actifs',
+                        icon: React.createElement(FolderGit2, { size: 24, className: 'text-blue-400' }),
+                        trend: 12
                     }),
                     React.createElement(StatsCard, {
                         title: 'Stars',
-                        value: stats.total_stars,
-                        icon: React.createElement(Star, { size: 24 }),
-                        color: 'yellow'
+                        value: stats?.total_stars || 0,
+                        description: 'Total des étoiles',
+                        icon: React.createElement(Star, { size: 24, className: 'text-yellow-400' }),
+                        trend: 8
                     }),
                     React.createElement(StatsCard, {
                         title: 'Forks',
-                        value: stats.total_forks,
-                        icon: React.createElement(GitFork, { size: 24 }),
-                        color: 'green'
+                        value: stats?.total_forks || 0,
+                        description: 'Dépôts forkés',
+                        icon: React.createElement(GitFork, { size: 24, className: 'text-green-400' }),
+                        trend: 5
                     }),
                     React.createElement(StatsCard, {
                         title: 'Contributeurs',
-                        value: stats.total_contributors,
-                        icon: React.createElement(User, { size: 24 }),
-                        color: 'purple'
+                        value: stats?.total_contributors || 0,
+                        description: 'Membres actifs',
+                        icon: React.createElement(Users, { size: 24, className: 'text-purple-400' }),
+                        trend: 3
                     })
                 ),
 
-                React.createElement('div', { className: 'github-card' },
-                    React.createElement('h2', { className: 'text-xl font-bold text-white mb-4' }, 'Activité récente'),
-                    React.createElement('div', { className: 'space-y-3' },
-                        recentActivity.map((activity, index) =>
-                            React.createElement('div', {
-                                key: index,
-                                className: 'flex items-center space-x-3 p-3 bg-gray-800 rounded-lg'
-                            },
-                                React.createElement(BarChart3, { size: 16, className: 'text-gray-400' }),
-                                React.createElement('div', null,
-                                    React.createElement('p', { className: 'text-white text-sm' }, activity.description),
-                                    React.createElement('p', { className: 'text-gray-400 text-xs' },
-                                        new Date(activity.date).toLocaleDateString('fr-FR')
+                React.createElement('div', { className: 'grid grid-cols-1 xl:grid-cols-2 gap-8' },
+                    React.createElement(ActivityChart),
+                    React.createElement(LanguageChart)
+                ),
+
+                React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-2 gap-8' },
+                    React.createElement('div', { className: 'glass-card p-6' },
+                        React.createElement('h3', { className: 'text-lg font-semibold text-white mb-6' }, 'Activité Récente'),
+                        React.createElement('div', { className: 'space-y-4' },
+                            recentActivity.map((activity, index) =>
+                                React.createElement('div', {
+                                    key: index,
+                                    className: 'flex items-center space-x-4 p-4 bg-gray-800/30 rounded-xl hover:bg-gray-800/50 transition-colors'
+                                },
+                                    React.createElement('div', { 
+                                        className: `p-2 rounded-lg ${activity.color} bg-white/5`
+                                    }, activity.icon),
+                                    React.createElement('div', { className: 'flex-1' },
+                                        React.createElement('p', { className: 'text-white font-medium' }, activity.description),
+                                        React.createElement('p', { className: 'text-gray-400 text-sm' }, activity.title)
+                                    ),
+                                    React.createElement('div', { className: 'text-right' },
+                                        React.createElement('p', { className: 'text-gray-400 text-sm' },
+                                            new Date(activity.date).toLocaleDateString('fr-FR')
+                                        ),
+                                        React.createElement('p', { className: 'text-gray-500 text-xs' },
+                                            new Date(activity.date).toLocaleTimeString('fr-FR')
+                                        )
                                     )
                                 )
+                            )
+                        )
+                    ),
+
+                    React.createElement('div', { className: 'glass-card p-6' },
+                        React.createElement('h3', { className: 'text-lg font-semibold text-white mb-6' }, 'Performances du Système'),
+                        React.createElement('div', { className: 'space-y-4' },
+                            React.createElement('div', { className: 'flex items-center justify-between' },
+                                React.createElement('div', { className: 'flex items-center space-x-3' },
+                                    React.createElement('div', { className: 'w-3 h-3 bg-green-400 rounded-full pulse-dot' }),
+                                    React.createElement('span', { className: 'text-white' }, 'CPU Usage')
+                                ),
+                                React.createElement('span', { className: 'text-gray-400' }, '24%')
+                            ),
+                            React.createElement('div', { className: 'flex items-center justify-between' },
+                                React.createElement('div', { className: 'flex items-center space-x-3' },
+                                    React.createElement('div', { className: 'w-3 h-3 bg-blue-400 rounded-full pulse-dot' }),
+                                    React.createElement('span', { className: 'text-white' }, 'Memory')
+                                ),
+                                React.createElement('span', { className: 'text-gray-400' }, '1.2GB / 4GB')
+                            ),
+                            React.createElement('div', { className: 'flex items-center justify-between' },
+                                React.createElement('div', { className: 'flex items-center space-x-3' },
+                                    React.createElement('div', { className: 'w-3 h-3 bg-purple-400 rounded-full pulse-dot' }),
+                                    React.createElement('span', { className: 'text-white' }, 'Storage')
+                                ),
+                                React.createElement('span', { className: 'text-gray-400' }, '45GB / 100GB')
+                            ),
+                            React.createElement('div', { className: 'flex items-center justify-between' },
+                                React.createElement('div', { className: 'flex items-center space-x-3' },
+                                    React.createElement('div', { className: 'w-3 h-3 bg-yellow-400 rounded-full pulse-dot' }),
+                                    React.createElement('span', { className: 'text-white' }, 'Network')
+                                ),
+                                React.createElement('span', { className: 'text-gray-400' }, '124 MB/s')
                             )
                         )
                     )
@@ -565,43 +1004,60 @@
             };
 
             return React.createElement('div', { 
-                className: 'github-card hover:border-gray-500 transition-colors cursor-pointer',
+                className: 'repo-card cursor-pointer group',
                 onClick: handleClick
             },
-                React.createElement('div', { className: 'flex items-start justify-between mb-3' },
+                React.createElement('div', { className: 'flex items-start justify-between mb-4' },
+                    React.createElement('div', { className: 'flex items-center space-x-3' },
+                        React.createElement('div', { className: 'p-2 rounded-xl bg-white/5' },
+                            React.createElement(FolderGit2, { size: 20, className: 'text-blue-400' })
+                        ),
+                        React.createElement('div', null,
+                            React.createElement('h3', { className: 'text-xl font-semibold text-white group-hover:text-blue-400 transition-colors' }, repo.name),
+                            React.createElement('p', { className: 'text-gray-400 text-sm' }, repo.full_name)
+                        )
+                    ),
                     React.createElement('div', { className: 'flex items-center space-x-2' },
-                        React.createElement('h3', { className: 'text-xl font-semibold text-blue-400' }, repo.name),
                         repo.is_private ? 
                             React.createElement(Lock, { size: 16, className: 'text-gray-400' }) :
-                            React.createElement(Globe, { size: 16, className: 'text-gray-400' })
-                    ),
-                    React.createElement('button', { className: 'btn-secondary text-sm' },
-                        React.createElement(Star, { size: 16, className: 'mr-1' }),
-                        'Star'
+                            React.createElement(Globe, { size: 16, className: 'text-gray-400' }),
+                        React.createElement('button', { 
+                            className: 'btn-secondary text-sm opacity-0 group-hover:opacity-100 transition-opacity'
+                        },
+                            React.createElement(Star, { size: 16, className: 'mr-1' }),
+                            'Star'
+                        )
                     )
                 ),
-                React.createElement('p', { className: 'text-gray-400 mb-4 line-clamp-2' }, repo.description || 'Aucune description'),
-                React.createElement('div', { className: 'flex items-center space-x-4 text-sm text-gray-400' },
-                    React.createElement('div', { className: 'flex items-center' },
-                        React.createElement('span', { 
-                            className: `w-3 h-3 rounded-full mr-1 ${
-                                repo.language === 'JavaScript' ? 'bg-yellow-400' :
-                                repo.language === 'Python' ? 'bg-blue-400' :
-                                repo.language === 'HTML' ? 'bg-red-400' :
-                                repo.language === 'CSS' ? 'bg-purple-400' : 'bg-gray-400'
-                            }` 
-                        }),
-                        repo.language || 'Text'
+                
+                React.createElement('p', { className: 'text-gray-300 mb-4 line-clamp-2' }, repo.description || 'Aucune description disponible'),
+                
+                React.createElement('div', { className: 'flex items-center justify-between text-sm' },
+                    React.createElement('div', { className: 'flex items-center space-x-4 text-gray-400' },
+                        React.createElement('div', { className: 'flex items-center' },
+                            React.createElement('span', { 
+                                className: `w-3 h-3 rounded-full mr-2 ${
+                                    repo.language === 'JavaScript' ? 'bg-yellow-400' :
+                                    repo.language === 'Python' ? 'bg-blue-400' :
+                                    repo.language === 'TypeScript' ? 'bg-cyan-400' :
+                                    repo.language === 'HTML' ? 'bg-red-400' :
+                                    repo.language === 'CSS' ? 'bg-purple-400' : 'bg-gray-400'
+                                }` 
+                            }),
+                            repo.language || 'Text'
+                        ),
+                        React.createElement('div', { className: 'flex items-center' },
+                            React.createElement(Star, { size: 14, className: 'mr-1' }),
+                            {repo.stars_count}
+                        ),
+                        React.createElement('div', { className: 'flex items-center' },
+                            React.createElement(GitFork, { size: 14, className: 'mr-1' }),
+                            {repo.forks_count}
+                        )
                     ),
-                    React.createElement('div', { className: 'flex items-center' },
-                        React.createElement(Star, { size: 16, className: 'mr-1' }),
-                        repo.stars_count
-                    ),
-                    React.createElement('div', { className: 'flex items-center' },
-                        React.createElement(GitFork, { size: 16, className: 'mr-1' }),
-                        repo.forks_count
-                    ),
-                    React.createElement('span', null, `Mis à jour le ${new Date(repo.updated_at).toLocaleDateString('fr-FR')}`)
+                    React.createElement('div', { className: 'text-gray-500' },
+                        Mis à jour le {new Date(repo.updated_at).toLocaleDateString('fr-FR')}
+                    )
                 )
             );
         }
@@ -611,6 +1067,7 @@
             const [repos, setRepos] = useState([]);
             const [loading, setLoading] = useState(true);
             const [searchTerm, setSearchTerm] = useState('');
+            const [filter, setFilter] = useState('all');
 
             useEffect(() => {
                 if (!user) {
@@ -625,10 +1082,10 @@
                             id: 1,
                             name: 'mon-projet',
                             full_name: `${user.username}/mon-projet`,
-                            description: 'Mon premier projet sur initHUB avec une description plus longue pour tester',
+                            description: 'Application web moderne avec React et Node.js, incluant un système d\'authentification et une API REST complète',
                             is_private: false,
-                            stars_count: 5,
-                            forks_count: 2,
+                            stars_count: 15,
+                            forks_count: 3,
                             language: 'JavaScript',
                             updated_at: new Date().toISOString()
                         },
@@ -636,12 +1093,34 @@
                             id: 2,
                             name: 'api-backend',
                             full_name: `${user.username}/api-backend`,
-                            description: 'Backend API en Node.js avec Express et MongoDB',
+                            description: 'Backend API scalable avec Express.js, MongoDB et système de cache Redis',
                             is_private: true,
-                            stars_count: 3,
-                            forks_count: 1,
-                            language: 'Python',
+                            stars_count: 8,
+                            forks_count: 2,
+                            language: 'TypeScript',
                             updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+                        },
+                        {
+                            id: 3,
+                            name: 'mobile-app',
+                            full_name: `${user.username}/mobile-app`,
+                            description: 'Application mobile cross-platform développée avec React Native et Expo',
+                            is_private: false,
+                            stars_count: 23,
+                            forks_count: 7,
+                            language: 'JavaScript',
+                            updated_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+                        },
+                        {
+                            id: 4,
+                            name: 'data-analytics',
+                            full_name: `${user.username}/data-analytics`,
+                            description: 'Plateforme d\'analyse de données avec Python, Pandas et visualisations interactives',
+                            is_private: false,
+                            stars_count: 31,
+                            forks_count: 12,
+                            language: 'Python',
+                            updated_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
                         }
                     ]);
                     setLoading(false);
@@ -649,56 +1128,76 @@
             }, [user]);
 
             const filteredRepos = repos.filter(repo =>
-                repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (repo.description && repo.description.toLowerCase().includes(searchTerm.toLowerCase()))
+                (repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (repo.description && repo.description.toLowerCase().includes(searchTerm.toLowerCase()))) &&
+                (filter === 'all' || (filter === 'public' && !repo.is_private) || (filter === 'private' && repo.is_private))
             );
 
             if (!user) return null;
 
-            return React.createElement('div', { className: 'max-w-7xl mx-auto' },
-                React.createElement('div', { className: 'flex justify-between items-center mb-8' },
+            return React.createElement('div', { className: 'max-w-7xl mx-auto space-y-8' },
+                React.createElement('div', { className: 'flex items-center justify-between' },
                     React.createElement('div', null,
-                        React.createElement('h1', { className: 'text-3xl font-bold text-white' }, 'Repositories'),
-                        React.createElement('p', { className: 'text-gray-400 mt-2' }, 'Gérez vos dépôts de code')
+                        React.createElement('h1', { className: 'text-4xl font-bold gradient-text mb-2' }, 'Mes Repositories'),
+                        React.createElement('p', { className: 'text-gray-400' }, 'Gérez tous vos dépôts de code en un seul endroit')
                     ),
                     React.createElement('button', { className: 'btn-primary flex items-center' },
                         React.createElement(Plus, { size: 20, className: 'mr-2' }),
-                        'Nouveau repository'
+                        'Nouveau Repository'
                     )
                 ),
 
-                React.createElement('div', { className: 'github-card mb-6' },
-                    React.createElement('div', { className: 'relative' },
-                        React.createElement(Search, { 
-                            size: 20, 
-                            className: 'absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400' 
-                        }),
-                        React.createElement('input', {
-                            type: 'text',
-                            placeholder: 'Rechercher un repository...',
-                            className: 'w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-md text-white',
-                            value: searchTerm,
-                            onChange: (e) => setSearchTerm(e.target.value)
-                        })
+                React.createElement('div', { className: 'glass-card p-6' },
+                    React.createElement('div', { className: 'flex flex-col lg:flex-row gap-4' },
+                        React.createElement('div', { className: 'flex-1 relative' },
+                            React.createElement(Search, { 
+                                size: 20, 
+                                className: 'absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400' 
+                            }),
+                            React.createElement('input', {
+                                type: 'text',
+                                placeholder: 'Rechercher un repository...',
+                                className: 'w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                                value: searchTerm,
+                                onChange: (e) => setSearchTerm(e.target.value)
+                            })
+                        ),
+                        React.createElement('select', {
+                            className: 'px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                            value: filter,
+                            onChange: (e) => setFilter(e.target.value)
+                        },
+                            React.createElement('option', { value: 'all' }, 'Tous les repositories'),
+                            React.createElement('option', { value: 'public' }, 'Public seulement'),
+                            React.createElement('option', { value: 'private' }, 'Privé seulement')
+                        )
                     )
                 ),
 
                 loading ? 
-                    React.createElement('div', { className: 'github-card text-center py-12' },
+                    React.createElement('div', { className: 'glass-card p-12 text-center' },
                         React.createElement('div', { className: 'animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto' }),
                         React.createElement('p', { className: 'text-gray-400 mt-4' }, 'Chargement des repositories...')
                     ) :
-                    React.createElement('div', { className: 'grid gap-4' },
-                        filteredRepos.map((repo) =>
-                            React.createElement(RepositoryCard, { key: repo.id, repo: repo })
+                    React.createElement('div', null,
+                        React.createElement('div', { className: 'grid grid-cols-1 xl:grid-cols-2 gap-6' },
+                            filteredRepos.map((repo) =>
+                                React.createElement(RepositoryCard, { key: repo.id, repo: repo })
+                            )
                         ),
                         filteredRepos.length === 0 && 
-                            React.createElement('div', { className: 'github-card text-center py-12' },
-                                React.createElement('p', { className: 'text-gray-400 text-lg' },
+                            React.createElement('div', { className: 'glass-card p-12 text-center' },
+                                React.createElement(FolderGit2, { size: 64, className: 'text-gray-600 mx-auto mb-4' }),
+                                React.createElement('h3', { className: 'text-xl font-semibold text-white mb-2' },
                                     searchTerm ? 'Aucun repository trouvé' : 'Aucun repository'
                                 ),
+                                React.createElement('p', { className: 'text-gray-400 mb-6' },
+                                    searchTerm ? 
+                                        'Essayez de modifier vos termes de recherche' : 
+                                        'Commencez par créer votre premier repository'
+                                ),
                                 !searchTerm && 
-                                    React.createElement('button', { className: 'btn-primary mt-4' },
+                                    React.createElement('button', { className: 'btn-primary' },
                                         React.createElement(Plus, { size: 20, className: 'mr-2' }),
                                         'Créer votre premier repository'
                                     )
@@ -711,7 +1210,7 @@
             const [messages, setMessages] = useState([]);
             const [input, setInput] = useState('');
             const [loading, setLoading] = useState(false);
-            const messagesEndRef = React.useRef(null);
+            const messagesEndRef = useRef(null);
 
             const scrollToBottom = () => {
                 if (messagesEndRef.current) {
@@ -787,60 +1286,92 @@
                 }
             };
 
-            return React.createElement('div', { className: 'flex flex-col h-[600px] github-card' },
-                React.createElement('div', { className: 'flex-1 overflow-y-auto p-4 space-y-4' },
+            const quickActions = [
+                {
+                    icon: React.createElement(Code, { size: 16 }),
+                    text: 'Analyser ce code',
+                    prompt: 'Peux-tu analyser ce code pour optimiser les performances ?'
+                },
+                {
+                    icon: React.createElement(MessageSquare, { size: 16 }),
+                    text: 'Suggérer un commit',
+                    prompt: 'Génère un message de commit pour ces modifications'
+                },
+                {
+                    icon: React.createElement(GitCompare, { size: 16 }),
+                    text: 'Review la PR',
+                    prompt: 'Peux-tu review cette pull request ?'
+                }
+            ];
+
+            return React.createElement('div', { className: 'flex flex-col h-[600px] glass-card' },
+                React.createElement('div', { className: 'flex-1 overflow-y-auto p-6 space-y-4' },
                     messages.length === 0 && 
-                        React.createElement('div', { className: 'text-center text-gray-400 py-8' },
-                            React.createElement(Bot, { size: 48, className: 'mx-auto mb-4 text-blue-400' }),
-                            React.createElement('p', null, 'Bonjour ! Je suis Copilot, votre assistant IA.'),
-                            React.createElement('p', null, 'Comment puis-je vous aider aujourd\'hui ?')
+                        React.createElement('div', { className: 'text-center py-12' },
+                            React.createElement(Bot, { size: 64, className: 'text-blue-400 mx-auto mb-4' }),
+                            React.createElement('h3', { className: 'text-2xl font-bold text-white mb-2' }, 'initHUB Copilot'),
+                            React.createElement('p', { className: 'text-gray-400 mb-6' }, 'Votre assistant IA pour le développement'),
+                            React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-3 max-w-2xl mx-auto' },
+                                quickActions.map((action, index) =>
+                                    React.createElement('button', {
+                                        key: index,
+                                        className: 'btn-secondary text-left p-3 text-sm',
+                                        onClick: () => setInput(action.prompt)
+                                    },
+                                        action.icon,
+                                        React.createElement('span', { className: 'ml-2' }, action.text)
+                                    )
+                                )
+                            )
                         ),
                     
                     messages.map((message) =>
                         React.createElement('div', {
                             key: message.id,
-                            className: `flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`
+                            className: `chat-message ${message.type === 'user' ? 'chat-user' : 'chat-bot'}`
                         },
-                            React.createElement('div', {
-                                className: `max-w-[80%] rounded-lg p-4 ${
-                                    message.type === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-100'
-                                }`
-                            },
-                                React.createElement('div', { className: 'flex items-center mb-2' },
-                                    message.type === 'user' ? 
-                                        React.createElement(User, { size: 16, className: 'mr-2' }) :
-                                        React.createElement(Bot, { size: 16, className: 'mr-2' }),
-                                    React.createElement('span', { className: 'text-sm font-medium' },
-                                        message.type === 'user' ? 'Vous' : 'Copilot'
-                                    )
-                                ),
-                                React.createElement('p', { className: 'whitespace-pre-wrap' }, message.content),
-                                React.createElement('p', { className: 'text-xs opacity-70 mt-2' },
-                                    message.timestamp.toLocaleTimeString('fr-FR')
+                            React.createElement('div', { className: 'flex items-start space-x-3' },
+                                message.type === 'user' ? 
+                                    React.createElement('div', { className: 'w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0' },
+                                        React.createElement(User, { size: 16, className: 'text-white' })
+                                    ) :
+                                    React.createElement('div', { className: 'w-8 h-8 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0' },
+                                        React.createElement(Bot, { size: 16, className: 'text-white' })
+                                    ),
+                                React.createElement('div', { className: 'flex-1' },
+                                    React.createElement('p', { className: 'text-sm font-medium text-white mb-1' },
+                                        message.type === 'user' ? 'Vous' : 'initHUB Copilot'
+                                    ),
+                                    React.createElement('p', { className: 'text-gray-100 whitespace-pre-wrap' }, message.content)
                                 )
+                            ),
+                            React.createElement('p', { className: 'text-xs opacity-70 mt-2 text-right' },
+                                message.timestamp.toLocaleTimeString('fr-FR')
                             )
                         )
                     ),
                     
                     loading && 
-                        React.createElement('div', { className: 'flex justify-start' },
-                            React.createElement('div', { className: 'bg-gray-700 rounded-lg p-4 max-w-[80%]' },
-                                React.createElement('div', { className: 'flex items-center' },
-                                    React.createElement(Bot, { size: 16, className: 'mr-2 text-blue-400' }),
-                                    React.createElement('span', { className: 'text-sm font-medium' }, 'Copilot')
+                        React.createElement('div', { className: 'chat-message chat-bot' },
+                            React.createElement('div', { className: 'flex items-start space-x-3' },
+                                React.createElement('div', { className: 'w-8 h-8 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0' },
+                                    React.createElement(Bot, { size: 16, className: 'text-white' })
                                 ),
-                                React.createElement('div', { className: 'flex space-x-2 mt-2' },
-                                    React.createElement('div', { 
-                                        className: 'w-2 h-2 bg-gray-400 rounded-full animate-bounce' 
-                                    }),
-                                    React.createElement('div', { 
-                                        className: 'w-2 h-2 bg-gray-400 rounded-full animate-bounce',
-                                        style: { animationDelay: '0.2s' }
-                                    }),
-                                    React.createElement('div', { 
-                                        className: 'w-2 h-2 bg-gray-400 rounded-full animate-bounce',
-                                        style: { animationDelay: '0.4s' }
-                                    })
+                                React.createElement('div', { className: 'flex-1' },
+                                    React.createElement('p', { className: 'text-sm font-medium text-white mb-2' }, 'initHUB Copilot'),
+                                    React.createElement('div', { className: 'flex space-x-2' },
+                                        React.createElement('div', { 
+                                            className: 'w-2 h-2 bg-gray-400 rounded-full animate-bounce' 
+                                        }),
+                                        React.createElement('div', { 
+                                            className: 'w-2 h-2 bg-gray-400 rounded-full animate-bounce',
+                                            style: { animationDelay: '0.2s' }
+                                        }),
+                                        React.createElement('div', { 
+                                            className: 'w-2 h-2 bg-gray-400 rounded-full animate-bounce',
+                                            style: { animationDelay: '0.4s' }
+                                        })
+                                    )
                                 )
                             )
                         ),
@@ -854,15 +1385,15 @@
                             value: input,
                             onChange: (e) => setInput(e.target.value),
                             onKeyPress: handleKeyPress,
-                            placeholder: 'Posez votre question à Copilot...',
-                            className: 'flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white resize-none',
+                            placeholder: 'Posez votre question à Copilot... (Appuyez sur Entrée pour envoyer)',
+                            className: 'flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
                             rows: 2,
                             disabled: loading
                         }),
                         React.createElement('button', {
                             onClick: sendMessage,
                             disabled: loading || !input.trim(),
-                            className: 'btn-primary self-end px-6'
+                            className: 'btn-primary self-end px-6 py-3'
                         }, React.createElement(Send, { size: 20 }))
                     )
                 )
@@ -895,63 +1426,92 @@
 
             if (!user) return null;
 
-            return React.createElement('div', { className: 'max-w-6xl mx-auto' },
-                React.createElement('div', { className: 'flex items-center justify-between mb-8' },
+            return React.createElement('div', { className: 'max-w-7xl mx-auto space-y-8' },
+                React.createElement('div', { className: 'flex items-center justify-between' },
                     React.createElement('div', null,
-                        React.createElement('h1', { className: 'text-3xl font-bold text-white mb-2' }, 'Copilot IA'),
-                        React.createElement('p', { className: 'text-gray-400' }, 'Assistant IA pour vous aider dans votre développement')
+                        React.createElement('h1', { className: 'text-4xl font-bold gradient-text mb-2' }, 'initHUB Copilot'),
+                        React.createElement('p', { className: 'text-gray-400' }, 'Votre assistant IA pour le développement et la collaboration')
                     ),
                     copilotHealth && 
                         React.createElement('div', { 
-                            className: `px-4 py-2 rounded-full ${
-                                copilotHealth.online ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                            className: `flex items-center space-x-2 px-4 py-2 rounded-full ${
+                                copilotHealth.online ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
                             }` 
-                        }, copilotHealth.online ? '🟢 En ligne' : '🔴 Hors ligne')
+                        },
+                            React.createElement('div', { 
+                                className: `w-2 h-2 rounded-full ${copilotHealth.online ? 'bg-green-400' : 'bg-red-400'} pulse-dot`
+                            }),
+                            React.createElement('span', null, copilotHealth.online ? 'En ligne' : 'Hors ligne')
+                        )
                 ),
 
-                React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-3 gap-8' },
-                    React.createElement('div', { className: 'lg:col-span-2' },
+                React.createElement('div', { className: 'grid grid-cols-1 xl:grid-cols-4 gap-8' },
+                    React.createElement('div', { className: 'xl:col-span-3' },
                         React.createElement(CopilotChat, { token: token })
                     ),
 
                     React.createElement('div', { className: 'space-y-6' },
-                        React.createElement('div', { className: 'github-card' },
-                            React.createElement('h3', { className: 'text-lg font-semibold text-white mb-4' }, 'Actions rapides'),
+                        React.createElement('div', { className: 'glass-card p-6' },
+                            React.createElement('h3', { className: 'text-lg font-semibold text-white mb-4' }, 'Actions Rapides'),
                             React.createElement('div', { className: 'space-y-3' },
-                                React.createElement('button', { className: 'w-full btn-secondary text-left p-3' },
-                                    React.createElement(Code, { size: 16, className: 'inline mr-2' }),
-                                    'Analyser du code'
+                                React.createElement('button', { className: 'w-full btn-secondary text-left p-4' },
+                                    React.createElement(Code, { size: 20, className: 'inline mr-3 text-blue-400' }),
+                                    'Analyser du Code'
                                 ),
-                                React.createElement('button', { className: 'w-full btn-secondary text-left p-3' },
-                                    React.createElement(MessageSquare, { size: 16, className: 'inline mr-2' }),
-                                    'Suggérer un commit'
+                                React.createElement('button', { className: 'w-full btn-secondary text-left p-4' },
+                                    React.createElement(MessageSquare, { size: 20, className: 'inline mr-3 text-green-400' }),
+                                    'Suggérer un Commit'
+                                ),
+                                React.createElement('button', { className: 'w-full btn-secondary text-left p-4' },
+                                    React.createElement(GitCompare, { size: 20, className: 'inline mr-3 text-purple-400' }),
+                                    'Review PR'
                                 )
                             )
                         ),
 
-                        React.createElement('div', { className: 'github-card' },
-                            React.createElement('h3', { className: 'text-lg font-semibold text-white mb-4' }, 'Statut Copilot'),
-                            React.createElement('div', { className: 'space-y-2 text-sm' },
-                                React.createElement('div', { className: 'flex justify-between' },
-                                    React.createElement('span', { className: 'text-gray-400' }, 'Statut:'),
+                        React.createElement('div', { className: 'glass-card p-6' },
+                            React.createElement('h3', { className: 'text-lg font-semibold text-white mb-4' }, 'Statut du Service'),
+                            React.createElement('div', { className: 'space-y-3 text-sm' },
+                                React.createElement('div', { className: 'flex justify-between items-center' },
+                                    React.createElement('span', { className: 'text-gray-400' }, 'Service:'),
                                     React.createElement('span', { 
                                         className: copilotHealth?.online ? 'text-green-400' : 'text-red-400'
-                                    }, copilotHealth?.online ? 'En ligne' : 'Hors ligne')
+                                    }, copilotHealth?.online ? 'Opérationnel' : 'Hors Service')
                                 ),
-                                React.createElement('div', { className: 'flex justify-between' },
+                                React.createElement('div', { className: 'flex justify-between items-center' },
                                     React.createElement('span', { className: 'text-gray-400' }, 'Version:'),
-                                    React.createElement('span', { className: 'text-white' }, '12.0.0')
+                                    React.createElement('span', { className: 'text-white' }, '2.1.0')
+                                ),
+                                React.createElement('div', { className: 'flex justify-between items-center' },
+                                    React.createElement('span', { className: 'text-gray-400' }, 'Latence:'),
+                                    React.createElement('span', { className: 'text-white' }, '124ms')
+                                ),
+                                React.createElement('div', { className: 'flex justify-between items-center' },
+                                    React.createElement('span', { className: 'text-gray-400' }, 'Requêtes:'),
+                                    React.createElement('span', { className: 'text-white' }, '1,247/jour')
                                 )
                             )
                         ),
 
-                        React.createElement('div', { className: 'github-card' },
+                        React.createElement('div', { className: 'glass-card p-6' },
                             React.createElement('h3', { className: 'text-lg font-semibold text-white mb-4' }, 'Tips Copilot'),
                             React.createElement('ul', { className: 'text-sm text-gray-400 space-y-2' },
-                                React.createElement('li', null, '• Soyez précis dans vos questions'),
-                                React.createElement('li', null, '• Fournissez du contexte quand nécessaire'),
-                                React.createElement('li', null, '• Utilisez "fr" pour des réponses en français'),
-                                React.createElement('li', null, '• Testez l\'analyse de code pour du debugging')
+                                React.createElement('li', { className: 'flex items-start' },
+                                    React.createElement('div', { className: 'w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5 mr-2 flex-shrink-0' }),
+                                    'Soyez précis dans vos questions'
+                                ),
+                                React.createElement('li', { className: 'flex items-start' },
+                                    React.createElement('div', { className: 'w-1.5 h-1.5 bg-green-400 rounded-full mt-1.5 mr-2 flex-shrink-0' }),
+                                    'Fournissez du contexte code'
+                                ),
+                                React.createElement('li', { className: 'flex items-start' },
+                                    React.createElement('div', { className: 'w-1.5 h-1.5 bg-purple-400 rounded-full mt-1.5 mr-2 flex-shrink-0' }),
+                                    'Utilisez "fr" pour le français'
+                                ),
+                                React.createElement('li', { className: 'flex items-start' },
+                                    React.createElement('div', { className: 'w-1.5 h-1.5 bg-yellow-400 rounded-full mt-1.5 mr-2 flex-shrink-0' }),
+                                    'Testez l\'analyse de code'
+                                )
                             )
                         )
                     )
@@ -959,34 +1519,290 @@
             );
         }
 
-        // Pages supplémentaires (simplifiées)
         function ReleasesPage() {
             const { user } = useAuth();
+            const [releases, setReleases] = useState([]);
+
+            useEffect(() => {
+                if (!user) {
+                    window.location.hash = '';
+                    return;
+                }
+
+                // Données simulées
+                setReleases([
+                    {
+                        id: 1,
+                        tag_name: 'v2.1.0',
+                        name: 'Version 2.1.0 - Performance Boost',
+                        body: 'Améliorations majeures des performances et nouvelles fonctionnalités',
+                        author: user.username,
+                        draft: false,
+                        prerelease: false,
+                        created_at: new Date().toISOString(),
+                        assets: [
+                            { name: 'package.zip', size: '2.4MB', downloads: 124 },
+                            { name: 'docs.pdf', size: '1.2MB', downloads: 89 }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        tag_name: 'v2.0.1',
+                        name: 'Hotfix - Security Patch',
+                        body: 'Correctif de sécurité important',
+                        author: user.username,
+                        draft: false,
+                        prerelease: false,
+                        created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                        assets: [
+                            { name: 'patch.zip', size: '1.8MB', downloads: 256 }
+                        ]
+                    }
+                ]);
+            }, [user]);
+
             if (!user) return null;
 
-            return React.createElement('div', { className: 'max-w-7xl mx-auto' },
-                React.createElement('h1', { className: 'text-3xl font-bold text-white mb-8' }, 'Releases'),
-                React.createElement('p', { className: 'text-gray-400' }, 'Page Releases en développement...')
+            return React.createElement('div', { className: 'max-w-7xl mx-auto space-y-8' },
+                React.createElement('div', { className: 'flex items-center justify-between' },
+                    React.createElement('div', null,
+                        React.createElement('h1', { className: 'text-4xl font-bold gradient-text mb-2' }, 'Releases'),
+                        React.createElement('p', { className: 'text-gray-400' }, 'Gérez les versions de vos projets')
+                    ),
+                    React.createElement('button', { className: 'btn-primary flex items-center' },
+                        React.createElement(Tag, { size: 20, className: 'mr-2' }),
+                        'Nouvelle Release'
+                    )
+                ),
+
+                React.createElement('div', { className: 'space-y-6' },
+                    releases.map((release) =>
+                        React.createElement('div', { key: release.id, className: 'glass-card p-6' },
+                            React.createElement('div', { className: 'flex items-start justify-between mb-4' },
+                                React.createElement('div', null,
+                                    React.createElement('div', { className: 'flex items-center space-x-3 mb-2' },
+                                        React.createElement(Tag, { size: 20, className: 'text-blue-400' }),
+                                        React.createElement('h3', { className: 'text-xl font-semibold text-white' }, release.name),
+                                        React.createElement('span', { 
+                                            className: `px-2 py-1 rounded-full text-xs ${
+                                                release.prerelease ? 'bg-yellow-500/20 text-yellow-400' :
+                                                release.draft ? 'bg-gray-500/20 text-gray-400' :
+                                                'bg-green-500/20 text-green-400'
+                                            }` 
+                                        }, release.prerelease ? 'Pre-release' : release.draft ? 'Brouillon' : 'Latest')
+                                    ),
+                                    React.createElement('p', { className: 'text-gray-400' },
+                                        {release.tag_name} • Publié le {new Date(release.created_at).toLocaleDateString('fr-FR')} par {release.author}
+                                    )
+                                ),
+                                React.createElement('button', { className: 'btn-secondary flex items-center text-sm' },
+                                    React.createElement(Download, { size: 16, className: 'mr-2' }),
+                                    'Télécharger'
+                                )
+                            ),
+                            
+                            React.createElement('div', { className: 'prose prose-invert max-w-none mb-4' },
+                                React.createElement('p', { className: 'text-gray-300' }, release.body)
+                            ),
+                            
+                            release.assets.length > 0 && 
+                                React.createElement('div', { className: 'mt-4' },
+                                    React.createElement('h4', { className: 'text-sm font-medium text-gray-300 mb-2' }, 'Assets:'),
+                                    React.createElement('div', { className: 'space-y-2' },
+                                        release.assets.map((asset, index) =>
+                                            React.createElement('div', {
+                                                key: index,
+                                                className: 'flex items-center justify-between p-3 bg-gray-800/30 rounded-lg'
+                                            },
+                                                React.createElement('div', { className: 'flex items-center space-x-3' },
+                                                    React.createElement(Download, { size: 16, className: 'text-gray-400' }),
+                                                    <span className="text-white">{asset.name}</span>
+                                                ),
+                                                <div className="flex items-center space-x-4 text-sm text-gray-400">
+                                                    <span>{asset.size}</span>
+                                                    <span>{asset.downloads} téléchargements</span>
+                                                </div>
+                                            )
+                                        )
+                                    )
+                                )
+                        )
+                    ),
+                    
+                    releases.length === 0 && 
+                        React.createElement('div', { className: 'glass-card p-12 text-center' },
+                            React.createElement(Tag, { size: 64, className: 'text-gray-600 mx-auto mb-4' }),
+                            React.createElement('h3', { className: 'text-xl font-semibold text-white mb-2' }, 'Aucune release'),
+                            React.createElement('p', { className: 'text-gray-400 mb-6' }, 'Créez votre première release pour distribuer votre projet'),
+                            React.createElement('button', { className: 'btn-primary' },
+                                React.createElement(Tag, { size: 20, className: 'mr-2' }),
+                                'Créer une release'
+                            )
+                        )
+                )
             );
         }
 
         function WikiPage() {
             const { user } = useAuth();
+            const [pages, setPages] = useState([]);
+
+            useEffect(() => {
+                if (!user) {
+                    window.location.hash = '';
+                    return;
+                }
+
+                // Données simulées
+                setPages([
+                    {
+                        id: 1,
+                        title: 'Guide de Démarrage',
+                        content: 'Documentation complète pour commencer avec initHUB',
+                        author: user.username,
+                        updated_at: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        title: 'API Reference',
+                        content: 'Documentation détaillée de l\'API initHUB',
+                        author: user.username,
+                        updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+                    }
+                ]);
+            }, [user]);
+
             if (!user) return null;
 
-            return React.createElement('div', { className: 'max-w-7xl mx-auto' },
-                React.createElement('h1', { className: 'text-3xl font-bold text-white mb-8' }, 'Wiki'),
-                React.createElement('p', { className: 'text-gray-400' }, 'Page Wiki en développement...')
+            return React.createElement('div', { className: 'max-w-7xl mx-auto space-y-8' },
+                React.createElement('div', { className: 'flex items-center justify-between' },
+                    React.createElement('div', null,
+                        React.createElement('h1', { className: 'text-4xl font-bold gradient-text mb-2' }, 'Wiki'),
+                        React.createElement('p', { className: 'text-gray-400' }, 'Documentation et guides de vos projets')
+                    ),
+                    React.createElement('button', { className: 'btn-primary flex items-center' },
+                        React.createElement(Plus, { size: 20, className: 'mr-2' }),
+                        'Nouvelle Page'
+                    )
+                ),
+
+                React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' },
+                    pages.map((page) =>
+                        React.createElement('div', { key: page.id, className: 'glass-card p-6 hover:transform hover:scale-105 transition-all duration-300 cursor-pointer' },
+                            React.createElement('div', { className: 'flex items-start justify-between mb-4' },
+                                React.createElement(BookOpen, { size: 24, className: 'text-blue-400 flex-shrink-0' }),
+                                React.createElement('button', { className: 'text-gray-400 hover:text-white' },
+                                    React.createElement(Settings, { size: 16 })
+                                )
+                            ),
+                            React.createElement('h3', { className: 'text-lg font-semibold text-white mb-2' }, page.title),
+                            React.createElement('p', { className: 'text-gray-400 text-sm mb-4 line-clamp-2' }, page.content),
+                            React.createElement('div', { className: 'flex items-center justify-between text-xs text-gray-500' },
+                                React.createElement('span', null, `Par ${page.author}`),
+                                React.createElement('span', null, 
+                                    new Date(page.updated_at).toLocaleDateString('fr-FR')
+                                )
+                            )
+                        )
+                    )
+                ),
+
+                pages.length === 0 && 
+                    React.createElement('div', { className: 'glass-card p-12 text-center' },
+                        React.createElement(BookOpen, { size: 64, className: 'text-gray-600 mx-auto mb-4' }),
+                        React.createElement('h3', { className: 'text-xl font-semibold text-white mb-2' }, 'Aucune page wiki'),
+                        React.createElement('p', { className: 'text-gray-400 mb-6' }, 'Créez votre première page de documentation'),
+                        React.createElement('button', { className: 'btn-primary' },
+                            React.createElement(Plus, { size: 20, className: 'mr-2' }),
+                            'Créer une page'
+                        )
+                    )
             );
         }
 
         function AnalyticsPage() {
             const { user } = useAuth();
+
             if (!user) return null;
 
-            return React.createElement('div', { className: 'max-w-7xl mx-auto' },
-                React.createElement('h1', { className: 'text-3xl font-bold text-white mb-8' }, 'Analytics'),
-                React.createElement('p', { className: 'text-gray-400' }, 'Page Analytics en développement...')
+            return React.createElement('div', { className: 'max-w-7xl mx-auto space-y-8' },
+                React.createElement('div', { className: 'flex items-center justify-between' },
+                    React.createElement('div', null,
+                        React.createElement('h1', { className: 'text-4xl font-bold gradient-text mb-2' }, 'Analytics'),
+                        React.createElement('p', { className: 'text-gray-400' }, 'Statistiques avancées et métriques de performance')
+                    ),
+                    React.createElement('div', { className: 'flex items-center space-x-4' },
+                        React.createElement('select', { className: 'btn-secondary' },
+                            React.createElement('option', null, '7 derniers jours'),
+                            React.createElement('option', null, '30 derniers jours'),
+                            React.createElement('option', null, '90 derniers jours')
+                        )
+                    )
+                ),
+
+                React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6' },
+                    React.createElement(StatsCard, {
+                        title: 'Vues',
+                        value: '2.4K',
+                        description: 'Total des vues',
+                        icon: React.createElement(Eye, { size: 24, className: 'text-blue-400' }),
+                        trend: 15
+                    }),
+                    React.createElement(StatsCard, {
+                        title: 'Clones',
+                        value: '847',
+                        description: 'Dépôts clonés',
+                        icon: React.createElement(GitBranch, { size: 24, className: 'text-green-400' }),
+                        trend: 8
+                    }),
+                    React.createElement(StatsCard, {
+                        title: 'Visiteurs',
+                        value: '1.2K',
+                        description: 'Visiteurs uniques',
+                        icon: React.createElement(Users, { size: 24, className: 'text-purple-400' }),
+                        trend: 22
+                    }),
+                    React.createElement(StatsCard, {
+                        title: 'Engagement',
+                        value: '64%',
+                        description: 'Taux d\'engagement',
+                        icon: React.createElement(Activity, { size: 24, className: 'text-yellow-400' }),
+                        trend: 5
+                    })
+                ),
+
+                React.createElement('div', { className: 'glass-card p-6' },
+                    React.createElement('h3', { className: 'text-lg font-semibold text-white mb-6' }, 'Trafic par Pays'),
+                    React.createElement('div', { className: 'space-y-4' },
+                        React.createElement('div', { className: 'flex items-center justify-between' },
+                            React.createElement('span', { className: 'text-white' }, '🇫🇷 France'),
+                            React.createElement('div', { className: 'flex items-center space-x-4' },
+                                React.createElement('div', { className: 'w-48 bg-gray-700 rounded-full h-2' },
+                                    React.createElement('div', { className: 'bg-blue-500 h-2 rounded-full', style: { width: '45%' } })
+                                ),
+                                <span className="text-gray-400">45%</span>
+                            )
+                        ),
+                        React.createElement('div', { className: 'flex items-center justify-between' },
+                            React.createElement('span', { className: 'text-white' }, '🇺🇸 États-Unis'),
+                            React.createElement('div', { className: 'flex items-center space-x-4' },
+                                React.createElement('div', { className: 'w-48 bg-gray-700 rounded-full h-2' },
+                                    React.createElement('div', { className: 'bg-green-500 h-2 rounded-full', style: { width: '30%' } })
+                                ),
+                                <span className="text-gray-400">30%</span>
+                            )
+                        ),
+                        React.createElement('div', { className: 'flex items-center justify-between' },
+                            React.createElement('span', { className: 'text-white' }, '🇩🇪 Allemagne'),
+                            React.createElement('div', { className: 'flex items-center space-x-4' },
+                                React.createElement('div', { className: 'w-48 bg-gray-700 rounded-full h-2' },
+                                    React.createElement('div', { className: 'bg-purple-500 h-2 rounded-full', style: { width: '15%' } })
+                                ),
+                                <span className="text-gray-400">15%</span>
+                            )
+                        )
+                    )
+                )
             );
         }
 
