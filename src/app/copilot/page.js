@@ -23,11 +23,12 @@ export default function CopilotPage() {
 
   const checkCopilotHealth = async () => {
     try {
-      const response = await fetch('/api/copilot/health')
+      const response = await fetch('https://hubs-pro.onrender.com/api/copilot/health')
       const data = await response.json()
       setCopilotHealth(data)
     } catch (error) {
       console.error('Erreur vérification santé Copilot:', error)
+      setCopilotHealth({ online: false })
     }
   }
 
