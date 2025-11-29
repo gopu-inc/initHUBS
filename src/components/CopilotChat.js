@@ -86,7 +86,7 @@ export default function CopilotChat({ token }) {
         {messages.length === 0 && (
           <div className="text-center text-gray-400 py-8">
             <Bot size={48} className="mx-auto mb-4 text-blue-400" />
-            <p>Bonjour ! Je suis Copilot 🪖, votre assistant IA.</p>
+            <p>Bonjour ! Je suis Copilot, votre assistant IA.</p>
             <p>Comment puis-je vous aider aujourd'hui ?</p>
           </div>
         )}
@@ -112,7 +112,7 @@ export default function CopilotChat({ token }) {
                   <Bot size={16} className="mr-2" />
                 )}
                 <span className="text-sm font-medium">
-                  {message.type === 'user' ? 'Vous' : 'Copilot 🪖'}
+                  {message.type === 'user' ? 'Vous' : 'Copilot'}
                 </span>
               </div>
               <p className="whitespace-pre-wrap">{message.content}</p>
@@ -128,7 +128,7 @@ export default function CopilotChat({ token }) {
             <div className="bg-gray-700 rounded-lg p-4 max-w-[80%]">
               <div className="flex items-center">
                 <Bot size={16} className="mr-2 text-blue-400" />
-                <span className="text-sm font-medium">Copilot 🪖</span>
+                <span className="text-sm font-medium">Copilot</span>
               </div>
               <div className="flex space-x-2 mt-2">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
