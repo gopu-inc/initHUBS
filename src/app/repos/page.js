@@ -117,4 +117,23 @@ export default function ReposPage() {
                 ))}
                 
                 {filteredRepos.length === 0 && (
-                  <div
+                  <div className="github-card text-center py-12">
+                    <p className="text-gray-400 text-lg">
+                      {searchTerm ? 'Aucun repository trouvé' : 'Aucun repository'}
+                    </p>
+                    {!searchTerm && (
+                      <button className="btn-primary mt-4">
+                        <Plus size={20} className="mr-2" />
+                        Créer votre premier repository
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+    </div>
+  )
+}
