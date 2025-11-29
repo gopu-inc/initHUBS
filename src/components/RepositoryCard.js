@@ -48,12 +48,12 @@ export default function RepositoryCard({ repo }) {
           {repo.language || 'Text'}
         </div>
         
-        <div className="flex items-center hover:text-blue-400">
+        <div className="flex items-center">
           <Star size={16} className="mr-1" />
           {repo.stars_count}
         </div>
         
-        <div className="flex items-center hover:text-blue-400">
+        <div className="flex items-center">
           <GitFork size={16} className="mr-1" />
           {repo.forks_count}
         </div>
