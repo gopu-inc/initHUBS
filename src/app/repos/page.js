@@ -20,14 +20,13 @@ export default function ReposPage() {
       return
     }
 
-    // Données simulées pour les repositories
     setTimeout(() => {
       setRepos([
         {
           id: 1,
           name: 'mon-projet',
           full_name: `${user.username}/mon-projet`,
-          description: 'Mon premier projet sur initHUB avec une description plus longue pour tester',
+          description: 'Mon premier projet sur initHUB',
           is_private: false,
           stars_count: 5,
           forks_count: 2,
@@ -38,7 +37,7 @@ export default function ReposPage() {
           id: 2,
           name: 'api-backend',
           full_name: `${user.username}/api-backend`,
-          description: 'Backend API en Node.js avec Express et MongoDB',
+          description: 'Backend API en Node.js',
           is_private: true,
           stars_count: 3,
           forks_count: 1,
@@ -90,7 +89,6 @@ export default function ReposPage() {
               </button>
             </div>
 
-            {/* Barre de recherche */}
             <div className="github-card mb-6">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -104,7 +102,6 @@ export default function ReposPage() {
               </div>
             </div>
 
-            {/* Liste des repositories */}
             {loading ? (
               <div className="github-card text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
