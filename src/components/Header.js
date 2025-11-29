@@ -12,7 +12,7 @@ export default function Header() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <h1 className="text-xl font-bold text-white">
-                🚀 initHUB Cloud
+                initHUB Cloud
               </h1>
             </div>
           </div>
