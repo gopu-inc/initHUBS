@@ -1,6 +1,6 @@
 'use client'
 import { useAuth } from '../lib/auth'
-import { LogOut, User, Settings } from 'lucide-react'
+import { LogOut, User } from 'lucide-react'
 
 export default function Header() {
   const { user, logout } = useAuth()
@@ -17,27 +17,23 @@ export default function Header() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
-            {user && (
-              <>
-                <span className="text-sm text-gray-300">
-                  Bienvenue, {user.username}
-                </span>
-                <button className="p-2 text-gray-400 hover:text-white transition-colors">
-                  <User size={20} />
-                </button>
-                <button className="p-2 text-gray-400 hover:text-white transition-colors">
-                  <Settings size={20} />
-                </button>
-                <button
-                  onClick={logout}
-                  className="p-2 text-gray-400 hover:text-red-400 transition-colors"
-                >
-                  <LogOut size={20} />
-                </button>
-              </>
-            )}
-          </div>
+          {user && (
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-300">
+                Bienvenue, {user.username}
+              </span>
+              <button className="p-2 text-gray-400 hover:text-white transition-colors">
+                <User size={20} />
+              </button>
+              <button
+                onClick={logout}
+                className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                title="Déconnexion"
+              >
+                <LogOut size={20} />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>
