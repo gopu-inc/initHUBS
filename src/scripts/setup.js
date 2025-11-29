@@ -20,3 +20,9 @@ const directories = [
 directories.forEach(dir => {
   const dirPath = path.join(__dirname, '..', dir)
   if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true })
+    console.log(`✅ Dossier créé: ${dir}`)
+  }
+})
+
+console.log('🎉 Structure de dossiers créée avec succès!')
