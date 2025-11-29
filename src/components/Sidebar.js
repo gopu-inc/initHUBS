@@ -4,21 +4,13 @@ import { usePathname } from 'next/navigation'
 import { 
   Home, 
   GitBranch, 
-  Bot, 
-  Download, 
-  BookOpen, 
-  BarChart3,
-  Settings
+  Bot
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Repositories', href: '/repos', icon: GitBranch },
   { name: 'Copilot', href: '/copilot', icon: Bot },
-  { name: 'Releases', href: '/releases', icon: Download },
-  { name: 'Wiki', href: '/wiki', icon: BookOpen },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
 export default function Sidebar() {
