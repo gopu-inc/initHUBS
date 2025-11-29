@@ -1,118 +1,95 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useAuth } from '../../lib/auth'
 import { useRouter } from 'next/navigation'
-import Header from '../../components/Header'
-import Sidebar from '../../components/Sidebar'
-import StatsCard from '../../components/StatsCard'
-import { GitBranch, Star, GitFork, Users, Activity } from 'lucide-react'
 
 export default function Dashboard() {
-  const { user, token } = useAuth()
+  const { user } = useAuth()
   const router = useRouter()
-  const [stats, setStats] = useState(null)
-  const [recentActivity, setRecentActivity] = useState([])
 
   useEffect(() => {
     if (!user) {
       router.push('/')
       return
     }
-
-    setStats({
-      total_repos: 12,
-      total_stars: 45,
-      total_forks: 8,
-      total_contributors: 5
-    })
-
-    setRecentActivity([
-      {
-        type: 'repo',
-        title: 'mon-projet',
-        date: new Date().toISOString(),
-        description: 'Repository créé'
-      },
-      {
-        type: 'commit',
-        title: 'Initial commit',
-        date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        description: 'Commit pushed'
-      },
-      {
-        type: 'pr',
-        title: 'Add new feature',
-        date: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-        description: 'Pull request opened'
-      }
-    ])
   }, [user, router])
 
   if (!user) {
-    return null
+    return (
+      <div className="min-h-screen bg-github-dark flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="text-gray-400 mt-4">Redirection...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-github-dark">
-      <Header />
-      <div className="flex">
-        <Sidebar />
-        
-        <main className="flex-1 p-8">
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold text-white mb-8">
-              Dashboard
-            </h1>
-
-            {stats && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <StatsCard
-                  title="Repositories"
-                  value={stats.total_repos}
-                  icon={<GitBranch size={24} />}
-                  color="blue"
-                />
-                <StatsCard
-                  title="Stars"
-                  value={stats.total_stars}
-                  icon={<Star size={24} />}
-                  color="yellow"
-                />
-                <StatsCard
-                  title="Forks"
-                  value={stats.total_forks}
-                  icon={<GitFork size={24} />}
-                  color="green"
-                />
-                <StatsCard
-                  title="Contributeurs"
-                  value={stats.total_contributors}
-                  icon={<Users size={24} />}
-                  color="purple"
-                />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-3xl font-bold text-white mb-8">Dashboard</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="github-card">
+            <div className="flex items-center">
+              <div className="p-3 rounded-lg bg-blue-500 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6Z"/>
+                  <path d="M2 12h20"/>
+                </svg>
               </div>
-            )}
-
-            <div className="github-card">
-              <h2 className="text-xl font-bold text-white mb-4">
-                Activité récente
-              </h2>
-              <div className="space-y-3">
-                {recentActivity.map((activity, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-3 bg-gray-800 rounded-lg">
-                    <Activity size={16} className="text-gray-400" />
-                    <div>
-                      <p className="text-white text-sm">{activity.description}</p>
-                      <p className="text-gray-400 text-xs">
-                        {new Date(activity.date).toLocaleDateString('fr-FR')}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-300">Repositories</p>
+                <p className="text-2xl font-bold text-white">12</p>
               </div>
             </div>
           </div>
-        </main>
+          
+          <div className="github-card">
+            <div className="flex items-center">
+              <div className="p-3 rounded-lg bg-yellow-500 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-300">Stars</p>
+                <p className="text-2xl font-bold text-white">45</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="github-card">
+            <div className="flex items-center">
+              <div className="p-3 rounded-lg bg-green-500 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m15 18-6-6 6-6"/>
+                </svg>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-300">Forks</p>
+                <p className="text-2xl font-bold text-white">8</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="github-card">
+            <div className="flex items-center">
+              <div className="p-3 rounded-lg bg-purple-500 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-300">Contributeurs</p>
+                <p className="text-2xl font-bold text-white">5</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
