@@ -18,33 +18,26 @@ export default function RepoDetailPage() {
       router.push('/')
       return
     }
-    fetchRepoDetails()
-  }, [user, router, params])
 
-  const fetchRepoDetails = async () => {
-    try {
-      // Simuler le chargement des détails
-      setTimeout(() => {
-        setRepo({
-          id: 1,
-          name: params.repo,
-          full_name: `${params.owner}/${params.repo}`,
-          description: 'Description détaillée du repository',
-          is_private: false,
-          stars_count: 15,
-          forks_count: 3,
-          watchers_count: 8,
-          default_branch: 'main',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        setLoading(false)
-      }, 1000)
-    } catch (error) {
-      console.error('Erreur chargement détail repo:', error)
+    // Données simulées pour le détail du repo
+    setTimeout(() => {
+      setRepo({
+        id: 1,
+        name: params.repo,
+        full_name: `${params.owner}/${params.repo}`,
+        description: 'Description détaillée du repository avec toutes les informations importantes sur le projet et ses fonctionnalités.',
+        is_private: false,
+        stars_count: 15,
+        forks_count: 3,
+        watchers_count: 8,
+        default_branch: 'main',
+        language: 'JavaScript',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
       setLoading(false)
-    }
-  }
+    }, 1000)
+  }, [user, router, params])
 
   if (!user) return null
 
@@ -92,7 +85,7 @@ export default function RepoDetailPage() {
                   
                   {/* Navigation du repo */}
                   <nav className="mt-6 flex space-x-8">
-                    {['Code', 'Issues', 'Pull Requests', 'Actions', 'Projects', 'Wiki', 'Security', 'Insights', 'Settings'].map((item) => (
+                    {['Code', 'Issues', 'Pull Requests', 'Actions', 'Projects', 'Wiki', 'Security', 'Insights'].map((item) => (
                       <button
                         key={item}
                         className="pb-2 px-1 border-b-2 border-transparent hover:border-gray-300 text-gray-400 hover:text-white transition-colors"
@@ -114,119 +107,3 @@ export default function RepoDetailPage() {
                       <div className="border-b border-github-border pb-4 mb-4">
                         <h2 className="text-xl font-semibold text-white">
                           README.md
-                        </h2>
-                      </div>
-                      <div className="prose prose-invert max-w-none">
-                        <h1>{repo.name}</h1>
-                        <p>{repo.description}</p>
-                        
-                        <h2>Installation</h2>
-                        <pre className="bg-gray-800 p-4 rounded">
-                          <code>git clone https://inithub.com/{repo.full_name}.git</code>
-                        </pre>
-                        
-                        <h2>Utilisation</h2>
-                        <p>Instructions d'utilisation du projet...</p>
-                      </div>
-                    </div>
-
-                    {/* Dernier commit */}
-                    <div className="github-card">
-                      <h3 className="text-lg font-semibold text-white mb-4">
-                        Dernier commit
-                      </h3>
-                      <div className="flex items-center space-x-3 p-3 bg-gray-800 rounded">
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                          <span className="text-white text-sm">U</span>
-                        </div>
-                        <div>
-                          <p className="text-white text-sm">Initial commit</p>
-                          <p className="text-gray-400 text-xs">
-                            {user.username} • {new Date(repo.created_at).toLocaleDateString('fr-FR')}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Sidebar */}
-                  <div className="space-y-6">
-                    {/* À propos */}
-                    <div className="github-card">
-                      <h3 className="text-lg font-semibold text-white mb-4">
-                        À propos
-                      </h3>
-                      <p className="text-gray-400 text-sm mb-4">
-                        {repo.description}
-                      </p>
-                      
-                      <div className="space-y-3 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Créé le</span>
-                          <span className="text-white">
-                            {new Date(repo.created_at).toLocaleDateString('fr-FR')}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Dernière mise à jour</span>
-                          <span className="text-white">
-                            {new Date(repo.updated_at).toLocaleDateString('fr-FR')}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Branche par défaut</span>
-                          <span className="text-white">{repo.default_branch}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Releases */}
-                    <div className="github-card">
-                      <h3 className="text-lg font-semibold text-white mb-4">
-                        Releases
-                      </h3>
-                      <div className="text-center py-4">
-                        <Download className="mx-auto text-gray-400 mb-2" size={24} />
-                        <p className="text-gray-400 text-sm">
-                          Aucune release publiée
-                        </p>
-                        <button className="btn-primary mt-2 text-sm">
-                          Créer une release
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Langages */}
-                    <div className="github-card">
-                      <h3 className="text-lg font-semibold text-white mb-4">
-                        Langages
-                      </h3>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">JavaScript</span>
-                          <span className="text-white">62.5%</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">HTML</span>
-                          <span className="text-white">25.3%</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">CSS</span>
-                          <span className="text-white">12.2%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="p-8 text-center">
-              <p className="text-gray-400">Repository non trouvé</p>
-            </div>
-          )}
-        </main>
-      </div>
-    </div>
-  )
-}
