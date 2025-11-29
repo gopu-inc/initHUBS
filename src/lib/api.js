@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hubs-pro.onrender.com'
+const API_BASE_URL = 'https://hubs-pro.onrender.com'
 
 class API {
   constructor() {
@@ -8,6 +8,8 @@ class API {
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`
     
+    console.log(`🔄 API Call: ${url}`) // Debug log
+
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -18,25 +20,45 @@ class API {
 
     try {
       const response = await fetch(url, config)
+      console.log(`📡 Response Status: ${response.status}`) // Debug log
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        const errorText = await response.text()
+        console.error(`❌ API Error: ${response.status} - ${errorText}`)
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`)
       }
       
-      return await response.json()
+      const data = await response.json()
+      console.log('✅ API Success:', data) // Debug log
+      return data
     } catch (error) {
-      console.error('API request failed:', error)
+      console.error('❌ API request failed:', error)
       throw error
     }
   }
 
   async get(endpoint, token = null) {
-    const headers = token ? { Authorization: `Bearer ${token}` } : {}
-    return this.request(endpoint, { method: 'GET', headers })
+    const headers = token ? { 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    } : {
+      'Content-Type': 'application/json'
+    }
+    
+    return this.request(endpoint, { 
+      method: 'GET', 
+      headers 
+    })
   }
 
   async post(endpoint, data, token = null) {
-    const headers = token ? { Authorization: `Bearer ${token}` } : {}
+    const headers = token ? { 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    } : {
+      'Content-Type': 'application/json'
+    }
+    
     return this.request(endpoint, {
       method: 'POST',
       headers,
@@ -45,7 +67,13 @@ class API {
   }
 
   async put(endpoint, data, token = null) {
-    const headers = token ? { Authorization: `Bearer ${token}` } : {}
+    const headers = token ? { 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    } : {
+      'Content-Type': 'application/json'
+    }
+    
     return this.request(endpoint, {
       method: 'PUT',
       headers,
@@ -54,8 +82,17 @@ class API {
   }
 
   async delete(endpoint, token = null) {
-    const headers = token ? { Authorization: `Bearer ${token}` } : {}
-    return this.request(endpoint, { method: 'DELETE', headers })
+    const headers = token ? { 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    } : {
+      'Content-Type': 'application/json'
+    }
+    
+    return this.request(endpoint, { 
+      method: 'DELETE', 
+      headers 
+    })
   }
 }
 
