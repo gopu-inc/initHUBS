@@ -31,7 +31,7 @@ export default function CopilotChat({ token }) {
     setLoading(true)
 
     try {
-      const response = await fetch('/api/copilot/ask', {
+      const response = await fetch('https://hubs-pro.onrender.com/api/copilot/ask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,6 +42,10 @@ export default function CopilotChat({ token }) {
           language: 'fr'
         })
       })
+
+      if (!response.ok) {
+        throw new Error('Erreur API Copilot')
+      }
 
       const data = await response.json()
 
