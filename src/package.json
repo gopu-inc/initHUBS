@@ -1,23 +1,17 @@
 {
-  "name": "inithub",
+  "name": "inithub-frontend",
   "version": "1.0.0",
-  "description": "Frontend Next.js pour initHUB Cloud Enterprise",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "setup": "node scripts/setup.js"
+    "lint": "next lint"
   },
   "dependencies": {
     "next": "14.0.0",
     "react": "^18",
     "react-dom": "^18",
-    "axios": "^1.6.0",
-    "lucide-react": "^0.292.0",
-    "recharts": "^2.8.0",
-    "react-hot-toast": "^2.4.1",
-    "@monaco-editor/react": "^4.5.0"
+    "lucide-react": "^0.292.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.0.1",
@@ -25,14 +19,5 @@
     "tailwindcss": "^3.3.0",
     "eslint": "^8",
     "eslint-config-next": "14.0.0"
-  },
-  "keywords": [
-    "inithub",
-    "github",
-    "git",
-    "copilot",
-    "dashboard"
-  ],
-  "author": "Mauricio-100",
-  "license": "MIT"
+  }
 }
