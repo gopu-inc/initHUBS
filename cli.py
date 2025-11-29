@@ -43,26 +43,30 @@ class Animations:
     """Animations de chargement"""
     SPINNERS = ["🪖", "💫", "🚀", "🔧", "⚡", "🌟", "🎯", "🔥"]
     
-    @classmethod
-    def loading_spinner(cls, message="Chargement"):
+    def __init__(self):
+        self.stop_spinner = False
+    
+    def loading_spinner(self, message="Chargement"):
         """Affiche un spinner animé"""
+        self.stop_spinner = False
+        
         def spinner():
             i = 0
-            while not cls.stop_spinner:
-                sys.stdout.write(f"\r{Colors.CYAN}{cls.SPINNERS[i % len(cls.SPINNERS)]}{Colors.END} {message}{Colors.YELLOW}{'.' * ((i % 3) + 1)}{' ' * (3 - (i % 3))}{Colors.END}")
+            while not self.stop_spinner:
+                dots = '.' * ((i % 3) + 1)
+                spaces = ' ' * (3 - (i % 3))
+                sys.stdout.write(f"\r{Colors.CYAN}{self.SPINNERS[i % len(self.SPINNERS)]}{Colors.END} {message}{Colors.YELLOW}{dots}{spaces}{Colors.END}")
                 sys.stdout.flush()
                 time.sleep(0.2)
                 i += 1
         
-        cls.stop_spinner = False
         spinner_thread = threading.Thread(target=spinner)
         spinner_thread.start()
         return spinner_thread
     
-    @classmethod
-    def stop_loading(cls, thread, message="✅ Terminé"):
+    def stop_loading(self, thread, message="✅ Terminé"):
         """Arrête le spinner et affiche un message"""
-        cls.stop_spinner = True
+        self.stop_spinner = True
         thread.join()
         sys.stdout.write(f"\r{message}{' ' * 50}\n")
         sys.stdout.flush()
@@ -159,6 +163,7 @@ class InitHUBClient:
         self.base_url = config.get_server_url() + "/api"
         self.token_data = config.load_token()
         self.session = requests.Session()
+        self.animations = Animations()
         
         if self.token_data:
             self.session.headers.update({
@@ -187,7 +192,7 @@ class InitHUBClient:
     
     # 🔐 AUTHENTIFICATION
     def login(self, email: str, password: str) -> bool:
-        spinner = Animations.loading_spinner("Connexion en cours")
+        spinner = self.animations.loading_spinner("Connexion en cours")
         try:
             data = self._make_request("POST", "/auth/login", 
                                     json={"email": email, "password": password})
@@ -197,15 +202,15 @@ class InitHUBClient:
                 "Authorization": f"Bearer {data['access_token']}"
             })
             
-            Animations.stop_loading(spinner, f"{Colors.GREEN}✅ Connecté en tant que {email}{Colors.END}")
+            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Connecté en tant que {email}{Colors.END}")
             return True
             
         except Exception as e:
-            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur connexion: {e}{Colors.END}")
+            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur connexion: {e}{Colors.END}")
             return False
     
     def register(self, username: str, email: str, password: str, full_name: str = "") -> bool:
-        spinner = Animations.loading_spinner("Création du compte")
+        spinner = self.animations.loading_spinner("Création du compte")
         try:
             self._make_request("POST", "/auth/register",
                              json={
@@ -214,11 +219,11 @@ class InitHUBClient:
                                  "password": password,
                                  "full_name": full_name
                              })
-            Animations.stop_loading(spinner, f"{Colors.GREEN}✅ Compte créé: {username}{Colors.END}")
+            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Compte créé: {username}{Colors.END}")
             return True
             
         except Exception as e:
-            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur inscription: {e}{Colors.END}")
+            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur inscription: {e}{Colors.END}")
             return False
     
     def get_current_user(self):
@@ -236,7 +241,7 @@ class InitHUBClient:
     
     # 📁 REPOSITORIES
     def create_repo(self, name: str, description: str = "", is_private: bool = False):
-        spinner = Animations.loading_spinner("Création du repository")
+        spinner = self.animations.loading_spinner("Création du repository")
         try:
             result = self._make_request("POST", "/repos",
                                 json={
@@ -245,25 +250,25 @@ class InitHUBClient:
                                     "is_private": is_private,
                                     "auto_init": True
                                 })
-            Animations.stop_loading(spinner, f"{Colors.GREEN}✅ Repository créé{Colors.END}")
+            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Repository créé{Colors.END}")
             return result
         except Exception as e:
-            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur création: {e}{Colors.END}")
+            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur création: {e}{Colors.END}")
             raise
     
     def list_repos(self, page: int = 1, per_page: int = 30):
-        spinner = Animations.loading_spinner("Récupération des repositories")
+        spinner = self.animations.loading_spinner("Récupération des repositories")
         try:
             result = self._make_request("GET", f"/repos?page={page}&per_page={per_page}")
-            Animations.stop_loading(spinner, f"{Colors.GREEN}✅ Repositories chargés{Colors.END}")
+            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Repositories chargés{Colors.END}")
             return result
         except Exception as e:
-            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur chargement: {e}{Colors.END}")
+            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur chargement: {e}{Colors.END}")
             raise
     
     # 🤖 COPILOT
     def ask_copilot(self, question: str, context: str = "", max_length: int = 150, language: str = "auto"):
-        spinner = Animations.loading_spinner("Copilot réfléchit")
+        spinner = self.animations.loading_spinner("Copilot réfléchit")
         try:
             result = self._make_request("POST", "/copilot/ask",
                                 json={
@@ -272,24 +277,31 @@ class InitHUBClient:
                                     "max_length": max_length,
                                     "language": language
                                 })
-            Animations.stop_loading(spinner, f"{Colors.GREEN}✅ Réponse reçue{Colors.END}")
+            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Réponse reçue{Colors.END}")
             return result
         except Exception as e:
-            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur Copilot: {e}{Colors.END}")
+            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur Copilot: {e}{Colors.END}")
             raise
     
     def copilot_health(self):
-        return self._make_request("GET", "/copilot/health")
+        spinner = self.animations.loading_spinner("Vérification Copilot")
+        try:
+            result = self._make_request("GET", "/copilot/health")
+            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Copilot vérifié{Colors.END}")
+            return result
+        except Exception as e:
+            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur vérification: {e}{Colors.END}")
+            raise
     
     # 🩺 SYSTÈME
     def health_check(self):
-        spinner = Animations.loading_spinner("Vérification du serveur")
+        spinner = self.animations.loading_spinner("Vérification du serveur")
         try:
             result = self._make_request("GET", "/health")
-            Animations.stop_loading(spinner, f"{Colors.GREEN}✅ Serveur opérationnel{Colors.END}")
+            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Serveur opérationnel{Colors.END}")
             return result
         except Exception as e:
-            Animations.stop_loading(spinner, f"{Colors.RED}❌ Serveur hors ligne: {e}{Colors.END}")
+            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Serveur hors ligne: {e}{Colors.END}")
             raise
 
 api_client = InitHUBClient()
@@ -479,7 +491,15 @@ def handle_copilot_ask(args):
     context = args.context or ""
     
     try:
-        health = api_client.copilot_health()
+        # Vérifier d'abord la santé de Copilot avec animation
+        health_spinner = api_client.animations.loading_spinner("Vérification Copilot")
+        try:
+            health = api_client.copilot_health()
+            api_client.animations.stop_loading(health_spinner, f"{Colors.GREEN}✅ Copilot disponible{Colors.END}")
+        except:
+            api_client.animations.stop_loading(health_spinner, f"{Colors.RED}❌ Copilot indisponible{Colors.END}")
+            return False
+        
         if not health.get('online', False):
             print_error("Copilot n'est pas disponible")
             return False
@@ -523,7 +543,7 @@ def handle_init_project(args):
         print_error(f"Le dossier '{project_name}' existe déjà. Utilisez --force pour écraser.")
         return False
     
-    spinner = Animations.loading_spinner("Initialisation du projet")
+    spinner = api_client.animations.loading_spinner("Initialisation du projet")
     
     try:
         # Créer la structure
@@ -560,7 +580,7 @@ if __name__ == "__main__":
             with open(project_path / "main.py", 'w', encoding='utf-8') as f:
                 f.write(main_content)
         
-        Animations.stop_loading(spinner, f"{Colors.GREEN}✅ Projet initialisé avec succès!{Colors.END}")
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Projet initialisé avec succès!{Colors.END}")
         
         print(f"\n{Colors.CYAN}📁 Structure créée:{Colors.END}")
         print(f"   📄 {ssf_path.name} {Colors.YELLOW}(manifest principal){Colors.END}")
@@ -577,7 +597,7 @@ if __name__ == "__main__":
         return True
         
     except Exception as e:
-        Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur initialisation{Colors.END}")
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur initialisation{Colors.END}")
         print_error(f"Erreur: {e}")
         return False
 
