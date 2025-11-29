@@ -19,13 +19,12 @@ export default function RepoDetailPage() {
       return
     }
 
-    // Données simulées pour le détail du repo
     setTimeout(() => {
       setRepo({
         id: 1,
         name: params.repo,
         full_name: `${params.owner}/${params.repo}`,
-        description: 'Description détaillée du repository avec toutes les informations importantes sur le projet et ses fonctionnalités.',
+        description: 'Description détaillée du repository',
         is_private: false,
         stars_count: 15,
         forks_count: 3,
@@ -54,7 +53,6 @@ export default function RepoDetailPage() {
             </div>
           ) : repo ? (
             <>
-              {/* Header du repo */}
               <div className="border-b border-github-border bg-github-gray">
                 <div className="max-w-7xl mx-auto px-8 py-6">
                   <div className="flex items-center justify-between">
@@ -83,7 +81,6 @@ export default function RepoDetailPage() {
                     </div>
                   </div>
                   
-                  {/* Navigation du repo */}
                   <nav className="mt-6 flex space-x-8">
                     {['Code', 'Issues', 'Pull Requests', 'Actions', 'Projects', 'Wiki', 'Security', 'Insights'].map((item) => (
                       <button
@@ -97,12 +94,9 @@ export default function RepoDetailPage() {
                 </div>
               </div>
 
-              {/* Contenu du repo */}
               <div className="max-w-7xl mx-auto p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {/* Colonne principale */}
                   <div className="lg:col-span-2 space-y-6">
-                    {/* Readme */}
                     <div className="github-card">
                       <div className="border-b border-github-border pb-4 mb-4">
                         <h2 className="text-xl font-semibold text-white">
@@ -120,12 +114,11 @@ export default function RepoDetailPage() {
                         
                         <h2 className="text-xl font-semibold text-white mt-6">Utilisation</h2>
                         <p className="text-gray-300">
-                          Instructions d'utilisation du projet. Vous pouvez configurer l'environnement de développement et lancer l'application.
+                          Instructions d'utilisation du projet.
                         </p>
                       </div>
                     </div>
 
-                    {/* Dernier commit */}
                     <div className="github-card">
                       <h3 className="text-lg font-semibold text-white mb-4">
                         Dernier commit
@@ -144,9 +137,7 @@ export default function RepoDetailPage() {
                     </div>
                   </div>
 
-                  {/* Sidebar */}
                   <div className="space-y-6">
-                    {/* À propos */}
                     <div className="github-card">
                       <h3 className="text-lg font-semibold text-white mb-4">
                         À propos
@@ -179,7 +170,6 @@ export default function RepoDetailPage() {
                       </div>
                     </div>
 
-                    {/* Releases */}
                     <div className="github-card">
                       <h3 className="text-lg font-semibold text-white mb-4">
                         Releases
