@@ -143,6 +143,10 @@ class CLIConfig:
             except:
                 return None
         return None
+    
+    def get_server_url(self):
+        """Retourne l'URL du serveur"""
+        return self.data.get("server_url", self.SERVER_URL)
 
 config = CLIConfig()
 
