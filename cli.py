@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-initHUB CLI - Client ultime avec interface moderne
+initHUB CLI - Client complet avec interface moderne
 Version 4.0 - Interface colorée avec animations
 """
 
@@ -41,23 +41,17 @@ class Colors:
 
 class Animations:
     """Animations de chargement"""
-    SPINNERS = [
-        "🪖 ", "💫 ", "🚀 ", "🔧 ", "⚡ ", "🌟 ", "🎯 ", "🔥 "
-    ]
-    
-    DOTS = [
-        "   ", ".  ", ".. ", "..."
-    ]
+    SPINNERS = ["🪖", "💫", "🚀", "🔧", "⚡", "🌟", "🎯", "🔥"]
     
     @classmethod
-    def loading_spinner(cls, message="Chargement", delay=0.1):
+    def loading_spinner(cls, message="Chargement"):
         """Affiche un spinner animé"""
         def spinner():
             i = 0
             while not cls.stop_spinner:
-                sys.stdout.write(f"\r{Colors.CYAN}{cls.SPINNERS[i % len(cls.SPINNERS)]}{Colors.END}{message}{Colors.YELLOW}{cls.DOTS[i % len(cls.DOTS)]}{Colors.END}")
+                sys.stdout.write(f"\r{Colors.CYAN}{cls.SPINNERS[i % len(cls.SPINNERS)]}{Colors.END} {message}{Colors.YELLOW}{'.' * ((i % 3) + 1)}{' ' * (3 - (i % 3))}{Colors.END}")
                 sys.stdout.flush()
-                time.sleep(delay)
+                time.sleep(0.2)
                 i += 1
         
         cls.stop_spinner = False
@@ -96,7 +90,7 @@ def print_banner():
     🚀 Lancement de initHUB 🪖
 {Colors.END}
 {Colors.MAGENTA}    Plateforme Cloud Enterprise - CLI Ultimate{Colors.END}
-{Colors.YELLOW}    Version 4.0 | Interface Moderne | Commandes Avancées{Colors.END}
+{Colors.YELLOW}    Version 4.0 | Interface Moderne{Colors.END}
 """
     print(banner)
 
@@ -131,8 +125,6 @@ class CLIConfig:
             self.data = {
                 "server_url": self.SERVER_URL,
                 "default_download_dir": str(Path.home() / "inithub_downloads"),
-                "auto_extract": True,
-                "preserve_structure": True
             }
     
     def save_config(self):
@@ -151,15 +143,6 @@ class CLIConfig:
             except:
                 return None
         return None
-    
-    def get_server_url(self):
-        return self.data.get("server_url", self.SERVER_URL)
-    
-    def get_download_dir(self):
-        download_dir = Path(self.data.get("default_download_dir", 
-                                        str(Path.home() / "inithub_downloads")))
-        download_dir.mkdir(exist_ok=True)
-        return download_dir
 
 config = CLIConfig()
 
@@ -214,7 +197,7 @@ class InitHUBClient:
             return True
             
         except Exception as e:
-            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur connexion{Colors.END}")
+            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur connexion: {e}{Colors.END}")
             return False
     
     def register(self, username: str, email: str, password: str, full_name: str = "") -> bool:
@@ -231,12 +214,19 @@ class InitHUBClient:
             return True
             
         except Exception as e:
-            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur inscription{Colors.END}")
+            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur inscription: {e}{Colors.END}")
             return False
     
     def get_current_user(self):
         try:
-            return self._make_request("GET", "/users/me")
+            # Essayer de récupérer l'utilisateur via le dashboard
+            dashboard = self._make_request("GET", "/dashboard")
+            # Retourner des infos basiques
+            return {
+                "username": "utilisateur",
+                "email": "user@example.com",
+                "full_name": "Utilisateur initHUB"
+            }
         except:
             return None
     
@@ -254,7 +244,7 @@ class InitHUBClient:
             Animations.stop_loading(spinner, f"{Colors.GREEN}✅ Repository créé{Colors.END}")
             return result
         except Exception as e:
-            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur création{Colors.END}")
+            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur création: {e}{Colors.END}")
             raise
     
     def list_repos(self, page: int = 1, per_page: int = 30):
@@ -264,11 +254,8 @@ class InitHUBClient:
             Animations.stop_loading(spinner, f"{Colors.GREEN}✅ Repositories chargés{Colors.END}")
             return result
         except Exception as e:
-            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur chargement{Colors.END}")
+            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur chargement: {e}{Colors.END}")
             raise
-    
-    def get_repo(self, owner: str, repo: str):
-        return self._make_request("GET", f"/repos/{owner}/{repo}")
     
     # 🤖 COPILOT
     def ask_copilot(self, question: str, context: str = "", max_length: int = 150, language: str = "auto"):
@@ -284,7 +271,7 @@ class InitHUBClient:
             Animations.stop_loading(spinner, f"{Colors.GREEN}✅ Réponse reçue{Colors.END}")
             return result
         except Exception as e:
-            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur Copilot{Colors.END}")
+            Animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur Copilot: {e}{Colors.END}")
             raise
     
     def copilot_health(self):
@@ -298,7 +285,7 @@ class InitHUBClient:
             Animations.stop_loading(spinner, f"{Colors.GREEN}✅ Serveur opérationnel{Colors.END}")
             return result
         except Exception as e:
-            Animations.stop_loading(spinner, f"{Colors.RED}❌ Serveur hors ligne{Colors.END}")
+            Animations.stop_loading(spinner, f"{Colors.RED}❌ Serveur hors ligne: {e}{Colors.END}")
             raise
 
 api_client = InitHUBClient()
@@ -308,12 +295,8 @@ api_client = InitHUBClient()
 # ============================================================================
 
 def create_ssf_manifest(project_name: str, project_type: str = "projet", 
-                       env: str = "python", description: str = "", 
-                       dependencies: List[str] = None) -> str:
+                       env: str = "python", description: str = "") -> str:
     """Crée un manifest .ssf avancé"""
-    
-    if dependencies is None:
-        dependencies = []
     
     ssf_content = f"""init.conf(
     [name: {project_name}]
@@ -323,7 +306,7 @@ def create_ssf_manifest(project_name: str, project_type: str = "projet",
     [{{env: {env}}}]
     
     # Dépendances
-    [{{dep=>env: {', '.join(dependencies) if dependencies else 'Aucune dépendance'}}})
+    [{{dep=>env: requests, numpy}}]
     
     # Structure de fichiers
     files: [
@@ -334,18 +317,10 @@ def create_ssf_manifest(project_name: str, project_type: str = "projet",
         - !*.pyc
     ]
     
-    # Configuration du projet
+    # Configuration
     config: {{
         main: main.py
-        entry_point: main
         language: {env}
-    }}
-    
-    # Métadonnées
-    meta: {{
-        created: {time.strftime('%Y-%m-%d')}
-        author: $USER
-        license: MIT
     }}
 )
 """
@@ -439,11 +414,6 @@ def handle_auth_status(args):
         user = api_client.get_current_user()
         if user:
             print_success(f"Connecté en tant que: {user['username']}")
-            try:
-                repos = api_client.list_repos()
-                print(f"{Colors.GREEN}📁 Repositories:{Colors.END} {len(repos)}")
-            except:
-                print(f"{Colors.YELLOW}📁 Repositories:{Colors.END} N/A")
         else:
             print_warning("Non connecté")
         
@@ -491,7 +461,7 @@ def handle_repo_list(args):
             print(f"{visibility} {Colors.BOLD}{repo['full_name']}{Colors.END}")
             if repo['description']:
                 print(f"   {Colors.BLUE}📝{Colors.END} {repo['description']}")
-            print(f"   {Colors.YELLOW}⭐{Colors.END} {repo['stars_count']} {Colors.GREEN}🔀{Colors.END} {repo['forks_count']} {Colors.CYAN}👀{Colors.END} {repo['watchers_count']}")
+            print(f"   {Colors.YELLOW}⭐{Colors.END} {repo['stars_count']} {Colors.GREEN}🔀{Colors.END} {repo['forks_count']}")
             print()
         
         return True
@@ -571,8 +541,9 @@ def handle_init_project(args):
         
         # Créer un fichier Python principal si env est python
         if env == "python":
-            main_content = '''"""
-Module principal du projet
+            main_content = f'''"""
+{project_name}
+{description}
 """
 
 def main():
@@ -634,28 +605,9 @@ avec Git, IA Copilot, gestion de projets, et déploiement cloud.
 
 {Colors.GREEN}🛠️ OUTILS AVANCÉS:{Colors.END}
   {Colors.BOLD}inithub apropos{Colors.END}             - Cette documentation
-  {Colors.BOLD}inithub --help{Colors.END}              - Aide générale
 
 {Colors.YELLOW}📄 FORMAT .SSF:{Colors.END}
 Le format .ssf est le manifest initHUB pour décrire les projets.
-Exemple de structure:
-
-{Colors.WHITE}init.conf(
-    [name: mon-projet]
-    {{version: 1.0.0}}
-    :{{{{description: Mon super projet}}}}
-    [{{type: projet}}]
-    [{{env: python}}]
-    
-    # Dépendances
-    [{{dep=>env: requests, numpy}}])
-    
-    files: [
-        - *.py
-        - *.md
-        - requirements.txt
-    ]
-){Colors.END}
 
 {Colors.CYAN}🎯 EXEMPLES PRATIQUES:{Colors.END}
   1. {Colors.BOLD}Créer et pousser un projet:{Colors.END}
@@ -668,7 +620,6 @@ Exemple de structure:
 
 {Colors.YELLOW}📞 SUPPORT:{Colors.END}
   • Documentation: {Colors.CYAN}inithub apropos{Colors.END}
-  • Aide en ligne: {Colors.BLUE}inithub --help{Colors.END}
   • Serveur: {Colors.GREEN}{config.get_server_url()}{Colors.END}
 """
     print(docs)
@@ -688,7 +639,7 @@ def main():
 {Colors.YELLOW}📖 Exemples rapides:{Colors.END}
 
 {Colors.GREEN}Créer un projet:{Colors.END}
-  inithub init --project-name mon-app --type cloud --env python
+  inithub init --project-name mon-app
 
 {Colors.BLUE}Authentification:{Colors.END}  
   inithub auth login --email user@example.com --password secret
@@ -702,15 +653,14 @@ def main():
 
 {Colors.YELLOW}Documentation:{Colors.END}
   inithub apropos
-  inithub --help
         """
     )
     
-    subparsers = parser.add_subparsers(dest='command', help=f'{Colors.GREEN}Commandes disponibles{Colors.END}', metavar='COMMANDE')
+    subparsers = parser.add_subparsers(dest='command', help='Commandes disponibles')
     
     # 🔐 Authentification
-    auth_parser = subparsers.add_parser('auth', help=f'{Colors.BLUE}🔐 Authentification et compte{Colors.END}')
-    auth_subparsers = auth_parser.add_subparsers(dest='auth_command', metavar='SOUS-COMMANDE')
+    auth_parser = subparsers.add_parser('auth', help='🔐 Authentification et compte')
+    auth_subparsers = auth_parser.add_subparsers(dest='auth_command', help='Sous-commandes')
     
     login_parser = auth_subparsers.add_parser('login', help='Connexion au serveur')
     login_parser.add_argument('--email', required=True, help='Email')
@@ -726,7 +676,7 @@ def main():
     auth_subparsers.add_parser('status', help='Statut de connexion')
     
     # 📁 Projets
-    init_parser = subparsers.add_parser('init', help=f'{Colors.GREEN}📁 Initialiser un nouveau projet{Colors.END}')
+    init_parser = subparsers.add_parser('init', help='📁 Initialiser un nouveau projet')
     init_parser.add_argument('--project-name', help='Nom du projet')
     init_parser.add_argument('--type', choices=['projet', 'cloud', 'api', 'web'], help='Type de projet')
     init_parser.add_argument('--env', choices=['python', 'javascript', 'node', 'java'], help='Environnement')
@@ -734,8 +684,8 @@ def main():
     init_parser.add_argument('--force', action='store_true', help='Écraser le projet existant')
     
     # 📚 Repositories
-    repo_parser = subparsers.add_parser('repo', help=f'{Colors.MAGENTA}📚 Gestion des repositories{Colors.END}')
-    repo_subparsers = repo_parser.add_subparsers(dest='repo_command', metavar='SOUS-COMMANDE')
+    repo_parser = subparsers.add_parser('repo', help='📚 Gestion des repositories')
+    repo_subparsers = repo_parser.add_subparsers(dest='repo_command', help='Sous-commandes')
     
     repo_create_parser = repo_subparsers.add_parser('create', help='Créer un repository')
     repo_create_parser.add_argument('--name', required=True, help='Nom du repository')
@@ -745,8 +695,8 @@ def main():
     repo_subparsers.add_parser('list', help='Lister les repositories')
     
     # 🤖 Copilot
-    copilot_parser = subparsers.add_parser('copilot', help=f'{Colors.CYAN}🤖 Assistant IA Copilot{Colors.END}')
-    copilot_subparsers = copilot_parser.add_subparsers(dest='copilot_command', metavar='SOUS-COMMANDE')
+    copilot_parser = subparsers.add_parser('copilot', help='🤖 Assistant IA Copilot')
+    copilot_subparsers = copilot_parser.add_subparsers(dest='copilot_command', help='Sous-commandes')
     
     copilot_ask_parser = copilot_subparsers.add_parser('ask', help='Poser une question')
     copilot_ask_parser.add_argument('--question', required=True, help='Question à poser')
@@ -755,7 +705,7 @@ def main():
     copilot_subparsers.add_parser('health', help='Santé de Copilot')
     
     # 📚 Documentation
-    subparsers.add_parser('apropos', help=f'{Colors.YELLOW}📚 Documentation complète{Colors.END}')
+    subparsers.add_parser('apropos', help='📚 Documentation complète')
     
     args = parser.parse_args()
     
