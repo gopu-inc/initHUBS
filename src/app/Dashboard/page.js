@@ -19,23 +19,35 @@ export default function Dashboard() {
       return
     }
 
-    fetchDashboardData()
-  }, [user, router])
+    // Données simulées pour le dashboard
+    setStats({
+      total_repos: 12,
+      total_stars: 45,
+      total_forks: 8,
+      total_contributors: 5
+    })
 
-  const fetchDashboardData = async () => {
-    try {
-      const response = await fetch('/api/dashboard', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      const data = await response.json()
-      setStats(data)
-      setRecentActivity(data.recent_activity || [])
-    } catch (error) {
-      console.error('Erreur chargement dashboard:', error)
-    }
-  }
+    setRecentActivity([
+      {
+        type: 'repo',
+        title: 'mon-projet',
+        date: new Date().toISOString(),
+        description: 'Repository créé'
+      },
+      {
+        type: 'commit',
+        title: 'Initial commit',
+        date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        description: 'Commit pushed'
+      },
+      {
+        type: 'pr',
+        title: 'Add new feature',
+        date: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+        description: 'Pull request opened'
+      }
+    ])
+  }, [user, router])
 
   if (!user) {
     return null
@@ -100,11 +112,6 @@ export default function Dashboard() {
                     </div>
                   </div>
                 ))}
-                {recentActivity.length === 0 && (
-                  <p className="text-gray-400 text-center py-4">
-                    Aucune activité récente
-                  </p>
-                )}
               </div>
             </div>
           </div>
