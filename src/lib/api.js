@@ -8,8 +8,6 @@ class API {
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`
     
-    console.log(`🔄 API Call: ${url}`) // Debug log
-
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -20,19 +18,14 @@ class API {
 
     try {
       const response = await fetch(url, config)
-      console.log(`📡 Response Status: ${response.status}`) // Debug log
       
       if (!response.ok) {
-        const errorText = await response.text()
-        console.error(`❌ API Error: ${response.status} - ${errorText}`)
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`)
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
       
-      const data = await response.json()
-      console.log('✅ API Success:', data) // Debug log
-      return data
+      return await response.json()
     } catch (error) {
-      console.error('❌ API request failed:', error)
+      console.error('API request failed:', error)
       throw error
     }
   }
@@ -40,10 +33,7 @@ class API {
   async get(endpoint, token = null) {
     const headers = token ? { 
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    } : {
-      'Content-Type': 'application/json'
-    }
+    } : {}
     
     return this.request(endpoint, { 
       method: 'GET', 
@@ -54,44 +44,12 @@ class API {
   async post(endpoint, data, token = null) {
     const headers = token ? { 
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    } : {
-      'Content-Type': 'application/json'
-    }
+    } : {}
     
     return this.request(endpoint, {
       method: 'POST',
       headers,
       body: JSON.stringify(data),
-    })
-  }
-
-  async put(endpoint, data, token = null) {
-    const headers = token ? { 
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    } : {
-      'Content-Type': 'application/json'
-    }
-    
-    return this.request(endpoint, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify(data),
-    })
-  }
-
-  async delete(endpoint, token = null) {
-    const headers = token ? { 
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    } : {
-      'Content-Type': 'application/json'
-    }
-    
-    return this.request(endpoint, { 
-      method: 'DELETE', 
-      headers 
     })
   }
 }
