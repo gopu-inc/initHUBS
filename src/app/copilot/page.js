@@ -60,7 +60,7 @@ export default function CopilotPage() {
                     ? 'bg-green-500 text-white' 
                     : 'bg-red-500 text-white'
                 }`}>
-                  {copilotHealth.online ? '🟢 En ligne' : '🔴 Hors ligne'}
+                  {copilotHealth.online ? 'En ligne' : 'Hors ligne'}
                 </div>
               )}
             </div>
@@ -71,7 +71,6 @@ export default function CopilotPage() {
               </div>
 
               <div className="space-y-6">
-                {/* Actions rapides */}
                 <div className="github-card">
                   <h3 className="text-lg font-semibold text-white mb-4">
                     Actions rapides
@@ -88,7 +87,6 @@ export default function CopilotPage() {
                   </div>
                 </div>
 
-                {/* Statut Copilot */}
                 <div className="github-card">
                   <h3 className="text-lg font-semibold text-white mb-4">
                     Statut Copilot
@@ -104,19 +102,9 @@ export default function CopilotPage() {
                       <span className="text-gray-400">Version:</span>
                       <span className="text-white">12.0.0</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Dernier ping:</span>
-                      <span className="text-white">
-                        {copilotHealth?.timestamp 
-                          ? new Date(copilotHealth.timestamp).toLocaleTimeString('fr-FR')
-                          : 'N/A'
-                        }
-                      </span>
-                    </div>
                   </div>
                 </div>
 
-                {/* Tips */}
                 <div className="github-card">
                   <h3 className="text-lg font-semibold text-white mb-4">
                     Tips Copilot
