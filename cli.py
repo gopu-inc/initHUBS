@@ -667,7 +667,7 @@ def main():
     login_parser.add_argument('--password', required=True, help='Mot de passe')
     
     register_parser = auth_subparsers.add_parser('register', help='Création de compte')
-    register_parser.add_argument('--username', required=True, help='Nom d\\'utilisateur')
+    register_parser.add_argument('--username', required=True, help="Nom d'utilisateur")
     register_parser.add_argument('--email', required=True, help='Email')
     register_parser.add_argument('--password', required=True, help='Mot de passe')
     register_parser.add_argument('--full-name', help='Nom complet')
