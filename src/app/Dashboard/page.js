@@ -19,7 +19,6 @@ export default function Dashboard() {
       return
     }
 
-    // Données simulées pour le dashboard
     setStats({
       total_repos: 12,
       total_stars: 45,
@@ -65,7 +64,6 @@ export default function Dashboard() {
               Dashboard
             </h1>
 
-            {/* Stats Grid */}
             {stats && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatsCard
@@ -95,7 +93,6 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* Activité récente */}
             <div className="github-card">
               <h2 className="text-xl font-bold text-white mb-4">
                 Activité récente
