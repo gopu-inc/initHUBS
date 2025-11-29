@@ -21,8 +21,6 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      console.log('🔄 Tentative de connexion...')
-      
       const response = await fetch('https://hubs-pro.onrender.com/api/auth/login', {
         method: 'POST',
         headers: {
@@ -38,7 +36,6 @@ export function AuthProvider({ children }) {
 
       const data = await response.json()
       
-      // Créer un utilisateur temporaire
       const tempUser = {
         id: 1,
         username: email.split('@')[0],
@@ -53,7 +50,7 @@ export function AuthProvider({ children }) {
       
       return { success: true }
     } catch (error) {
-      console.error('❌ Erreur login:', error)
+      console.error('Erreur login:', error)
       return { 
         success: false, 
         error: error.message 
@@ -63,8 +60,6 @@ export function AuthProvider({ children }) {
 
   const register = async (userData) => {
     try {
-      console.log('🔄 Tentative d inscription...')
-      
       const response = await fetch('https://hubs-pro.onrender.com/api/auth/register', {
         method: 'POST',
         headers: {
@@ -82,7 +77,7 @@ export function AuthProvider({ children }) {
       
       return { success: true, data }
     } catch (error) {
-      console.error('❌ Erreur register:', error)
+      console.error('Erreur register:', error)
       return { 
         success: false, 
         error: error.message 
