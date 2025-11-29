@@ -1,6 +1,5 @@
 'use client'
 import { createContext, useContext, useState, useEffect } from 'react'
-import { api } from './api'
 
 const AuthContext = createContext()
 
@@ -11,64 +10,53 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const savedToken = localStorage.getItem('inithub_token')
-    if (savedToken) {
+    const savedUser = localStorage.getItem('inithub_user')
+    
+    if (savedToken && savedUser) {
       setToken(savedToken)
-      // Ne pas charger l'utilisateur tout de suite pour éviter les erreurs
-      setLoading(false)
-    } else {
-      setLoading(false)
+      setUser(JSON.parse(savedUser))
     }
+    setLoading(false)
   }, [])
-
-  const fetchUser = async (userToken) => {
-    try {
-      // Utiliser l'endpoint dashboard pour récupérer les infos utilisateur
-      const userData = await api.get('/api/dashboard', userToken)
-      setUser({
-        id: 1, // Temporaire
-        username: 'user', // Temporaire
-        email: 'user@example.com', // Temporaire
-        ...userData
-      })
-    } catch (error) {
-      console.error('Erreur récupération utilisateur:', error)
-      // Ne pas logout immédiatement, peut-être juste un problème temporaire
-    }
-  }
 
   const login = async (email, password) => {
     try {
       console.log('🔄 Tentative de connexion...')
       
-      const response = await api.post('/api/auth/login', { 
-        email, 
-        password 
+      const response = await fetch('https://hubs-pro.onrender.com/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       })
-      
-      console.log('✅ Réponse login:', response)
-      
-      if (response.access_token) {
-        localStorage.setItem('inithub_token', response.access_token)
-        setToken(response.access_token)
-        
-        // Créer un objet utilisateur temporaire
-        const tempUser = {
-          id: 1,
-          username: email.split('@')[0],
-          email: email,
-          full_name: 'Utilisateur'
-        }
-        setUser(tempUser)
-        
-        return { success: true }
-      } else {
-        return { success: false, error: 'Token non reçu' }
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || 'Erreur de connexion')
       }
+
+      const data = await response.json()
+      
+      // Créer un utilisateur temporaire
+      const tempUser = {
+        id: 1,
+        username: email.split('@')[0],
+        email: email,
+        full_name: 'Utilisateur initHUB'
+      }
+      
+      localStorage.setItem('inithub_token', data.access_token)
+      localStorage.setItem('inithub_user', JSON.stringify(tempUser))
+      setToken(data.access_token)
+      setUser(tempUser)
+      
+      return { success: true }
     } catch (error) {
       console.error('❌ Erreur login:', error)
       return { 
         success: false, 
-        error: error.message || 'Erreur de connexion' 
+        error: error.message 
       }
     }
   }
@@ -77,21 +65,34 @@ export function AuthProvider({ children }) {
     try {
       console.log('🔄 Tentative d inscription...')
       
-      const response = await api.post('/api/auth/register', userData)
-      console.log('✅ Réponse register:', response)
+      const response = await fetch('https://hubs-pro.onrender.com/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || 'Erreur d inscription')
+      }
+
+      const data = await response.json()
       
-      return { success: true, data: response }
+      return { success: true, data }
     } catch (error) {
       console.error('❌ Erreur register:', error)
       return { 
         success: false, 
-        error: error.message || 'Erreur d inscription' 
+        error: error.message 
       }
     }
   }
 
   const logout = () => {
     localStorage.removeItem('inithub_token')
+    localStorage.removeItem('inithub_user')
     setUser(null)
     setToken(null)
   }
@@ -103,8 +104,7 @@ export function AuthProvider({ children }) {
       loading,
       login,
       register,
-      logout,
-      fetchUser
+      logout
     }}>
       {children}
     </AuthContext.Provider>
