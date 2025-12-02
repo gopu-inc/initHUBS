@@ -115,6 +115,7 @@ def print_banner():
 {Colors.END}
 {Colors.MAGENTA}    Plateforme Cloud Enterprise Ultimate{Colors.END}
 {Colors.YELLOW}    Version 5.0 | Hébergement Web + Terminal{Colors.END}
+{Colors.BLUE}    URL serveur: https://hubs-ja2g.onrender.com{Colors.END}
 """
     print(banner)
 
@@ -123,6 +124,7 @@ def print_banner():
 # ============================================================================
 
 class CLIConfig:
+    # ✅ URL DE PRODUCTION CONFIGURÉE
     DEFAULT_SERVER = "https://hubs-ja2g.onrender.com"
     
     CONFIG_DIR = Path.home() / ".inithub"
@@ -148,6 +150,7 @@ class CLIConfig:
             except:
                 self.data = {}
         else:
+            # ✅ Configuration par défaut avec URL de production
             self.data = {
                 "server_url": self.DEFAULT_SERVER,
                 "default_download_dir": str(self.DOWNLOAD_DIR),
@@ -922,8 +925,6 @@ def handle_dashboard_show(args):
     except Exception as e:
         print_error(f"Erreur dashboard: {e}")
         return False
-
-# (Suite du fichier CLI - à ajouter après handle_system_health)
 
 def handle_system_health(args):
     """Vérifie la santé du système"""
