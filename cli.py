@@ -123,7 +123,7 @@ def print_banner():
 # ============================================================================
 
 class CLIConfig:
-    DEFAULT_SERVER = "http://localhost:8000"
+    DEFAULT_SERVER = "https://hubs-ja2g.onrender.com"
     
     CONFIG_DIR = Path.home() / ".inithub"
     CONFIG_FILE = CONFIG_DIR / "config.json"
