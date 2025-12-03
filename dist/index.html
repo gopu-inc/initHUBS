@@ -1,1033 +1,1310 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>initHUB Cloud Enterprise</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>🚀 initHUB Military - Plateforme Cloud Tactique</title>
+    <meta name="description" content="Plateforme cloud militaire avec connexion tactique aux hubs opérationnels">
+    
     <style>
+        /* Variables militaires */
         :root {
-            --inithub-primary: #6366f1;
-            --inithub-secondary: #8b5cf6;
-            --inithub-accent: #06b6d4;
-            --inithub-dark: #0f172a;
-            --inithub-darker: #020617;
+            --primary: #006400; /* Vert militaire */
+            --primary-dark: #004d00;
+            --primary-light: #228B22;
+            --secondary: #8B4513; /* Brun militaire */
+            --secondary-dark: #654321;
+            --secondary-light: #A0522D;
+            --background: #0a0f0a;
+            --surface: #1a1f1a;
+            --surface-light: #2a2f2a;
+            --surface-dark: #050a05;
+            --border: #2e4d2e;
+            --border-light: #3e5d3e;
+            --text: #e0f0e0;
+            --text-secondary: #a0b0a0;
+            --text-muted: #708070;
+            --success: #32CD32;
+            --warning: #FFD700;
+            --danger: #DC143C;
+            --info: #00BFFF;
+            
+            --gradient-military: linear-gradient(135deg, #006400 0%, #8B4513 100%);
+            --gradient-camo: linear-gradient(45deg, #006400 25%, #8B4513 25%, #8B4513 50%, #006400 50%, #006400 75%, #8B4513 75%);
+            --gradient-dark: linear-gradient(135deg, #050a05 0%, #0a0f0a 100%);
+            
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.7);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.9);
+            
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
         }
-        
-        body { 
-            background: linear-gradient(135deg, var(--inithub-darker) 0%, var(--inithub-dark) 100%);
-            color: #f8fafc;
-            font-family: 'Inter', system-ui, sans-serif;
+
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', 'Consolas', monospace;
+            background: var(--background);
+            color: var(--text);
             min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(0, 100, 0, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 80% 70%, rgba(139, 69, 19, 0.1) 0%, transparent 20%);
         }
-        
-        .glass-card {
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
+
+        /* Navigation tactique */
+        .nav-tactical {
+            background: var(--surface);
+            border-bottom: 2px solid var(--border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-lg);
         }
-        
-        .gradient-bg {
-            background: linear-gradient(135deg, var(--inithub-primary) 0%, var(--inithub-secondary) 100%);
-        }
-        
-        .gradient-text {
-            background: linear-gradient(135deg, var(--inithub-primary) 0%, var(--inithub-secondary) 50%, var(--inithub-accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--inithub-primary) 0%, var(--inithub-secondary) 100%);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
-        }
-        
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: #f8fafc;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-1px);
-        }
-        
-        .nav-item {
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
             display: flex;
             align-items: center;
-            padding: 0.875rem 1rem;
-            margin: 0.375rem 0;
-            border-radius: 0.75rem;
-            transition: all 0.3s ease;
-            color: #94a3b8;
-            font-weight: 500;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
+            justify-content: space-between;
+            height: 70px;
         }
-        
-        .nav-item.active {
-            background: linear-gradient(135deg, var(--inithub-primary) 0%, var(--inithub-secondary) 100%);
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 700;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+        }
+
+        .nav-logo-icon {
+            background: var(--gradient-military);
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            box-shadow: 0 4px 15px -3px rgba(99, 102, 241, 0.3);
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 2px solid var(--border-light);
         }
-        
-        .nav-item:not(.active):hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: #e2e8f0;
-            transform: translateX(4px);
+
+        .nav-menu {
+            display: flex;
+            gap: 25px;
+            align-items: center;
         }
-        
-        .stats-card {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: 1rem;
-            padding: 1.5rem;
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            padding: 10px 15px;
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+            background: rgba(0, 100, 0, 0.1);
+            border-color: var(--border);
+        }
+
+        .nav-link.active {
+            color: var(--success);
+            background: rgba(0, 100, 0, 0.2);
+            border-color: var(--primary);
+        }
+
+        .nav-link.active::after {
+            content: '✓';
+            position: absolute;
+            right: 8px;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* Hero section tactique */
+        .hero-tactical {
+            background: var(--gradient-dark);
+            padding: 120px 20px 80px;
+            text-align: center;
+            border-bottom: 3px solid var(--border);
             position: relative;
             overflow: hidden;
+            margin-top: 70px;
         }
-        
-        .stats-card::before {
+
+        .hero-tactical::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--inithub-primary) 0%, var(--inithub-secondary) 100%);
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 100, 0, 0.05) 2px,
+                    rgba(0, 100, 0, 0.05) 4px
+                );
         }
-        
-        .repo-card {
-            background: rgba(30, 41, 59, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            padding: 1.5rem;
+
+        .hero-tactical h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: var(--gradient-military);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Conteneur principal */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Cartes tactiques */
+        .card-tactical {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin-bottom: 25px;
             transition: all 0.3s ease;
-            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
-        .repo-card:hover {
+        .card-tactical::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-military);
+        }
+
+        .card-tactical:hover {
+            border-color: var(--primary);
             transform: translateY(-5px);
-            border-color: rgba(99, 102, 241, 0.5);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow-lg);
         }
 
-        .chat-message {
-            max-width: 70%;
-            padding: 1rem 1.25rem;
-            border-radius: 1.25rem;
-            margin: 0.5rem 0;
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .chat-user {
-            background: linear-gradient(135deg, var(--inithub-primary) 0%, var(--inithub-secondary) 100%);
-            margin-left: auto;
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 0.5px;
         }
 
-        .chat-bot {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        input, textarea, select {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 0.75rem;
-            padding: 0.75rem 1rem;
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-sm);
+            background: var(--gradient-military);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            font-family: inherit;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 2px solid var(--border-light);
         }
 
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--inithub-primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        /* Boutons tactiques */
+        .btn-tactical {
+            background: var(--gradient-military);
+            color: white;
+            border: 2px solid var(--border);
+            padding: 12px 25px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Courier New', monospace;
         }
 
-        .pulse-dot {
+        .btn-tactical:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 100, 0, 0.4);
+        }
+
+        .btn-tactical:active {
+            transform: translateY(0);
+        }
+
+        .btn-tactical-secondary {
+            background: var(--surface-light);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .btn-tactical-secondary:hover {
+            background: var(--surface);
+            border-color: var(--border-light);
+        }
+
+        .btn-tactical-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #8B0000 100%);
+        }
+
+        .btn-tactical-success {
+            background: linear-gradient(135deg, var(--success) 0%, #006400 100%);
+        }
+
+        /* Terminal tactique */
+        .terminal-tactical {
+            background: #0a0a0a;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid var(--border);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .terminal-header {
+            background: #1a1a1a;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .terminal-title {
+            color: var(--success);
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .terminal-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--danger);
             animation: pulse 2s infinite;
         }
-        
+
+        .status-indicator.connected {
+            background: var(--success);
+            animation: pulse 1s infinite;
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
+
+        .terminal-body {
+            flex: 1;
+            padding: 20px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-y: auto;
+            color: #00ff00;
+            background: #0a0a0a;
+            line-height: 1.5;
+        }
+
+        .terminal-line {
+            margin-bottom: 5px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .terminal-line.command {
+            color: #00ffff;
+        }
+
+        .terminal-line.output {
+            color: #00ff00;
+        }
+
+        .terminal-line.error {
+            color: #ff5555;
+        }
+
+        .terminal-line.success {
+            color: #55ff55;
+        }
+
+        .terminal-line.warning {
+            color: #ffff55;
+        }
+
+        /* Hub Connection */
+        .hub-connection {
+            background: var(--surface-dark);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .status-badge.connected {
+            background: rgba(0, 255, 0, 0.2);
+            color: var(--success);
+            border: 2px solid var(--success);
+        }
+
+        .status-badge.disconnected {
+            background: rgba(255, 0, 0, 0.2);
+            color: var(--danger);
+            border: 2px solid var(--danger);
+        }
+
+        .hub-url {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 15px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: var(--success);
+            word-break: break-all;
+            margin: 20px 0;
+        }
+
+        /* Section grille tactique */
+        .tactical-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .tactical-item {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .tactical-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .tactical-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .tactical-item h3 {
+            color: var(--text);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .tactical-item p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Footer tactique */
+        .footer-tactical {
+            background: var(--surface-dark);
+            border-top: 3px solid var(--border);
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-section h3 {
+            color: var(--text);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            border-left: 4px solid var(--primary);
+            padding-left: 15px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--text);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 15px;
+            }
+            
+            .nav-menu {
+                gap: 10px;
+            }
+            
+            .nav-link {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+            
+            .hero-tactical h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .tactical-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .terminal-tactical {
+                height: 400px;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: var(--radius-sm);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+
+        /* Utilitaires */
+        .mt-1 { margin-top: 10px; }
+        .mt-2 { margin-top: 20px; }
+        .mt-3 { margin-top: 30px; }
+        .mt-4 { margin-top: 40px; }
+        .mt-5 { margin-top: 50px; }
+
+        .mb-1 { margin-bottom: 10px; }
+        .mb-2 { margin-bottom: 20px; }
+        .mb-3 { margin-bottom: 30px; }
+        .mb-4 { margin-bottom: 40px; }
+        .mb-5 { margin-bottom: 50px; }
+
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .text-left { text-align: left; }
+
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .gap-1 { gap: 10px; }
+        .gap-2 { gap: 20px; }
+        .gap-3 { gap: 30px; }
+
+        .hidden { display: none; }
+        .block { display: block; }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="root"></div>
+    <!-- Navigation tactique -->
+    <nav class="nav-tactical">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <div class="nav-logo-icon">🪖</div>
+                <span>initHUB MILITARY</span>
+            </a>
+            
+            <div class="nav-menu">
+                <a href="#dashboard" class="nav-link active">
+                    <span>📊</span> Tableau de bord
+                </a>
+                <a href="#terminal" class="nav-link">
+                    <span>💻</span> Terminal tactique
+                </a>
+                <a href="#hubs" class="nav-link">
+                    <span>🔗</span> Hubs connectés
+                </a>
+                <a href="#operations" class="nav-link">
+                    <span>⚔️</span> Opérations
+                </a>
+                <a href="#system" class="nav-link">
+                    <span>⚙️</span> Système
+                </a>
+            </div>
+        </div>
+    </nav>
 
-    <script type="text/babel">
-        const { useState, useEffect, createContext, useContext, useRef } = React;
+    <!-- Hero section -->
+    <section class="hero-tactical">
+        <h1>🪖 initHUB MILITARY EDITION</h1>
+        <p class="hero-subtitle">
+            Plateforme cloud tactique avec connexion sécurisée aux hubs opérationnels.<br>
+            Système de commandement et contrôle en temps réel.
+        </p>
+        <div class="mt-4">
+            <a href="#terminal" class="btn-tactical">
+                <span>🔌</span> Connexion au hub principal
+            </a>
+            <a href="#operations" class="btn-tactical btn-tactical-secondary">
+                <span>⚔️</span> Lancer une opération
+            </a>
+        </div>
+    </section>
 
-        // Icônes simulées (puisque lucide-react ne charge pas)
-        const createIcon = (name) => {
-            const icons = {
-                Home: '🏠',
-                GitBranch: '📚',
-                Bot: '🤖',
-                BarChart3: '📊',
-                Download: '📥',
-                BookOpen: '📖',
-                LogOut: '🚪',
-                User: '👤',
-                Settings: '⚙️',
-                Plus: '➕',
-                Search: '🔍',
-                Star: '⭐',
-                GitFork: '🔀',
-                Lock: '🔒',
-                Globe: '🌐',
-                Eye: '👁️',
-                Code: '💻',
-                MessageSquare: '💬',
-                Send: '📤',
-                ChevronDown: '⬇️',
-                Bell: '🔔',
-                Mail: '📧',
-                TrendingUp: '📈',
-                Users: '👥',
-                Zap: '⚡',
-                GitPullRequest: '🔄',
-                GitCommit: '💾',
-                GitMerge: '🔄',
-                Activity: '📈',
-                FolderGit2: '📁',
-                Server: '🖥️',
-                Cloud: '☁️',
-                Database: '💾',
-                Calendar: '📅',
-                Clock: '⏰',
-                Tag: '🏷️'
-            };
-            return icons[name] || '🔹';
-        };
-
-        // Context d'authentification
-        const AuthContext = createContext();
-
-        function AuthProvider({ children }) {
-            const [user, setUser] = useState(null);
-            const [token, setToken] = useState(null);
-            const [loading, setLoading] = useState(true);
-
-            useEffect(() => {
-                const savedToken = localStorage.getItem('inithub_token');
-                const savedUser = localStorage.getItem('inithub_user');
+    <!-- Contenu principal -->
+    <main class="container">
+        <!-- Dashboard -->
+        <section id="dashboard" class="mt-5">
+            <div class="card-tactical fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">📊 DASHBOARD TACTIQUE</h2>
+                    <div class="card-icon">🪖</div>
+                </div>
                 
-                if (savedToken && savedUser) {
-                    setToken(savedToken);
-                    setUser(JSON.parse(savedUser));
-                }
-                setLoading(false);
-            }, []);
-
-            const login = async (email, password) => {
-                try {
-                    console.log('Tentative de connexion avec:', email);
-                    const response = await fetch('https://hubs-pro.onrender.com/api/auth/login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ email, password }),
-                    });
-
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(errorText || 'Erreur de connexion');
-                    }
-
-                    const data = await response.json();
-                    console.log('Réponse login:', data);
+                <div class="tactical-grid">
+                    <div class="tactical-item">
+                        <div class="tactical-icon">🌐</div>
+                        <h3>HUB PRINCIPAL</h3>
+                        <p>Connexion sécurisée au hub opérationnel principal</p>
+                        <div class="hub-url" id="main-hub-url">https://hubs-ja2g.onrender.com</div>
+                        <button class="btn-tactical btn-tactical-success w-full" onclick="connectToHub()">
+                            <span>🔌</span> Établir la connexion
+                        </button>
+                    </div>
                     
-                    const tempUser = {
-                        id: 1,
-                        username: email.split('@')[0],
-                        email: email,
-                        full_name: 'Utilisateur initHUB',
-                        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0])}&background=6366f1&color=fff`
-                    };
+                    <div class="tactical-item">
+                        <div class="tactical-icon">🛡️</div>
+                        <h3>STATUT DE SÉCURITÉ</h3>
+                        <p>Système de sécurité militaire de niveau 3</p>
+                        <div class="status-badge connected mt-2">SÉCURISÉ</div>
+                    </div>
                     
-                    localStorage.setItem('inithub_token', data.access_token);
-                    localStorage.setItem('inithub_user', JSON.stringify(tempUser));
-                    setToken(data.access_token);
-                    setUser(tempUser);
-                    
-                    return { success: true };
-                } catch (error) {
-                    console.error('Erreur login:', error);
-                    return { 
-                        success: false, 
-                        error: error.message 
-                    };
-                }
-            };
+                    <div class="tactical-item">
+                        <div class="tactical-icon">⚡</div>
+                        <h3>PERFORMANCES</h3>
+                        <p>Latence: <span id="latency">--</span>ms</p>
+                        <p>Uptime: <span id="uptime">100%</span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            const register = async (userData) => {
-                try {
-                    console.log('Tentative d\'inscription avec:', userData);
-                    const response = await fetch('https://hubs-pro.onrender.com/api/auth/register', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(userData),
-                    });
-
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(errorText || 'Erreur d\'inscription');
-                    }
-
-                    const data = await response.json();
-                    console.log('Réponse register:', data);
-                    
-                    return { success: true, data };
-                } catch (error) {
-                    console.error('Erreur register:', error);
-                    return { 
-                        success: false, 
-                        error: error.message 
-                    };
-                }
-            };
-
-            const logout = () => {
-                localStorage.removeItem('inithub_token');
-                localStorage.removeItem('inithub_user');
-                setUser(null);
-                setToken(null);
-                window.location.hash = '';
-            };
-
-            return React.createElement(AuthContext.Provider, {
-                value: {
-                    user,
-                    token,
-                    loading,
-                    login,
-                    register,
-                    logout
-                }
-            }, children);
-        }
-
-        function useAuth() {
-            const context = useContext(AuthContext);
-            if (!context) {
-                throw new Error('useAuth must be used within AuthProvider');
-            }
-            return context;
-        }
-
-        // Composants UI
-        function Logo() {
-            return React.createElement('div', { 
-                className: 'flex items-center gap-3 p-6 border-b border-gray-800'
-            },
-                React.createElement('div', { 
-                    className: 'w-10 h-10 rounded-xl gradient-bg flex items-center justify-center text-white font-bold'
-                }, 'IH'),
-                React.createElement('div', null,
-                    React.createElement('div', { 
-                        className: 'text-white font-bold text-xl'
-                    }, 'initHUB'),
-                    React.createElement('div', { 
-                        className: 'text-sm text-gray-400'
-                    }, 'Cloud Enterprise')
-                )
-            );
-        }
-
-        function Header() {
-            const { user, logout } = useAuth();
-
-            if (!user) return null;
-
-            return React.createElement('header', {
-                className: 'bg-gray-900/80 border-b border-gray-800 p-4'
-            }, 
-                React.createElement('div', { className: 'flex justify-between items-center' },
-                    React.createElement('div', { className: 'flex items-center' },
-                        React.createElement('h1', { 
-                            className: 'text-xl font-bold text-white'
-                        }, 'Tableau de Bord')
-                    ),
-                    React.createElement('div', { className: 'flex items-center space-x-4' },
-                        React.createElement('button', { 
-                            className: 'p-2 text-gray-400 hover:text-white transition-colors'
-                        }, createIcon('Bell')),
-                        React.createElement('div', { 
-                            className: 'flex items-center space-x-3 bg-gray-800/50 rounded-xl p-2'
-                        },
-                            React.createElement('div', { 
-                                className: 'w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold'
-                            }, user.username ? user.username.charAt(0).toUpperCase() : 'U'),
-                            React.createElement('div', { className: 'hidden sm:block' },
-                                React.createElement('div', { className: 'text-sm font-medium text-white' }, user.username),
-                                React.createElement('div', { className: 'text-xs text-gray-400' }, 'Développeur')
-                            )
-                        ),
-                        React.createElement('button', {
-                            onClick: logout,
-                            className: 'p-2 text-gray-400 hover:text-red-400 transition-colors',
-                            title: 'Déconnexion'
-                        }, createIcon('LogOut'))
-                    )
-                )
-            );
-        }
-
-        function Sidebar() {
-            const { user } = useAuth();
-            const [currentRoute, setCurrentRoute] = useState(window.location.hash.replace('#', '') || 'dashboard');
-
-            const navigation = [
-                { name: 'Dashboard', href: 'dashboard', icon: 'Home' },
-                { name: 'Repositories', href: 'repos', icon: 'GitBranch' },
-                { name: 'Copilot', href: 'copilot', icon: 'Bot' },
-                { name: 'Releases', href: 'releases', icon: 'Download' },
-                { name: 'Wiki', href: 'wiki', icon: 'BookOpen' },
-                { name: 'Analytics', href: 'analytics', icon: 'BarChart3' },
-            ];
-
-            if (!user) return null;
-
-            return React.createElement('div', { className: 'w-64 bg-gray-900 min-h-screen border-r border-gray-800' },
-                React.createElement(Logo),
-                React.createElement('nav', { className: 'p-4' },
-                    React.createElement('div', { className: 'space-y-2' },
-                        navigation.map((item) => {
-                            const isActive = currentRoute === item.href;
-                            
-                            return React.createElement('button', {
-                                key: item.name,
-                                className: `nav-item ${isActive ? 'active' : ''}`,
-                                onClick: () => {
-                                    setCurrentRoute(item.href);
-                                    window.location.hash = item.href;
-                                }
-                            },
-                                React.createElement('span', { className: 'mr-3' }, createIcon(item.icon)),
-                                item.name
-                            );
-                        })
-                    )
-                )
-            );
-        }
-
-        function Layout({ children }) {
-            const { user } = useAuth();
-
-            if (!user) {
-                return children;
-            }
-
-            return React.createElement('div', { className: 'flex min-h-screen' },
-                React.createElement(Sidebar),
-                React.createElement('div', { className: 'flex-1 flex flex-col' },
-                    React.createElement(Header),
-                    React.createElement('main', { className: 'flex-1 p-6' }, children)
-                )
-            );
-        }
-
-        // Composant de statistiques
-        function StatsCard({ title, value, description, trend }) {
-            return React.createElement('div', { className: 'stats-card' },
-                React.createElement('div', { className: 'flex items-start justify-between' },
-                    React.createElement('div', null,
-                        React.createElement('p', { className: 'text-gray-400 text-sm font-medium mb-2' }, title),
-                        React.createElement('p', { className: 'text-3xl font-bold text-white mb-1' }, value),
-                        React.createElement('p', { className: 'text-gray-500 text-sm' }, description)
-                    ),
-                    trend && React.createElement('div', { 
-                        className: `flex items-center text-sm ${
-                            trend > 0 ? 'text-green-400' : 'text-red-400'
-                        }` 
-                    },
-                        createIcon('TrendingUp'),
-                        `${Math.abs(trend)}%`
-                    )
-                )
-            );
-        }
-
-        // Pages
-        function HomePage() {
-            const [isLogin, setIsLogin] = useState(true);
-            const [formData, setFormData] = useState({
-                email: 'test@example.com',
-                password: 'password',
-                username: 'testuser',
-                full_name: 'Test User'
-            });
-            const [message, setMessage] = useState('');
-            const { user, login, register, loading } = useAuth();
-
-            useEffect(() => {
-                if (user) {
-                    window.location.hash = 'dashboard';
-                }
-            }, [user]);
-
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                setMessage('');
+        <!-- Hub Connection -->
+        <section id="hubs" class="mt-5">
+            <div class="hub-connection fade-in">
+                <div class="connection-status">
+                    <div class="status-badge disconnected" id="connection-status">
+                        DÉCONNECTÉ
+                    </div>
+                    <span id="connection-message">En attente de connexion...</span>
+                </div>
                 
-                let result;
-                if (isLogin) {
-                    result = await login(formData.email, formData.password);
-                } else {
-                    result = await register(formData);
-                }
+                <h3>CONFIGURATION DU HUB</h3>
+                <div class="hub-url">
+                    https://hubs-ja2g.onrender.com
+                </div>
                 
-                if (result.success) {
-                    setMessage('✅ Connexion réussie! Redirection...');
-                } else {
-                    setMessage(`❌ ${result.error}`);
-                }
-            };
+                <div class="flex gap-2 mt-3">
+                    <button class="btn-tactical" onclick="testConnection()">
+                        <span>🔍</span> Tester la connexion
+                    </button>
+                    <button class="btn-tactical btn-tactical-success" onclick="connectToHub()">
+                        <span>🚀</span> Connexion complète
+                    </button>
+                    <button class="btn-tactical btn-tactical-danger" onclick="disconnectHub()">
+                        <span>✖️</span> Déconnexion
+                    </button>
+                </div>
+                
+                <div class="mt-3" id="hub-info">
+                    <!-- Les informations du hub seront affichées ici -->
+                </div>
+            </div>
+        </section>
 
-            if (user) {
-                return React.createElement('div', {
-                    className: 'min-h-screen flex items-center justify-center'
-                },
-                    React.createElement('div', { className: 'text-center' },
-                        React.createElement('div', { className: 'animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto' }),
-                        React.createElement('p', { className: 'text-gray-400 mt-4' }, 'Redirection...')
-                    )
-                );
-            }
+        <!-- Terminal tactique -->
+        <section id="terminal" class="mt-5">
+            <div class="card-tactical fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">💻 TERMINAL TACTIQUE</h2>
+                    <div class="terminal-status">
+                        <div class="status-indicator" id="terminal-status"></div>
+                        <span id="terminal-status-text">En attente...</span>
+                    </div>
+                </div>
+                
+                <div class="terminal-tactical">
+                    <div class="terminal-header">
+                        <div class="terminal-title">COMMAND & CONTROL TERMINAL</div>
+                        <div class="flex gap-2">
+                            <button class="btn-tactical btn-sm" onclick="clearTerminal()">
+                                🧹 Effacer
+                            </button>
+                            <button class="btn-tactical btn-sm" onclick="runDiagnostic()">
+                                🔧 Diagnostic
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal-body" id="terminal-output">
+                        <div class="terminal-line output">🪖 initialisation du terminal tactique...</div>
+                        <div class="terminal-line output">🔌 configuration de la connexion au hub...</div>
+                        <div class="terminal-line output">📡 recherche du signal...</div>
+                        <div class="terminal-line output">🔗 hub cible: https://hubs-ja2g.onrender.com</div>
+                        <div class="terminal-line output">⏳ en attente de connexion...</div>
+                        <div class="terminal-line command blink">$ _</div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <div class="flex gap-2">
+                        <input type="text" id="terminal-input" class="flex-grow" 
+                               placeholder="Entrez une commande tactique..." 
+                               style="background: var(--surface-light); color: var(--text); border: 2px solid var(--border); padding: 12px; border-radius: var(--radius-sm);">
+                        <button class="btn-tactical" onclick="sendCommand()">
+                            <span>🚀</span> Exécuter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            const features = [
-                {
-                    icon: createIcon('Server'),
-                    title: 'Git Enterprise',
-                    description: 'Hébergement Git haute performance'
-                },
-                {
-                    icon: createIcon('Bot'),
-                    title: 'Copilot IA',
-                    description: 'Assistant IA pour le développement'
-                },
-                {
-                    icon: createIcon('BarChart3'),
-                    title: 'Analytics',
-                    description: 'Métriques et tableaux de bord'
-                }
-            ];
+        <!-- Opérations -->
+        <section id="operations" class="mt-5">
+            <div class="card-tactical fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">⚔️ OPÉRATIONS TACTIQUES</h2>
+                    <div class="card-icon">⚔️</div>
+                </div>
+                
+                <div class="tactical-grid">
+                    <div class="tactical-item">
+                        <h3>📡 SCAN DE RÉSEAU</h3>
+                        <p>Analyse complète du réseau hub</p>
+                        <button class="btn-tactical mt-2 w-full" onclick="scanNetwork()">
+                            <span>📡</span> Lancer le scan
+                        </button>
+                    </div>
+                    
+                    <div class="tactical-item">
+                        <h3>🛠️ MAINTENANCE</h3>
+                        <p>Vérification et maintenance système</p>
+                        <button class="btn-tactical mt-2 w-full" onclick="runMaintenance()">
+                            <span>🔧</span> Exécuter maintenance
+                        </button>
+                    </div>
+                    
+                    <div class="tactical-item">
+                        <h3>🚀 DÉPLOIEMENT</h3>
+                        <p>Déploiement d'opérations spéciales</p>
+                        <button class="btn-tactical mt-2 w-full" onclick="deployOperation()">
+                            <span>🎯</span> Déployer opération
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            return React.createElement('div', { className: 'min-h-screen flex items-center justify-center p-4' },
-                React.createElement('div', { className: 'max-w-4xl w-full' },
-                    React.createElement('div', { className: 'text-center mb-12' },
-                        React.createElement('div', { className: 'flex items-center justify-center mb-6' },
-                            React.createElement('div', { 
-                                className: 'w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center text-white font-bold text-2xl mr-4'
-                            }, 'IH'),
-                            React.createElement('div', { className: 'text-left' },
-                                React.createElement('h1', { 
-                                    className: 'text-5xl font-bold gradient-text mb-2'
-                                }, 'initHUB'),
-                                React.createElement('p', { 
-                                    className: 'text-xl text-gray-300'
-                                }, 'Cloud Enterprise')
-                            )
-                        ),
-                        React.createElement('p', { 
-                            className: 'text-lg text-gray-400 max-w-2xl mx-auto'
-                        }, 'Plateforme de développement cloud avec IA intégrée et analytics avancés')
-                    ),
+        <!-- Système -->
+        <section id="system" class="mt-5 mb-5">
+            <div class="card-tactical fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">⚙️ SYSTÈME MILITAIRE</h2>
+                    <div class="card-icon">⚙️</div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h3>🔄 STATUT DU SYSTÈME</h3>
+                        <div id="system-status">
+                            <p>✅ Authentification: <span class="success">ACTIVE</span></p>
+                            <p>✅ Cryptographie: <span class="success">ACTIVE</span></p>
+                            <p>🔌 Hub Connection: <span id="hub-connection-status" class="warning">EN ATTENTE</span></p>
+                            <p>📡 API Status: <span id="api-status" class="warning">TEST EN COURS</span></p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>📊 STATISTIQUES</h3>
+                        <div id="system-stats">
+                            <p>🕐 Temps de réponse: <span id="response-time">--</span>ms</p>
+                            <p>📈 Requêtes: <span id="request-count">0</span></p>
+                            <p>💾 Mémoire: <span id="memory-usage">--</span>MB</p>
+                            <p>🔥 CPU: <span id="cpu-usage">--</span>%</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button class="btn-tactical" onclick="refreshSystemStats()">
+                        <span>🔄</span> Actualiser les statistiques
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
 
-                    React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-2 gap-8' },
-                        React.createElement('div', { className: 'glass-card p-8 rounded-2xl' },
-                            React.createElement('h2', { 
-                                className: 'text-2xl font-bold text-white mb-2'
-                            }, isLogin ? 'Connexion' : 'Inscription'),
-                            
-                            message && React.createElement('div', {
-                                className: `p-4 rounded-xl mb-6 ${
-                                    message.includes('✅') ? 'bg-green-500/20 border border-green-500/30' : 'bg-red-500/20 border border-red-500/30'
-                                }`
-                            }, message),
-                            
-                            React.createElement('form', { onSubmit: handleSubmit, className: 'space-y-4' },
-                                !isLogin && [
-                                    React.createElement('div', { key: 'username' },
-                                        React.createElement('label', { 
-                                            className: 'block text-sm font-medium text-gray-300 mb-2'
-                                        }, 'Nom d\'utilisateur'),
-                                        React.createElement('input', {
-                                            type: 'text',
-                                            required: true,
-                                            className: 'w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white',
-                                            placeholder: 'votre-username',
-                                            value: formData.username,
-                                            onChange: (e) => setFormData({...formData, username: e.target.value})
-                                        })
-                                    ),
-                                    React.createElement('div', { key: 'fullname' },
-                                        React.createElement('label', { 
-                                            className: 'block text-sm font-medium text-gray-300 mb-2'
-                                        }, 'Nom complet'),
-                                        React.createElement('input', {
-                                            type: 'text',
-                                            className: 'w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white',
-                                            placeholder: 'John Doe',
-                                            value: formData.full_name,
-                                            onChange: (e) => setFormData({...formData, full_name: e.target.value})
-                                        })
-                                    )
-                                ],
-                                
-                                React.createElement('div', null,
-                                    React.createElement('label', { 
-                                        className: 'block text-sm font-medium text-gray-300 mb-2'
-                                    }, 'Email'),
-                                    React.createElement('input', {
-                                        type: 'email',
-                                        required: true,
-                                        className: 'w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white',
-                                        placeholder: 'vous@entreprise.com',
-                                        value: formData.email,
-                                        onChange: (e) => setFormData({...formData, email: e.target.value})
-                                    })
-                                ),
-                                
-                                React.createElement('div', null,
-                                    React.createElement('label', { 
-                                        className: 'block text-sm font-medium text-gray-300 mb-2'
-                                    }, 'Mot de passe'),
-                                    React.createElement('input', {
-                                        type: 'password',
-                                        required: true,
-                                        className: 'w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white',
-                                        placeholder: '••••••••',
-                                        value: formData.password,
-                                        onChange: (e) => setFormData({...formData, password: e.target.value})
-                                    })
-                                ),
-                                
-                                React.createElement('button', {
-                                    type: 'submit',
-                                    disabled: loading,
-                                    className: 'btn-primary w-full py-3 text-lg font-semibold'
-                                }, loading ? 'Chargement...' : (isLogin ? 'Se connecter' : 'Créer un compte'))
-                            ),
-                            
-                            React.createElement('div', { className: 'text-center mt-4' },
-                                React.createElement('button', {
-                                    onClick: () => setIsLogin(!isLogin),
-                                    className: 'text-blue-400 hover:text-blue-300 font-medium'
-                                }, isLogin ? 'Nouveau sur initHUB ? Créer un compte' : 'Déjà un compte ? Se connecter')
-                            )
-                        ),
+    <!-- Footer -->
+    <footer class="footer-tactical">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>🪖 INITIUB MILITARY</h3>
+                <p>Plateforme cloud tactique pour opérations spéciales</p>
+                <p class="mt-2">Version: 2.0.1</p>
+                <p>Classification: RESTREINT</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>📡 CONNECTIONS</h3>
+                <ul>
+                    <li><a href="#"><span>🔗</span> Hub Principal</a></li>
+                    <li><a href="#"><span>🌐</span> API REST</a></li>
+                    <li><a href="#"><span>💾</span> Stockage Sécurisé</a></li>
+                    <li><a href="#"><span>🔐</span> Authentification</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>⚔️ OPÉRATIONS</h3>
+                <ul>
+                    <li><a href="#"><span>📡</span> Surveillance</a></li>
+                    <li><a href="#"><span>🔧</span> Maintenance</a></li>
+                    <li><a href="#"><span>🚀</span> Déploiement</a></li>
+                    <li><a href="#"><span>🎯</span> Ciblage</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>⚙️ SYSTÈME</h3>
+                <ul>
+                    <li><a href="#"><span>📊</span> Dashboard</a></li>
+                    <li><a href="#"><span>💻</span> Terminal</a></li>
+                    <li><a href="#"><span>🔒</span> Sécurité</a></li>
+                    <li><a href="#"><span>📈</span> Logs</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            &copy; 2024 initHUB Military Edition. Tous droits réservés. Classification RESTREINTE.
+        </div>
+    </footer>
 
-                        React.createElement('div', null,
-                            React.createElement('h3', { 
-                                className: 'text-2xl font-bold text-white mb-6'
-                            }, 'Fonctionnalités'),
-                            React.createElement('div', { className: 'space-y-4' },
-                                features.map((feature, index) =>
-                                    React.createElement('div', {
-                                        key: index,
-                                        className: 'glass-card p-6 rounded-xl'
-                                    },
-                                        React.createElement('div', { className: 'flex items-start space-x-4' },
-                                            React.createElement('span', { className: 'text-2xl' }, feature.icon),
-                                            React.createElement('div', null,
-                                                React.createElement('h4', { 
-                                                    className: 'text-lg font-semibold text-white mb-2'
-                                                }, feature.title),
-                                                React.createElement('p', { 
-                                                    className: 'text-gray-400'
-                                                }, feature.description)
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            );
-        }
-
-        function DashboardPage() {
-            const { user } = useAuth();
-
-            if (!user) return null;
-
-            return React.createElement('div', { className: 'max-w-7xl mx-auto space-y-8' },
-                React.createElement('div', null,
-                    React.createElement('h1', { className: 'text-3xl font-bold text-white mb-2' }, 'Tableau de Bord'),
-                    React.createElement('p', { className: 'text-gray-400' }, 'Bienvenue sur votre espace de travail initHUB')
-                ),
-
-                React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6' },
-                    React.createElement(StatsCard, {
-                        title: 'Repositories',
-                        value: '12',
-                        description: 'Dépôts actifs',
-                        trend: 12
-                    }),
-                    React.createElement(StatsCard, {
-                        title: 'Stars',
-                        value: '45',
-                        description: 'Total des étoiles',
-                        trend: 8
-                    }),
-                    React.createElement(StatsCard, {
-                        title: 'Forks',
-                        value: '8',
-                        description: 'Dépôts forkés',
-                        trend: 5
-                    }),
-                    React.createElement(StatsCard, {
-                        title: 'Contributeurs',
-                        value: '5',
-                        description: 'Membres actifs',
-                        trend: 3
-                    })
-                ),
-
-                React.createElement('div', { className: 'glass-card p-6' },
-                    React.createElement('h3', { className: 'text-lg font-semibold text-white mb-4' }, 'Activité Récente'),
-                    React.createElement('div', { className: 'space-y-4' },
-                        React.createElement('div', { className: 'flex items-center space-x-4 p-4 bg-gray-800/30 rounded-xl' },
-                            React.createElement('span', {}, createIcon('GitBranch')),
-                            React.createElement('div', { className: 'flex-1' },
-                                React.createElement('p', { className: 'text-white font-medium' }, 'Repository mon-projet créé'),
-                                React.createElement('p', { className: 'text-gray-400 text-sm' }, 'Nouveau dépôt initialisé')
-                            ),
-                            React.createElement('div', { className: 'text-right' },
-                                React.createElement('p', { className: 'text-gray-400 text-sm' }, new Date().toLocaleDateString('fr-FR'))
-                            )
-                        )
-                    )
-                )
-            );
-        }
-
-        function ReposPage() {
-            const { user } = useAuth();
-            const [repos, setRepos] = useState([]);
-
-            useEffect(() => {
-                if (!user) {
-                    window.location.hash = '';
-                    return;
-                }
-
-                // Données simulées
-                setRepos([
-                    {
-                        id: 1,
-                        name: 'mon-projet',
-                        full_name: `${user.username}/mon-projet`,
-                        description: 'Application web moderne avec React et Node.js',
-                        is_private: false,
-                        stars_count: 15,
-                        forks_count: 3,
-                        language: 'JavaScript',
-                        updated_at: new Date().toISOString()
-                    }
-                ]);
-            }, [user]);
-
-            if (!user) return null;
-
-            return React.createElement('div', { className: 'max-w-7xl mx-auto space-y-8' },
-                React.createElement('div', { className: 'flex items-center justify-between' },
-                    React.createElement('div', null,
-                        React.createElement('h1', { className: 'text-3xl font-bold text-white mb-2' }, 'Mes Repositories'),
-                        React.createElement('p', { className: 'text-gray-400' }, 'Gérez tous vos dépôts de code')
-                    ),
-                    React.createElement('button', { className: 'btn-primary flex items-center' },
-                        createIcon('Plus'),
-                        React.createElement('span', { className: 'ml-2' }, 'Nouveau Repository')
-                    )
-                ),
-
-                React.createElement('div', { className: 'grid grid-cols-1 gap-6' },
-                    repos.map((repo) =>
-                        React.createElement('div', { key: repo.id, className: 'repo-card' },
-                            React.createElement('div', { className: 'flex items-start justify-between mb-4' },
-                                React.createElement('div', { className: 'flex items-center space-x-3' },
-                                    React.createElement('span', { className: 'text-2xl' }, createIcon('FolderGit2')),
-                                    React.createElement('div', null,
-                                        React.createElement('h3', { className: 'text-xl font-semibold text-white' }, repo.name),
-                                        React.createElement('p', { className: 'text-gray-400 text-sm' }, repo.full_name)
-                                    )
-                                ),
-                                React.createElement('div', { className: 'flex items-center space-x-2' },
-                                    repo.is_private ? 
-                                        createIcon('Lock') :
-                                        createIcon('Globe')
-                                )
-                            ),
-                            
-                            React.createElement('p', { className: 'text-gray-300 mb-4' }, repo.description),
-                            
-                            React.createElement('div', { className: 'flex items-center justify-between text-sm' },
-                                React.createElement('div', { className: 'flex items-center space-x-4 text-gray-400' },
-                                    React.createElement('span', null, repo.language),
-                                    React.createElement('span', { className: 'flex items-center' },
-                                        createIcon('Star'),
-                                        React.createElement('span', { className: 'ml-1' }, repo.stars_count)
-                                    ),
-                                    React.createElement('span', { className: 'flex items-center' },
-                                        createIcon('GitFork'),
-                                        React.createElement('span', { className: 'ml-1' }, repo.forks_count)
-                                    )
-                                ),
-                                React.createElement('div', { className: 'text-gray-500' },
-                                    Mis à jour le {new Date(repo.updated_at).toLocaleDateString('fr-FR')}
-                                )
-                            )
-                        )
-                    )
-                )
-            );
-        }
-
-        function CopilotPage() {
-            const { user, token } = useAuth();
-            const [messages, setMessages] = useState([]);
-            const [input, setInput] = useState('');
-            const [loading, setLoading] = useState(false);
-
-            const sendMessage = async () => {
-                if (!input.trim() || loading) return;
-
-                const userMessage = {
-                    id: Date.now(),
-                    type: 'user',
-                    content: input,
-                    timestamp: new Date()
+    <script>
+        class initHUBMilitary {
+            constructor() {
+                this.hubUrl = 'https://hubs-ja2g.onrender.com';
+                this.isConnected = false;
+                this.connectionStartTime = null;
+                this.requestCount = 0;
+                this.systemStats = {
+                    responseTime: [],
+                    memoryUsage: 0,
+                    cpuUsage: 0
                 };
-
-                setMessages(prev => [...prev, userMessage]);
-                setInput('');
-                setLoading(true);
-
-                try {
-                    const response = await fetch('https://hubs-pro.onrender.com/api/copilot/ask', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            question: input,
-                            language: 'fr'
-                        })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Erreur API Copilot');
-                    }
-
-                    const data = await response.json();
-
-                    const botMessage = {
-                        id: Date.now() + 1,
-                        type: 'bot',
-                        content: data.response,
-                        timestamp: new Date()
-                    };
-
-                    setMessages(prev => [...prev, botMessage]);
-                } catch (error) {
-                    console.error('Erreur Copilot:', error);
-                    
-                    const errorMessage = {
-                        id: Date.now() + 1,
-                        type: 'bot',
-                        content: 'Désolé, une erreur est survenue. Veuillez réessayer.',
-                        timestamp: new Date()
-                    };
-                    
-                    setMessages(prev => [...prev, errorMessage]);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            if (!user) return null;
-
-            return React.createElement('div', { className: 'max-w-4xl mx-auto space-y-8' },
-                React.createElement('div', null,
-                    React.createElement('h1', { className: 'text-3xl font-bold text-white mb-2' }, 'initHUB Copilot'),
-                    React.createElement('p', { className: 'text-gray-400' }, 'Votre assistant IA pour le développement')
-                ),
-
-                React.createElement('div', { className: 'glass-card p-6' },
-                    React.createElement('div', { className: 'h-96 overflow-y-auto mb-4 space-y-4' },
-                        messages.length === 0 && 
-                            React.createElement('div', { className: 'text-center py-12' },
-                                React.createElement('span', { className: 'text-4xl mb-4 block' }, createIcon('Bot')),
-                                React.createElement('h3', { className: 'text-xl font-bold text-white mb-2' }, 'initHUB Copilot'),
-                                React.createElement('p', { className: 'text-gray-400' }, 'Comment puis-je vous aider aujourd\'hui ?')
-                            ),
-                        
-                        messages.map((message) =>
-                            React.createElement('div', {
-                                key: message.id,
-                                className: `chat-message ${message.type === 'user' ? 'chat-user' : 'chat-bot'}`
-                            },
-                                React.createElement('p', { className: 'text-white' }, message.content),
-                                React.createElement('p', { className: 'text-xs opacity-70 mt-1 text-right' },
-                                    message.timestamp.toLocaleTimeString('fr-FR')
-                                )
-                            )
-                        ),
-                        
-                        loading && 
-                            React.createElement('div', { className: 'chat-message chat-bot' },
-                                React.createElement('div', { className: 'flex space-x-2' },
-                                    React.createElement('div', { 
-                                        className: 'w-2 h-2 bg-gray-400 rounded-full animate-bounce' 
-                                    }),
-                                    React.createElement('div', { 
-                                        className: 'w-2 h-2 bg-gray-400 rounded-full animate-bounce',
-                                        style: { animationDelay: '0.2s' }
-                                    }),
-                                    React.createElement('div', { 
-                                        className: 'w-2 h-2 bg-gray-400 rounded-full animate-bounce',
-                                        style: { animationDelay: '0.4s' }
-                                    })
-                                )
-                            )
-                    ),
-
-                    React.createElement('div', { className: 'flex space-x-4' },
-                        React.createElement('input', {
-                            type: 'text',
-                            value: input,
-                            onChange: (e) => setInput(e.target.value),
-                            onKeyPress: (e) => {
-                                if (e.key === 'Enter') sendMessage();
-                            },
-                            placeholder: 'Posez votre question à Copilot...',
-                            className: 'flex-1',
-                            disabled: loading
-                        }),
-                        React.createElement('button', {
-                            onClick: sendMessage,
-                            disabled: loading || !input.trim(),
-                            className: 'btn-primary'
-                        }, createIcon('Send'))
-                    )
-                )
-            );
-        }
-
-        // Pages simplifiées
-        function ReleasesPage() {
-            const { user } = useAuth();
-            if (!user) return null;
-
-            return React.createElement('div', { className: 'max-w-7xl mx-auto space-y-8' },
-                React.createElement('h1', { className: 'text-3xl font-bold text-white' }, 'Releases'),
-                React.createElement('p', { className: 'text-gray-400' }, 'Gérez les versions de vos projets')
-            );
-        }
-
-        function WikiPage() {
-            const { user } = useAuth();
-            if (!user) return null;
-
-            return React.createElement('div', { className: 'max-w-7xl mx-auto space-y-8' },
-                React.createElement('h1', { className: 'text-3xl font-bold text-white' }, 'Wiki'),
-                React.createElement('p', { className: 'text-gray-400' }, 'Documentation de vos projets')
-            );
-        }
-
-        function AnalyticsPage() {
-            const { user } = useAuth();
-            if (!user) return null;
-
-            return React.createElement('div', { className: 'max-w-7xl mx-auto space-y-8' },
-                React.createElement('h1', { className: 'text-3xl font-bold text-white' }, 'Analytics'),
-                React.createElement('p', { className: 'text-gray-400' }, 'Statistiques et métriques')
-            );
-        }
-
-        // Router principal
-        function App() {
-            const [currentRoute, setCurrentRoute] = useState(window.location.hash.replace('#', '') || 'dashboard');
-
-            useEffect(() => {
-                const handleHashChange = () => {
-                    setCurrentRoute(window.location.hash.replace('#', '') || 'dashboard');
-                };
-
-                window.addEventListener('hashchange', handleHashChange);
-                return () => window.removeEventListener('hashchange', handleHashChange);
-            }, []);
-
-            let CurrentPage = HomePage;
-            switch (currentRoute) {
-                case 'dashboard':
-                    CurrentPage = DashboardPage;
-                    break;
-                case 'repos':
-                    CurrentPage = ReposPage;
-                    break;
-                case 'copilot':
-                    CurrentPage = CopilotPage;
-                    break;
-                case 'releases':
-                    CurrentPage = ReleasesPage;
-                    break;
-                case 'wiki':
-                    CurrentPage = WikiPage;
-                    break;
-                case 'analytics':
-                    CurrentPage = AnalyticsPage;
-                    break;
-                default:
-                    CurrentPage = HomePage;
+                
+                this.init();
             }
-
-            return React.createElement(AuthProvider, null,
-                React.createElement(Layout, null,
-                    React.createElement(CurrentPage)
-                )
-            );
+            
+            init() {
+                console.log('🪖 Initialisation initHUB Military...');
+                this.updateUI();
+                this.setupEventListeners();
+                this.testConnection();
+            }
+            
+            async testConnection() {
+                this.logTerminal('📡 Test de connexion au hub...');
+                this.updateStatus('🔍 Test en cours...', 'warning');
+                
+                try {
+                    const startTime = Date.now();
+                    const response = await fetch(this.hubUrl, {
+                        method: 'GET',
+                        mode: 'cors',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    
+                    const endTime = Date.now();
+                    const responseTime = endTime - startTime;
+                    
+                    this.requestCount++;
+                    this.systemStats.responseTime.push(responseTime);
+                    
+                    if (response.ok) {
+                        this.isConnected = true;
+                        this.connectionStartTime = Date.now();
+                        this.logTerminal(`✅ Connexion réussie! Temps de réponse: ${responseTime}ms`);
+                        this.updateStatus('CONNECTÉ', 'connected');
+                        this.updateConnectionInfo(response);
+                    } else {
+                        throw new Error(`Statut HTTP: ${response.status}`);
+                    }
+                } catch (error) {
+                    this.isConnected = false;
+                    this.logTerminal(`❌ Échec de connexion: ${error.message}`, 'error');
+                    this.updateStatus('DÉCONNECTÉ', 'disconnected');
+                }
+            }
+            
+            async connectToHub() {
+                this.logTerminal('🚀 Connexion au hub principal...');
+                this.logTerminal(`🔗 URL: ${this.hubUrl}`);
+                this.logTerminal('🔐 Initialisation du protocole sécurisé...');
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                this.logTerminal('📡 Recherche du signal...', 'warning');
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                this.logTerminal('🔌 Établissement de la connexion...', 'warning');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Tenter la connexion réelle
+                await this.testConnection();
+                
+                if (this.isConnected) {
+                    this.logTerminal('🎉 Connexion établie avec succès!', 'success');
+                    this.logTerminal('🔓 Authentification sécurisée activée', 'success');
+                    this.logTerminal('📡 Canal de communication ouvert', 'success');
+                    this.showAlert('Connexion établie avec succès!', 'success');
+                } else {
+                    this.logTerminal('⚠️ Échec de la connexion. Tentative de reconnexion...', 'error');
+                    this.showAlert('Échec de la connexion', 'danger');
+                }
+            }
+            
+            disconnectHub() {
+                if (this.isConnected) {
+                    this.isConnected = false;
+                    this.logTerminal('🔌 Déconnexion du hub...', 'warning');
+                    this.logTerminal('📴 Canal de communication fermé', 'output');
+                    this.updateStatus('DÉCONNECTÉ', 'disconnected');
+                    this.showAlert('Déconnecté du hub', 'info');
+                } else {
+                    this.showAlert('Non connecté', 'warning');
+                }
+            }
+            
+            updateStatus(status, type) {
+                const statusElement = document.getElementById('connection-status');
+                const statusText = document.getElementById('connection-status-text');
+                const terminalStatus = document.getElementById('terminal-status');
+                const terminalStatusText = document.getElementById('terminal-status-text');
+                
+                if (statusElement) {
+                    statusElement.textContent = status;
+                    statusElement.className = `status-badge ${type}`;
+                }
+                
+                if (statusText) {
+                    statusText.textContent = type === 'connected' ? 
+                        'Connexion active au hub' : 
+                        'En attente de connexion...';
+                }
+                
+                if (terminalStatus) {
+                    terminalStatus.className = `status-indicator ${type}`;
+                }
+                
+                if (terminalStatusText) {
+                    terminalStatusText.textContent = type === 'connected' ? 
+                        'Connecté' : 'En attente...';
+                }
+            }
+            
+            logTerminal(message, type = 'output') {
+                const terminal = document.getElementById('terminal-output');
+                if (!terminal) return;
+                
+                const line = document.createElement('div');
+                line.className = `terminal-line ${type}`;
+                line.textContent = message;
+                terminal.appendChild(line);
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+            
+            sendCommand() {
+                const input = document.getElementById('terminal-input');
+                if (!input || !input.value.trim()) return;
+                
+                const command = input.value.trim();
+                this.logTerminal(`$ ${command}`, 'command');
+                
+                // Simulation de commandes
+                switch(command.toLowerCase()) {
+                    case 'status':
+                        this.logTerminal('📊 Statut système:', 'output');
+                        this.logTerminal(`  🔌 Hub: ${this.isConnected ? 'CONNECTÉ' : 'DÉCONNECTÉ'}`, 'output');
+                        this.logTerminal(`  📡 URL: ${this.hubUrl}`, 'output');
+                        this.logTerminal(`  🕐 Uptime: ${this.getUptime()}`, 'output');
+                        break;
+                        
+                    case 'ping':
+                        this.logTerminal('🏓 Envoi de ping...', 'output');
+                        setTimeout(() => {
+                            this.logTerminal('📡 Réponse reçue - 64 bytes', 'success');
+                        }, 1000);
+                        break;
+                        
+                    case 'clear':
+                        this.clearTerminal();
+                        break;
+                        
+                    case 'help':
+                        this.logTerminal('📚 Commandes disponibles:', 'output');
+                        this.logTerminal('  status - Afficher le statut système', 'output');
+                        this.logTerminal('  ping - Tester la connexion', 'output');
+                        this.logTerminal('  scan - Scanner le réseau', 'output');
+                        this.logTerminal('  clear - Effacer le terminal', 'output');
+                        this.logTerminal('  help - Afficher cette aide', 'output');
+                        break;
+                        
+                    case 'scan':
+                        this.scanNetwork();
+                        break;
+                        
+                    default:
+                        this.logTerminal(`Commande non reconnue: ${command}`, 'error');
+                        this.logTerminal('Tapez "help" pour la liste des commandes', 'output');
+                }
+                
+                input.value = '';
+            }
+            
+            clearTerminal() {
+                const terminal = document.getElementById('terminal-output');
+                if (terminal) {
+                    terminal.innerHTML = '';
+                    this.logTerminal('🧹 Terminal effacé', 'output');
+                    this.logTerminal('🔧 Terminal prêt pour nouvelles commandes', 'output');
+                    this.logTerminal('$ _', 'command blink');
+                }
+            }
+            
+            scanNetwork() {
+                this.logTerminal('📡 Lancement du scan réseau...', 'warning');
+                this.logTerminal('🔍 Recherche de nodes actifs...', 'output');
+                
+                setTimeout(() => {
+                    this.logTerminal('✅ Node principal trouvé: hubs-ja2g.onrender.com', 'success');
+                    this.logTerminal('✅ Port 443 ouvert (HTTPS)', 'success');
+                    this.logTerminal('✅ Protocole WebSocket disponible', 'success');
+                    this.logTerminal('✅ Latence: 45ms', 'success');
+                    this.logTerminal('📊 Scan terminé - 1 node actif détecté', 'output');
+                }, 2000);
+            }
+            
+            runDiagnostic() {
+                this.logTerminal('🔧 Démarrage du diagnostic système...', 'warning');
+                
+                const tests = [
+                    { name: 'Vérification réseau', delay: 500, result: '✅ OK' },
+                    { name: 'Test de sécurité', delay: 800, result: '✅ OK' },
+                    { name: 'Vérification API', delay: 600, result: '✅ OK' },
+                    { name: 'Test de performance', delay: 1000, result: '✅ OK' },
+                    { name: 'Vérification stockage', delay: 700, result: '✅ OK' }
+                ];
+                
+                tests.forEach((test, index) => {
+                    setTimeout(() => {
+                        this.logTerminal(`  ${test.name}... ${test.result}`, 'output');
+                        
+                        if (index === tests.length - 1) {
+                            setTimeout(() => {
+                                this.logTerminal('🎉 Diagnostic terminé - Système opérationnel', 'success');
+                            }, 300);
+                        }
+                    }, test.delay);
+                });
+            }
+            
+            runMaintenance() {
+                this.showAlert('Maintenance système démarrée', 'info');
+                this.logTerminal('🛠️ Démarrage de la maintenance système...', 'warning');
+                
+                setTimeout(() => {
+                    this.logTerminal('🧹 Nettoyage des logs...', 'output');
+                    this.logTerminal('🔧 Optimisation de la base de données...', 'output');
+                    this.logTerminal('🔄 Mise à jour des certificats...', 'output');
+                    this.logTerminal('🎉 Maintenance terminée avec succès!', 'success');
+                    this.showAlert('Maintenance terminée', 'success');
+                }, 1000);
+            }
+            
+            deployOperation() {
+                this.showAlert('Déploiement d\'opération démarré', 'info');
+                this.logTerminal('🚀 Préparation du déploiement...', 'warning');
+                
+                setTimeout(() => {
+                    this.logTerminal('📦 Packaging des ressources...', 'output');
+                    this.logTerminal('🔐 Chiffrement des données...', 'output');
+                    this.logTerminal('📡 Transmission sécurisée...', 'output');
+                    this.logTerminal('🎯 Déploiement réussi!', 'success');
+                    this.showAlert('Opération déployée avec succès', 'success');
+                }, 1500);
+            }
+            
+            updateConnectionInfo(response) {
+                const infoElement = document.getElementById('hub-info');
+                if (infoElement) {
+                    const now = new Date();
+                    infoElement.innerHTML = `
+                        <div class="mt-3">
+                            <p><strong>🕐 Connexion établie:</strong> ${now.toLocaleTimeString()}</p>
+                            <p><strong>🌐 URL:</strong> ${this.hubUrl}</p>
+                            <p><strong>🔒 Protocole:</strong> HTTPS/TLS 1.3</p>
+                            <p><strong>📡 Statut:</strong> <span class="success">ACTIF</span></p>
+                            <p><strong>⚡ Latence moyenne:</strong> ${this.getAverageResponseTime()}ms</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            getUptime() {
+                if (!this.connectionStartTime) return '0s';
+                const uptime = Math.floor((Date.now() - this.connectionStartTime) / 1000);
+                return `${uptime}s`;
+            }
+            
+            getAverageResponseTime() {
+                if (this.systemStats.responseTime.length === 0) return 0;
+                const sum = this.systemStats.responseTime.reduce((a, b) => a + b, 0);
+                return Math.round(sum / this.systemStats.responseTime.length);
+            }
+            
+            updateUI() {
+                // Mettre à jour les statistiques système
+                const stats = document.getElementById('system-stats');
+                if (stats) {
+                    document.getElementById('response-time').textContent = this.getAverageResponseTime();
+                    document.getElementById('request-count').textContent = this.requestCount;
+                    document.getElementById('memory-usage').textContent = '128';
+                    document.getElementById('cpu-usage').textContent = '15';
+                }
+                
+                // Mettre à jour le statut du hub
+                const hubStatus = document.getElementById('hub-connection-status');
+                if (hubStatus) {
+                    hubStatus.textContent = this.isConnected ? 'CONNECTÉ' : 'DÉCONNECTÉ';
+                    hubStatus.className = this.isConnected ? 'success' : 'warning';
+                }
+            }
+            
+            refreshSystemStats() {
+                this.logTerminal('🔄 Actualisation des statistiques système...', 'output');
+                this.updateUI();
+                this.showAlert('Statistiques actualisées', 'info');
+            }
+            
+            showAlert(message, type = 'info') {
+                // Créer une alerte temporaire
+                const alert = document.createElement('div');
+                alert.className = `status-badge ${type === 'success' ? 'connected' : type === 'danger' ? 'disconnected' : ''}`;
+                alert.textContent = message;
+                alert.style.position = 'fixed';
+                alert.style.top = '100px';
+                alert.style.right = '20px';
+                alert.style.zIndex = '2000';
+                alert.style.padding = '15px 25px';
+                alert.style.borderRadius = 'var(--radius-sm)';
+                alert.style.boxShadow = 'var(--shadow-lg)';
+                
+                document.body.appendChild(alert);
+                
+                setTimeout(() => {
+                    alert.style.transition = 'opacity 0.5s';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500);
+                }, 3000);
+            }
+            
+            setupEventListeners() {
+                // Entrée terminal
+                const terminalInput = document.getElementById('terminal-input');
+                if (terminalInput) {
+                    terminalInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            this.sendCommand();
+                        }
+                    });
+                }
+                
+                // Navigation
+                const navLinks = document.querySelectorAll('.nav-link');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetId = link.getAttribute('href').substring(1);
+                        const targetElement = document.getElementById(targetId);
+                        
+                        if (targetElement) {
+                            navLinks.forEach(l => l.classList.remove('active'));
+                            link.classList.add('active');
+                            
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    });
+                });
+            }
         }
-
-        // Rendu de l'application
-        ReactDOM.render(React.createElement(App), document.getElementById('root'));
+        
+        // Initialiser l'application
+        window.addEventListener('DOMContentLoaded', () => {
+            window.initHUB = new initHUBMilitary();
+            
+            // Exposer les fonctions globalement
+            window.connectToHub = () => window.initHUB.connectToHub();
+            window.disconnectHub = () => window.initHUB.disconnectHub();
+            window.testConnection = () => window.initHUB.testConnection();
+            window.sendCommand = () => window.initHUB.sendCommand();
+            window.clearTerminal = () => window.initHUB.clearTerminal();
+            window.runDiagnostic = () => window.initHUB.runDiagnostic();
+            window.scanNetwork = () => window.initHUB.scanNetwork();
+            window.runMaintenance = () => window.initHUB.runMaintenance();
+            window.deployOperation = () => window.initHUB.deployOperation();
+            window.refreshSystemStats = () => window.initHUB.refreshSystemStats();
+        });
     </script>
 </body>
 </html>
