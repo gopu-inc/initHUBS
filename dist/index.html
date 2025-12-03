@@ -3,129 +3,1660 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>initHUB Cloud - Plateforme Cloud Développeurs</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>initHUB Cloud - Plateforme Cloud Complète</title>
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" href="assets/logo.png">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://raw.githubusercontent.com/gopu-inc/initHUBS/main/assets/logo.png">
+    
     <style>
-        .hero {
-            text-align: center;
-            padding: 100px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* ===== VARIABLES ===== */
+        :root {
+            --primary: #667eea;
+            --primary-dark: #764ba2;
+            --secondary: #48bb78;
+            --danger: #f56565;
+            --warning: #ed8936;
+            --info: #4299e1;
+            
+            --dark-bg: #1a202c;
+            --dark-card: #2d3748;
+            --dark-text: #e2e8f0;
+            --dark-border: #4a5568;
+            
+            --light-bg: #f7fafc;
+            --light-card: #ffffff;
+            --light-text: #2d3748;
+            --light-border: #e2e8f0;
+            
+            --radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            transition: all 0.3s;
+        }
+        
+        body.dark-mode {
+            background: var(--dark-bg);
+            color: var(--dark-text);
+        }
+        
+        body.light-mode {
+            background: var(--light-bg);
+            color: var(--light-text);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
         }
-        .hero h1 {
-            font-size: 3em;
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-large {
+            padding: 15px 30px;
+            font-size: 1.1em;
+        }
+        
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--light-card);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
             margin-bottom: 20px;
         }
-        .hero .cli {
-            background: rgba(0,0,0,0.3);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px auto;
-            max-width: 500px;
-            font-family: monospace;
+        
+        .dark-mode .card {
+            background: var(--dark-card);
         }
-        .features {
+        
+        .card-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            padding: 50px 20px;
+            margin-bottom: 30px;
         }
-        .feature {
-            background: white;
+        
+        /* ===== NAVIGATION ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--light-border);
+        }
+        
+        .dark-mode .navbar {
+            background: rgba(26, 32, 44, 0.95);
+            border-color: var(--dark-border);
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: inherit;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        /* ===== DASHBOARD LAYOUT ===== */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: var(--dark-bg);
+            color: white;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-bottom: 1px solid var(--dark-border);
+        }
+        
+        .sidebar-user {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--dark-border);
+        }
+        
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            margin: 0 auto 15px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #cbd5e0;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .menu-item:hover, .menu-item.active {
+            background: var(--dark-card);
+            color: white;
+        }
+        
+        .main-content {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+        
+        /* ===== TERMINAL ===== */
+        .terminal {
+            background: #1a1b26;
+            border-radius: var(--radius);
+            overflow: hidden;
+            height: 500px;
+        }
+        
+        .terminal-header {
+            background: #16161e;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+        
+        .terminal-dots span {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .dot-red { background: #ff5f57; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #28ca42; }
+        
+        .terminal-body {
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            color: #a9b1d6;
+            height: calc(100% - 50px);
+            overflow-y: auto;
+        }
+        
+        /* ===== FORMS ===== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--light-border);
+            border-radius: var(--radius);
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        .dark-mode .form-input {
+            background: var(--dark-card);
+            border-color: var(--dark-border);
+            color: var(--dark-text);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* ===== LOADING ===== */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* ===== HERO SECTION ===== */
+        .hero {
+            text-align: center;
+            padding: 120px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        
+        .hero-title {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2em;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            opacity: 0.9;
+        }
+        
+        .cli-box {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: var(--radius);
+            margin: 30px auto;
+            max-width: 500px;
+            font-family: monospace;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* ===== FEATURES ===== */
+        .features {
+            padding: 80px 20px;
+        }
+        
+        .feature-card {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        
+        .feature-icon {
+            font-size: 2.5em;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .hero-title {
+                font-size: 2em;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-menu {
+                display: none;
+            }
+        }
+        
+        /* ===== UTILITIES ===== */
+        .text-center { text-align: center; }
+        .mt-1 { margin-top: 10px; }
+        .mt-2 { margin-top: 20px; }
+        .mt-3 { margin-top: 30px; }
+        .mb-1 { margin-bottom: 10px; }
+        .mb-2 { margin-bottom: 20px; }
+        .mb-3 { margin-bottom: 30px; }
+        .d-none { display: none; }
+        .d-block { display: block; }
+        .w-100 { width: 100%; }
+        
+        /* ===== NOTIFICATIONS ===== */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius);
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* ===== MODALS ===== */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .modal-content {
+            background: var(--light-card);
+            border-radius: var(--radius);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .dark-mode .modal-content {
+            background: var(--dark-card);
         }
     </style>
 </head>
-<body>
-    <nav>
-        <div class="container">
-            <div class="nav-brand">
-                <img src="assets/logo.png" alt="initHUB" height="40">
-                <span>initHUB Cloud</span>
-            </div>
-            <div class="nav-links">
-                <a href="#features">Fonctionnalités</a>
-                <a href="docs.html">Documentation</a>
-                <a href="login.html" class="btn">Connexion</a>
-                <a href="#register" class="btn primary">S'inscrire</a>
-            </div>
+<body class="light-mode">
+    <!-- Loading overlay -->
+    <div id="loading" class="modal" style="display: none;">
+        <div style="text-align: center; color: white;">
+            <div class="loading" style="width: 40px; height: 40px;"></div>
+            <p class="mt-2">Chargement...</p>
         </div>
-    </nav>
+    </div>
 
-    <section class="hero">
-        <h1>🚀 initHUB Cloud Enterprise</h1>
-        <p>Hébergement web + Git + Terminal + IA Copilot en une seule plateforme</p>
-        
-        <div class="cli">
-            <code>pip install inithub-cli && inithub auth login</code>
-            <button onclick="copyText('pip install inithub-cli')">
-                <i class="far fa-copy"></i>
-            </button>
-        </div>
-        
-        <div>
-            <a href="app.html" class="btn primary large">
-                <i class="fas fa-rocket"></i> Accéder au Dashboard
-            </a>
-            <a href="https://hubs-ja2g.onrender.com/api/docs" target="_blank" class="btn">
-                <i class="fas fa-code"></i> API Documentation
-            </a>
-        </div>
-    </section>
+    <!-- Modals container -->
+    <div id="modals"></div>
 
-    <section id="features" class="features container">
-        <div class="feature">
-            <i class="fas fa-cloud fa-2x"></i>
-            <h3>Hébergement Web</h3>
-            <p>Déployez vos sites en un clic</p>
-        </div>
-        <div class="feature">
-            <i class="fas fa-code-branch fa-2x"></i>
-            <h3>Git Intégré</h3>
-            <p>Repositories avec interface web</p>
-        </div>
-        <div class="feature">
-            <i class="fas fa-terminal fa-2x"></i>
-            <h3>Terminal Web</h3>
-            <p>SSH dans votre navigateur</p>
-        </div>
-        <div class="feature">
-            <i class="fas fa-robot fa-2x"></i>
-            <h3>Copilot IA</h3>
-            <p>Assistant IA intégré</p>
-        </div>
-    </section>
+    <!-- Pages -->
+    <div id="pages">
+        <!-- Landing Page -->
+        <div id="landingPage" class="d-block">
+            <nav class="navbar">
+                <div class="container">
+                    <div class="nav-content">
+                        <div class="nav-logo">
+                            <i class="fas fa-cloud" style="color: var(--primary);"></i>
+                            <span>initHUB Cloud</span>
+                        </div>
+                        
+                        <div class="nav-menu">
+                            <a href="#features" class="nav-link">Fonctionnalités</a>
+                            <a href="#docs" class="nav-link">Documentation</a>
+                            <a href="javascript:void(0)" onclick="showPage('login')" class="btn btn-outline">Connexion</a>
+                            <a href="javascript:void(0)" onclick="showPage('register')" class="btn btn-primary">S'inscrire</a>
+                        </div>
+                        
+                        <button class="btn" onclick="toggleTheme()" style="background: transparent; border: none;">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
+                </div>
+            </nav>
 
-    <footer>
-        <div class="container">
-            <div>
-                <img src="assets/logo.png" alt="initHUB" height="30">
-                <span>initHUB Cloud v13.0</span>
+            <section class="hero">
+                <div class="container">
+                    <h1 class="hero-title">🚀 initHUB Cloud Enterprise</h1>
+                    <p class="hero-subtitle">
+                        Hébergement web, Git intégré, Terminal cloud, IA Copilot
+                        - Tout en une seule plateforme
+                    </p>
+                    
+                    <div class="cli-box">
+                        <code style="color: white;">pip install inithub-cli</code>
+                        <button class="btn" onclick="copyText('pip install inithub-cli')" style="background: rgba(255,255,255,0.1); color: white;">
+                            <i class="far fa-copy"></i>
+                        </button>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                        <a href="javascript:void(0)" onclick="showPage('app')" class="btn btn-primary btn-large">
+                            <i class="fas fa-rocket"></i> Accéder au Dashboard
+                        </a>
+                        <a href="https://hubs-ja2g.onrender.com/api/docs" target="_blank" class="btn btn-secondary btn-large">
+                            <i class="fas fa-code"></i> Documentation API
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="features" class="features">
+                <div class="container">
+                    <h2 class="text-center mb-3">Fonctionnalités principales</h2>
+                    
+                    <div class="card-grid">
+                        <div class="card feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h3>Hébergement Cloud</h3>
+                            <p>Déployez vos sites web en un clic</p>
+                        </div>
+                        
+                        <div class="card feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-code-branch"></i>
+                            </div>
+                            <h3>Git Intégré</h3>
+                            <p>Gestion complète de repositories</p>
+                        </div>
+                        
+                        <div class="card feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-terminal"></i>
+                            </div>
+                            <h3>Terminal Web</h3>
+                            <p>SSH directement dans votre navigateur</p>
+                        </div>
+                        
+                        <div class="card feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h3>Copilot IA</h3>
+                            <p>Assistant IA pour le développement</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer style="background: var(--dark-bg); color: white; padding: 40px 20px;">
+                <div class="container">
+                    <div style="text-align: center;">
+                        <div class="mb-2">
+                            <i class="fas fa-cloud"></i>
+                            <strong>initHUB Cloud v13.0</strong>
+                        </div>
+                        <p>Serveur: <code>hubs-ja2g.onrender.com</code></p>
+                        <div style="margin-top: 20px;">
+                            <a href="https://github.com/gopu-inc/initHUBS" target="_blank" style="color: white; margin: 0 10px;">
+                                <i class="fab fa-github"></i> GitHub
+                            </a>
+                            <a href="https://hubs-ja2g.onrender.com/api/docs" target="_blank" style="color: white; margin: 0 10px;">
+                                <i class="fas fa-code"></i> API
+                            </a>
+                            <a href="javascript:void(0)" onclick="showPage('docs')" style="color: white; margin: 0 10px;">
+                                <i class="fas fa-book"></i> Documentation
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Login Page -->
+        <div id="loginPage" class="d-none">
+            <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                <div class="card" style="width: 100%; max-width: 400px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h2><i class="fas fa-sign-in-alt"></i> Connexion</h2>
+                        <p>Accédez à votre compte initHUB</p>
+                    </div>
+                    
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="loginEmail" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Mot de passe</label>
+                            <input type="password" class="form-input" id="loginPassword" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-sign-in-alt"></i> Se connecter
+                        </button>
+                    </form>
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <a href="javascript:void(0)" onclick="showPage('landing')" style="display: block; margin: 10px 0;">
+                            ← Retour à l'accueil
+                        </a>
+                        <a href="javascript:void(0)" onclick="showPage('register')">
+                            Créer un compte
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div>
-                <a href="https://github.com/gopu-inc/initHUBS" target="_blank">
-                    <i class="fab fa-github"></i> GitHub
-                </a>
-                <span> | </span>
-                <a href="https://hubs-ja2g.onrender.com/api/docs" target="_blank">
-                    <i class="fas fa-code"></i> API
-                </a>
-                <span> | </span>
-                <span>Serveur: hubs-ja2g.onrender.com</span>
+        </div>
+
+        <!-- Register Page -->
+        <div id="registerPage" class="d-none">
+            <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                <div class="card" style="width: 100%; max-width: 400px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h2><i class="fas fa-user-plus"></i> Inscription</h2>
+                        <p>Créez votre compte initHUB</p>
+                    </div>
+                    
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label class="form-label">Nom d'utilisateur</label>
+                            <input type="text" class="form-input" id="registerUsername" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="registerEmail" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Mot de passe</label>
+                            <input type="password" class="form-input" id="registerPassword" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-user-plus"></i> Créer mon compte
+                        </button>
+                    </form>
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <a href="javascript:void(0)" onclick="showPage('login')">
+                            Déjà un compte ? Se connecter
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
-    </footer>
 
-    <script src="api.js"></script>
+        <!-- Dashboard Page -->
+        <div id="appPage" class="d-none">
+            <div class="dashboard-grid">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <div class="sidebar-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-cloud" style="font-size: 1.5em;"></i>
+                            <div>
+                                <div style="font-weight: bold;">initHUB</div>
+                                <small style="color: #a0aec0;">Dashboard</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-user">
+                        <div id="userAvatar" class="user-avatar">
+                            <!-- Avatar chargé dynamiquement -->
+                        </div>
+                        <div>
+                            <h4 id="userName">...</h4>
+                            <p id="userEmail" style="color: #a0aec0; font-size: 0.9em;">...</p>
+                        </div>
+                    </div>
+                    
+                    <div style="padding: 10px;">
+                        <a href="javascript:void(0)" onclick="showDashboardPage('dashboard')" class="menu-item active" data-page="dashboard">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        
+                        <div style="color: #a0aec0; padding: 15px 10px 5px 10px; font-size: 0.9em;">Développement</div>
+                        <a href="javascript:void(0)" onclick="showDashboardPage('projects')" class="menu-item" data-page="projects">
+                            <i class="fas fa-code"></i>
+                            <span>Projets</span>
+                        </a>
+                        <a href="javascript:void(0)" onclick="showDashboardPage('files')" class="menu-item" data-page="files">
+                            <i class="fas fa-folder"></i>
+                            <span>Fichiers</span>
+                        </a>
+                        <a href="javascript:void(0)" onclick="showDashboardPage('repos')" class="menu-item" data-page="repos">
+                            <i class="fas fa-code-branch"></i>
+                            <span>Repositories</span>
+                        </a>
+                        <a href="javascript:void(0)" onclick="showDashboardPage('terminal')" class="menu-item" data-page="terminal">
+                            <i class="fas fa-terminal"></i>
+                            <span>Terminal</span>
+                        </a>
+                        
+                        <div style="color: #a0aec0; padding: 15px 10px 5px 10px; font-size: 0.9em;">Hébergement</div>
+                        <a href="javascript:void(0)" onclick="showDashboardPage('hosting')" class="menu-item" data-page="hosting">
+                            <i class="fas fa-globe"></i>
+                            <span>Sites Web</span>
+                        </a>
+                        
+                        <div style="color: #a0aec0; padding: 15px 10px 5px 10px; font-size: 0.9em;">Outils</div>
+                        <a href="javascript:void(0)" onclick="showDashboardPage('copilot')" class="menu-item" data-page="copilot">
+                            <i class="fas fa-robot"></i>
+                            <span>Copilot IA</span>
+                        </a>
+                        <a href="javascript:void(0)" onclick="showDashboardPage('system')" class="menu-item" data-page="system">
+                            <i class="fas fa-server"></i>
+                            <span>Système</span>
+                        </a>
+                        
+                        <div style="position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 20px;">
+                            <button onclick="logout()" class="btn w-100" style="background: #2d3748; color: white;">
+                                <i class="fas fa-sign-out-alt"></i> Déconnexion
+                            </button>
+                            <div style="text-align: center; margin-top: 10px; color: #a0aec0; font-size: 0.8em;">
+                                Server: hubs-ja2g.onrender.com
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+                
+                <!-- Main Content -->
+                <main class="main-content">
+                    <!-- Dashboard -->
+                    <div id="dashboardContent" class="d-block">
+                        <h1>Dashboard</h1>
+                        
+                        <div class="card-grid">
+                            <div class="card">
+                                <h3><i class="fas fa-code"></i> Projets</h3>
+                                <div id="projectsCount" style="font-size: 2em; font-weight: bold; color: var(--primary);">0</div>
+                            </div>
+                            
+                            <div class="card">
+                                <h3><i class="fas fa-globe"></i> Sites</h3>
+                                <div id="sitesCount" style="font-size: 2em; font-weight: bold; color: var(--secondary);">0</div>
+                            </div>
+                            
+                            <div class="card">
+                                <h3><i class="fas fa-database"></i> Stockage</h3>
+                                <div id="storageUsage" style="font-size: 2em; font-weight: bold; color: var(--info);">0 MB</div>
+                            </div>
+                            
+                            <div class="card">
+                                <h3><i class="fas fa-robot"></i> Copilot</h3>
+                                <div id="copilotStatus" style="font-size: 2em; font-weight: bold; color: var(--warning);">🤖</div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>Projets récents</h3>
+                            <div id="recentProjects">
+                                <!-- Chargé dynamiquement -->
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>Statut système</h3>
+                            <div id="systemStatus">
+                                <!-- Chargé dynamiquement -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Projects -->
+                    <div id="projectsContent" class="d-none">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h1>Projets</h1>
+                            <button onclick="createProject()" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Nouveau projet
+                            </button>
+                        </div>
+                        
+                        <div id="projectsList" class="card-grid">
+                            <!-- Chargé dynamiquement -->
+                        </div>
+                    </div>
+                    
+                    <!-- Hosting -->
+                    <div id="hostingContent" class="d-none">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h1>Hébergement Web</h1>
+                            <button onclick="createSite()" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Nouveau site
+                            </button>
+                        </div>
+                        
+                        <div id="hostingList" class="card-grid">
+                            <!-- Chargé dynamiquement -->
+                        </div>
+                    </div>
+                    
+                    <!-- Terminal -->
+                    <div id="terminalContent" class="d-none">
+                        <h1>Terminal Web</h1>
+                        
+                        <div class="terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-dots">
+                                    <span class="dot-red"></span>
+                                    <span class="dot-yellow"></span>
+                                    <span class="dot-green"></span>
+                                </div>
+                                <span>initHUB Terminal</span>
+                            </div>
+                            
+                            <div id="terminalOutput" class="terminal-body">
+                                <div style="color: #7aa2f7;">user@inithub:~$</div>
+                                <div style="color: #9ece6a;">Bienvenue dans le terminal initHUB Cloud!</div>
+                                <div style="color: #c0caf5;">Tapez 'help' pour voir les commandes disponibles</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <input type="text" id="terminalInput" class="form-input" placeholder="Tapez votre commande..." style="flex: 1;">
+                            <button onclick="sendTerminalCommand()" class="btn btn-primary">Exécuter</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Copilot -->
+                    <div id="copilotContent" class="d-none">
+                        <h1>Copilot IA</h1>
+                        
+                        <div class="card" style="height: 500px; display: flex; flex-direction: column;">
+                            <div id="copilotChat" style="flex: 1; overflow-y: auto; margin-bottom: 20px;">
+                                <div style="background: #f1f5f9; padding: 15px; border-radius: var(--radius); margin-bottom: 15px;">
+                                    <strong>🤖 initHUB Copilot:</strong>
+                                    <p>Bonjour ! Je suis votre assistant IA. Posez-moi n'importe quelle question sur le développement, l'hébergement, ou l'utilisation de initHUB Cloud.</p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="copilotQuestion" class="form-input" placeholder="Posez votre question..." style="flex: 1;">
+                                <button onclick="askCopilot()" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- System -->
+                    <div id="systemContent" class="d-none">
+                        <h1>Système & Monitoring</h1>
+                        
+                        <div class="card-grid">
+                            <div class="card">
+                                <h3><i class="fas fa-heartbeat"></i> Santé du système</h3>
+                                <div id="healthStatus">
+                                    <!-- Chargé dynamiquement -->
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <h3><i class="fas fa-server"></i> Serveur</h3>
+                                <div id="serverInfo">
+                                    <!-- Chargé dynamiquement -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-2">
+                            <h3>Commandes</h3>
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="checkSystemHealth()" class="btn">
+                                    <i class="fas fa-sync-alt"></i> Vérifier santé
+                                </button>
+                                <button onclick="showSystemInfo()" class="btn">
+                                    <i class="fas fa-info-circle"></i> Informations
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Documentation Page -->
+        <div id="docsPage" class="d-none">
+            <nav class="navbar">
+                <div class="container">
+                    <div class="nav-content">
+                        <div class="nav-logo">
+                            <i class="fas fa-cloud"></i>
+                            <span>Documentation</span>
+                        </div>
+                        <div class="nav-menu">
+                            <a href="javascript:void(0)" onclick="showPage('landing')" class="btn">Accueil</a>
+                            <a href="javascript:void(0)" onclick="showPage('app')" class="btn btn-primary">Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container" style="padding: 80px 20px;">
+                <h1>📚 Documentation initHUB Cloud</h1>
+                
+                <div class="card-grid">
+                    <div class="card">
+                        <h2><i class="fas fa-terminal"></i> CLI</h2>
+                        <code style="display: block; background: #f1f5f9; padding: 10px; border-radius: var(--radius); margin: 15px 0;">
+                            pip install inithub-cli
+                        </code>
+                        <h3>Commandes principales:</h3>
+                        <ul style="margin: 15px 0; padding-left: 20px;">
+                            <li><code>inithub auth login</code></li>
+                            <li><code>inithub hosting create --name mon-site</code></li>
+                            <li><code>inithub project push --name mon-projet</code></li>
+                            <li><code>inithub copilot ask "comment créer un site ?"</code></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h2><i class="fas fa-code"></i> API</h2>
+                        <p><strong>Base URL:</strong> <code>https://hubs-ja2g.onrender.com/api</code></p>
+                        <h3>Endpoints principaux:</h3>
+                        <ul style="margin: 15px 0; padding-left: 20px;">
+                            <li><code>POST /auth/login</code> - Connexion</li>
+                            <li><code>GET /users/me</code> - Utilisateur courant</li>
+                            <li><code>POST /hosting/sites</code> - Créer un site</li>
+                            <li><code>POST /projects/push</code> - Pousser un projet</li>
+                        </ul>
+                        <a href="https://hubs-ja2g.onrender.com/api/docs" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt"></i> Documentation complète
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card mt-2">
+                    <h2><i class="fas fa-link"></i> URLs importantes</h2>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+                        <li><strong>Dashboard:</strong> <code>https://hubs-ja2g.onrender.com</code></li>
+                        <li><strong>API Documentation:</strong> <code>https://hubs-ja2g.onrender.com/api/docs</code></li>
+                        <li><strong>GitHub:</strong> <code>https://github.com/gopu-inc/initHUBS</code></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function copyText(text) {
-            navigator.clipboard.writeText(text);
-            alert('Commande copiée !');
+        // ============================================================================
+        // 🚀 CONFIGURATION
+        // ============================================================================
+        const API_BASE_URL = 'https://hubs-ja2g.onrender.com/api';
+        let authToken = localStorage.getItem('inithub_token');
+        let currentUser = null;
+        let terminalSocket = null;
+
+        // ============================================================================
+        // 🎯 GESTION DES PAGES
+        // ============================================================================
+        function showPage(pageName) {
+            // Masquer toutes les pages
+            document.querySelectorAll('#pages > div').forEach(page => {
+                page.classList.remove('d-block');
+                page.classList.add('d-none');
+            });
+            
+            // Afficher la page demandée
+            const page = document.getElementById(pageName + 'Page');
+            if (page) {
+                page.classList.remove('d-none');
+                page.classList.add('d-block');
+                
+                // Initialiser la page si nécessaire
+                if (pageName === 'app') {
+                    initDashboard();
+                } else if (pageName === 'landing') {
+                    // Recharger si besoin
+                }
+            }
+            
+            // Si on va sur le dashboard mais pas connecté
+            if (pageName === 'app' && !authToken) {
+                showPage('login');
+            }
         }
+
+        function showDashboardPage(pageName) {
+            // Mettre à jour le menu actif
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`.menu-item[data-page="${pageName}"]`).classList.add('active');
+            
+            // Afficher le contenu correspondant
+            document.querySelectorAll('#appPage > .main-content > div').forEach(content => {
+                content.classList.remove('d-block');
+                content.classList.add('d-none');
+            });
+            
+            const content = document.getElementById(pageName + 'Content');
+            if (content) {
+                content.classList.remove('d-none');
+                content.classList.add('d-block');
+                
+                // Charger les données spécifiques
+                if (pageName === 'dashboard') {
+                    loadDashboardData();
+                } else if (pageName === 'projects') {
+                    loadProjects();
+                } else if (pageName === 'hosting') {
+                    loadHosting();
+                } else if (pageName === 'terminal') {
+                    initTerminal();
+                } else if (pageName === 'copilot') {
+                    // Rien à charger
+                } else if (pageName === 'system') {
+                    loadSystemInfo();
+                }
+            }
+        }
+
+        // ============================================================================
+        // 🌓 GESTION DU THÈME
+        // ============================================================================
+        function toggleTheme() {
+            const isDark = document.body.classList.contains('dark-mode');
+            if (isDark) {
+                document.body.classList.remove('dark-mode');
+                document.body.classList.add('light-mode');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Appliquer le thème sauvegardé
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.classList.add(savedTheme + '-mode');
+
+        // ============================================================================
+        // 🔐 AUTHENTIFICATION
+        // ============================================================================
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showNotification('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Identifiants invalides');
+                }
+                
+                const data = await response.json();
+                authToken = data.access_token;
+                localStorage.setItem('inithub_token', authToken);
+                
+                showNotification('Connexion réussie !', 'success');
+                showPage('app');
+                
+            } catch (error) {
+                showNotification('Erreur de connexion: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!username || !email || !password) {
+                showNotification('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Erreur d\'inscription');
+                }
+                
+                showNotification('Compte créé avec succès !', 'success');
+                showPage('login');
+                
+            } catch (error) {
+                showNotification('Erreur d\'inscription: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            localStorage.removeItem('inithub_token');
+            currentUser = null;
+            
+            if (terminalSocket) {
+                terminalSocket.close();
+            }
+            
+            showNotification('Déconnexion réussie', 'success');
+            showPage('landing');
+        }
+
+        // ============================================================================
+        // 🚀 DASHBOARD
+        // ============================================================================
+        async function initDashboard() {
+            if (!authToken) {
+                showPage('login');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // Récupérer l'utilisateur courant
+                const response = await fetch(`${API_BASE_URL}/users/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Session expirée');
+                }
+                
+                currentUser = await response.json();
+                
+                // Afficher les infos utilisateur
+                document.getElementById('userName').textContent = currentUser.username;
+                document.getElementById('userEmail').textContent = currentUser.email;
+                document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
+                
+                // Charger les données du dashboard
+                await loadDashboardData();
+                
+            } catch (error) {
+                showNotification('Erreur de chargement: ' + error.message, 'error');
+                logout();
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function loadDashboardData() {
+            try {
+                // Charger les projets
+                const projectsRes = await fetch(`${API_BASE_URL}/projects?page=1&per_page=5`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (projectsRes.ok) {
+                    const projects = await projectsRes.json();
+                    document.getElementById('projectsCount').textContent = projects.projects?.length || 0;
+                    
+                    // Afficher les projets récents
+                    const recentProjects = document.getElementById('recentProjects');
+                    recentProjects.innerHTML = '';
+                    
+                    if (projects.projects && projects.projects.length > 0) {
+                        projects.projects.slice(0, 3).forEach(project => {
+                            const div = document.createElement('div');
+                            div.className = 'card';
+                            div.style.marginBottom = '10px';
+                            div.innerHTML = `
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <strong>${project.name}</strong>
+                                    <span class="badge">${project.is_private ? '🔒' : '🌐'}</span>
+                                </div>
+                                <small>${project.description || 'Aucune description'}</small>
+                            `;
+                            div.onclick = () => showProjectDetails(project);
+                            recentProjects.appendChild(div);
+                        });
+                    } else {
+                        recentProjects.innerHTML = '<p>Aucun projet</p>';
+                    }
+                }
+                
+                // Charger les sites
+                const sitesRes = await fetch(`${API_BASE_URL}/hosting/sites`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (sitesRes.ok) {
+                    const sites = await sitesRes.json();
+                    document.getElementById('sitesCount').textContent = sites.length || 0;
+                }
+                
+                // Charger la santé du système
+                const healthRes = await fetch(`${API_BASE_URL}/health`);
+                if (healthRes.ok) {
+                    const health = await healthRes.json();
+                    const systemStatus = document.getElementById('systemStatus');
+                    systemStatus.innerHTML = `
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Serveur:</span>
+                            <span style="color: #48bb78;">🟢 En ligne</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Version:</span>
+                            <span>${health.version}</span>
+                        </div>
+                    `;
+                }
+                
+                // Vérifier Copilot
+                const copilotRes = await fetch(`${API_BASE_URL}/copilot/health`);
+                document.getElementById('copilotStatus').textContent = copilotRes.ok ? '🤖' : '❌';
+                
+            } catch (error) {
+                console.error('Erreur chargement dashboard:', error);
+            }
+        }
+
+        // ============================================================================
+        // 📁 PROJETS
+        // ============================================================================
+        async function loadProjects() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/projects`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Erreur chargement projets');
+                
+                const data = await response.json();
+                const projectsList = document.getElementById('projectsList');
+                projectsList.innerHTML = '';
+                
+                if (data.projects && data.projects.length > 0) {
+                    data.projects.forEach(project => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `
+                            <h3>${project.name}</h3>
+                            <p>${project.description || ''}</p>
+                            <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                                <span><i class="fas fa-file"></i> ${project.files_count || 0} fichiers</span>
+                                <span><i class="fas fa-database"></i> ${(project.total_size / 1024).toFixed(1)} KB</span>
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button onclick="pushProject('${project.name}')" class="btn" style="flex: 1;">
+                                    <i class="fas fa-upload"></i> Push
+                                </button>
+                                <button onclick="pullProject('${project.name}')" class="btn" style="flex: 1;">
+                                    <i class="fas fa-download"></i> Pull
+                                </button>
+                            </div>
+                        `;
+                        projectsList.appendChild(card);
+                    });
+                } else {
+                    projectsList.innerHTML = '<p>Aucun projet trouvé</p>';
+                }
+                
+            } catch (error) {
+                showNotification('Erreur chargement projets: ' + error.message, 'error');
+            }
+        }
+
+        function createProject() {
+            const name = prompt('Nom du projet:');
+            if (name) {
+                showNotification(`Création du projet "${name}"...`, 'info');
+                // Implémentation à ajouter
+            }
+        }
+
+        function pushProject(projectName) {
+            showNotification(`Pousse du projet "${projectName}"...`, 'info');
+            // Implémentation à ajouter
+        }
+
+        function pullProject(projectName) {
+            showNotification(`Téléchargement du projet "${projectName}"...`, 'info');
+            // Implémentation à ajouter
+        }
+
+        // ============================================================================
+        // 🌐 HÉBERGEMENT
+        // ============================================================================
+        async function loadHosting() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/hosting/sites`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Erreur chargement sites');
+                
+                const sites = await response.json();
+                const hostingList = document.getElementById('hostingList');
+                hostingList.innerHTML = '';
+                
+                if (sites.length > 0) {
+                    sites.forEach(site => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `
+                            <h3>${site.name}</h3>
+                            <p>${site.domain}</p>
+                            <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                                <span style="color: #48bb78;">🟢 ${site.status}</span>
+                                <a href="${window.location.origin}${site.url}" target="_blank" class="btn">
+                                    <i class="fas fa-external-link-alt"></i> Visiter
+                                </a>
+                            </div>
+                        `;
+                        hostingList.appendChild(card);
+                    });
+                } else {
+                    hostingList.innerHTML = '<p>Aucun site web</p>';
+                }
+                
+            } catch (error) {
+                showNotification('Erreur chargement sites: ' + error.message, 'error');
+            }
+        }
+
+        function createSite() {
+            const name = prompt('Nom du site:');
+            if (name) {
+                fetch(`${API_BASE_URL}/hosting/sites`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: name, type: 'static' })
+                })
+                .then(response => response.json())
+                .then(site => {
+                    showNotification(`Site "${name}" créé !`, 'success');
+                    loadHosting();
+                })
+                .catch(error => {
+                    showNotification('Erreur création site: ' + error.message, 'error');
+                });
+            }
+        }
+
+        // ============================================================================
+        // 🖥️ TERMINAL
+        // ============================================================================
+        function initTerminal() {
+            if (!authToken) {
+                showNotification('Veuillez vous connecter', 'error');
+                return;
+            }
+            
+            if (terminalSocket) {
+                terminalSocket.close();
+            }
+            
+            // Créer la connexion WebSocket
+            const wsUrl = `wss://hubs-ja2g.onrender.com/ws/terminal?token=${authToken}`;
+            terminalSocket = new WebSocket(wsUrl);
+            
+            terminalSocket.onopen = () => {
+                showNotification('Terminal connecté', 'success');
+            };
+            
+            terminalSocket.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    const output = document.getElementById('terminalOutput');
+                    
+                    if (data.type === 'init') {
+                        output.innerHTML += `<div style="color: #48bb78;">✅ ${data.message}</div>`;
+                    } else if (data.type === 'output') {
+                        output.innerHTML += `<div>${data.content}</div>`;
+                    } else if (data.type === 'error') {
+                        output.innerHTML += `<div style="color: #f56565;">❌ ${data.message}</div>`;
+                    }
+                    
+                    // Scroll automatique
+                    output.scrollTop = output.scrollHeight;
+                } catch (error) {
+                    console.error('Erreur terminal:', error);
+                }
+            };
+            
+            terminalSocket.onerror = (error) => {
+                showNotification('Erreur terminal', 'error');
+            };
+            
+            terminalSocket.onclose = () => {
+                // Nettoyer
+            };
+        }
+
+        function sendTerminalCommand() {
+            const input = document.getElementById('terminalInput');
+            const command = input.value.trim();
+            
+            if (!command || !terminalSocket || terminalSocket.readyState !== WebSocket.OPEN) {
+                return;
+            }
+            
+            // Afficher la commande
+            const output = document.getElementById('terminalOutput');
+            output.innerHTML += `<div style="color: #7aa2f7;">$ ${command}</div>`;
+            
+            // Envoyer la commande
+            terminalSocket.send(JSON.stringify({ type: 'command', command: command }));
+            
+            // Clear input
+            input.value = '';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // ============================================================================
+        // 🤖 COPILOT
+        // ============================================================================
+        async function askCopilot() {
+            const question = document.getElementById('copilotQuestion').value;
+            if (!question) return;
+            
+            const chat = document.getElementById('copilotChat');
+            
+            // Ajouter la question
+            chat.innerHTML += `
+                <div style="background: var(--primary); color: white; padding: 15px; border-radius: var(--radius); margin-bottom: 15px; margin-left: 20%;">
+                    <strong>👤 Vous:</strong>
+                    <p>${question}</p>
+                </div>
+            `;
+            
+            // Clear input
+            document.getElementById('copilotQuestion').value = '';
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/copilot/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ question: question })
+                });
+                
+                if (!response.ok) throw new Error('Erreur Copilot');
+                
+                const data = await response.json();
+                
+                // Ajouter la réponse
+                chat.innerHTML += `
+                    <div style="background: #f1f5f9; padding: 15px; border-radius: var(--radius); margin-bottom: 15px; margin-right: 20%;">
+                        <strong>🤖 Copilot:</strong>
+                        <p>${data.response}</p>
+                    </div>
+                `;
+                
+                // Scroll down
+                chat.scrollTop = chat.scrollHeight;
+                
+            } catch (error) {
+                showNotification('Erreur Copilot: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // ============================================================================
+        // 🛠️ SYSTÈME
+        // ============================================================================
+        async function loadSystemInfo() {
+            try {
+                const healthRes = await fetch(`${API_BASE_URL}/health`);
+                const infoRes = await fetch(`${API_BASE_URL}/system/info`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (healthRes.ok) {
+                    const health = await healthRes.json();
+                    document.getElementById('healthStatus').innerHTML = `
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Statut:</span>
+                            <span style="color: #48bb78;">🟢 En ligne</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Version:</span>
+                            <span>${health.version}</span>
+                        </div>
+                    `;
+                }
+                
+                if (infoRes.ok) {
+                    const info = await infoRes.json();
+                    document.getElementById('serverInfo').innerHTML = `
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Platforme:</span>
+                            <span>${info.system?.platform || 'N/A'}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Mémoire:</span>
+                            <span>${info.resources?.memory?.used || 'N/A'}</span>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                showNotification('Erreur système: ' + error.message, 'error');
+            }
+        }
+
+        function checkSystemHealth() {
+            showLoading(true);
+            loadSystemInfo();
+            setTimeout(() => showLoading(false), 1000);
+        }
+
+        // ============================================================================
+        // 📋 UTILITAIRES
+        // ============================================================================
+        function showLoading(show = true) {
+            document.getElementById('loading').style.display = show ? 'flex' : 'none';
+        }
+
+        function showNotification(message, type = 'info') {
+            // Créer la notification
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.background = type === 'error' ? '#f56565' : type === 'success' ? '#48bb78' : '#4299e1';
+            notification.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; margin-left: 10px; cursor: pointer;">×</button>
+            `;
+            
+            // Ajouter au document
+            document.body.appendChild(notification);
+            
+            // Auto-suppression
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => showNotification('Copié !', 'success'))
+                .catch(() => showNotification('Erreur de copie', 'error'));
+        }
+
+        // ============================================================================
+        // 📝 FORMULAIRE SUBMIT
+        // ============================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Login form
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    login();
+                });
+            }
+            
+            // Register form
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    register();
+                });
+            }
+            
+            // Terminal input (Enter key)
+            const terminalInput = document.getElementById('terminalInput');
+            if (terminalInput) {
+                terminalInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        sendTerminalCommand();
+                    }
+                });
+            }
+            
+            // Copilot input (Enter key)
+            const copilotQuestion = document.getElementById('copilotQuestion');
+            if (copilotQuestion) {
+                copilotQuestion.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        askCopilot();
+                    }
+                });
+            }
+            
+            // Vérifier si déjà connecté au chargement
+            if (authToken) {
+                showPage('app');
+            }
+        });
+
+        // ============================================================================
+        // 🔗 LIENS EXTERNES
+        // ============================================================================
+        function openAPI() {
+            window.open('https://hubs-ja2g.onrender.com/api/docs', '_blank');
+        }
+
+        function openGitHub() {
+            window.open('https://github.com/gopu-inc/initHUBS', '_blank');
+        }
+
+        // Afficher la landing page par défaut
+        showPage('landing');
     </script>
 </body>
 </html>
