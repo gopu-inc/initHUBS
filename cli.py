@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 initHUB CLI - Client complet avec interface moderne
-Version 5.0 - Support complet hébergement web, terminal, gestion de fichiers
+Version 6.0 - Support complet avec toutes les routes serveur
 FORCÉ À LA PRODUCTION : https://hubs-ja2g.onrender.com
 """
 
@@ -22,6 +22,7 @@ import threading
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+import base64
 
 # ============================================================================
 # 🎨 SYSTÈME DE COULEURS ET ANIMATIONS
@@ -115,18 +116,17 @@ def print_banner():
     🚀 initHUB Cloud CLI 🪖
 {Colors.END}
 {Colors.MAGENTA}    Plateforme Cloud Enterprise Ultimate{Colors.END}
-{Colors.YELLOW}    Version 5.0 | Hébergement Web + Terminal{Colors.END}
+{Colors.YELLOW}    Version 6.0 | Toutes les routes serveur{Colors.END}
 {Colors.BLUE}    URL serveur: https://hubs-ja2g.onrender.com{Colors.END}
 {Colors.RED}    ⚠️  CONNECTÉ À LA PRODUCTION{Colors.END}
 """
     print(banner)
 
 # ============================================================================
-# ⚙️ CONFIGURATION CLIENT - URL DE PRODUCTION FORCÉE
+# ⚙️ CONFIGURATION CLIENT
 # ============================================================================
 
 class CLIConfig:
-    # ✅ URL DE PRODUCTION FORCÉE - PAS DE LOCALHOST
     DEFAULT_SERVER = "https://hubs-ja2g.onrender.com"
     
     CONFIG_DIR = Path.home() / ".inithub"
@@ -145,25 +145,22 @@ class CLIConfig:
         self._load_config()
     
     def _load_config(self):
-        # FORCE l'URL de production, ignore toute ancienne configuration
         self.data = {
-            "server_url": self.DEFAULT_SERVER,  # ✅ TOUJOURS la production
+            "server_url": self.DEFAULT_SERVER,
             "default_download_dir": str(self.DOWNLOAD_DIR),
             "auto_open_browser": True,
             "theme": "dark"
         }
         
-        # Si un fichier config existe, on garde seulement les autres paramètres
         if self.CONFIG_FILE.exists():
             try:
                 with open(self.CONFIG_FILE, 'r') as f:
                     existing_data = json.load(f)
-                    # Garde les autres paramètres sauf server_url
                     for key, value in existing_data.items():
                         if key != "server_url":
                             self.data[key] = value
             except:
-                pass  # Si erreur, on garde la config par défaut
+                pass
         
         self.save_config()
     
@@ -189,11 +186,9 @@ class CLIConfig:
             self.TOKEN_FILE.unlink()
     
     def get_server_url(self):
-        """Retourne TOUJOURS l'URL de production"""
-        return self.DEFAULT_SERVER  # ✅ FORCE la production
+        return self.DEFAULT_SERVER
     
     def set_server_url(self, url):
-        """Ignoré - on force toujours la production"""
         print_warning("URL serveur verrouillée sur la production")
         print_info(f"Utilisation de: {self.DEFAULT_SERVER}")
         return False
@@ -201,13 +196,12 @@ class CLIConfig:
 config = CLIConfig()
 
 # ============================================================================
-# 🔌 CLIENT API COMPLET - CONNECTÉ À LA PRODUCTION
+# 🔌 CLIENT API COMPLET - TOUTES LES ROUTES
 # ============================================================================
 
 class InitHUBClient:
     def __init__(self):
         self.base_url = config.get_server_url() + "/api"
-        print_info(f"🔗 Connexion à: {self.base_url}")
         self.token_data = config.load_token()
         self.session = requests.Session()
         self.animations = Animations()
@@ -289,7 +283,6 @@ class InitHUBClient:
     
     # 🏠 HÉBERGEMENT WEB
     def create_hosting_site(self, name: str, domain: str = None, site_type: str = "static"):
-        spinner = self.animations.loading_spinner("Création du site web")
         try:
             result = self._make_request("POST", "/hosting/sites",
                                 json={
@@ -297,103 +290,76 @@ class InitHUBClient:
                                     "domain": domain,
                                     "type": site_type
                                 })
-            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Site web créé{Colors.END}")
             return result
         except Exception as e:
-            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur création site: {e}{Colors.END}")
             raise
     
     def list_hosting_sites(self):
-        spinner = self.animations.loading_spinner("Récupération des sites")
         try:
             result = self._make_request("GET", "/hosting/sites")
-            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Sites chargés{Colors.END}")
             return result
         except Exception as e:
-            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur chargement sites: {e}{Colors.END}")
             raise
     
     def get_hosting_status(self):
-        spinner = self.animations.loading_spinner("Vérification hébergement")
         try:
             result = self._make_request("GET", "/hosting/status")
-            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Statut hébergement{Colors.END}")
             return result
         except Exception as e:
-            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur statut: {e}{Colors.END}")
             raise
     
     # 📁 GESTION DE FICHIERS
     def list_files(self, path: str = ""):
-        spinner = self.animations.loading_spinner("Liste des fichiers")
         try:
             params = {"path": path} if path else {}
             result = self._make_request("GET", "/files", params=params)
-            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Fichiers chargés{Colors.END}")
             return result
         except Exception as e:
-            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur liste fichiers: {e}{Colors.END}")
             raise
     
     def upload_file(self, file_path: str, remote_path: str = ""):
-        spinner = self.animations.loading_spinner("Upload du fichier")
         try:
             with open(file_path, 'rb') as f:
                 files = {'file': (Path(file_path).name, f)}
                 data = {'path': remote_path} if remote_path else {}
                 result = self._make_request("POST", "/files/upload", 
                                          files=files, data=data)
-            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Fichier uploadé{Colors.END}")
             return result
         except Exception as e:
-            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur upload: {e}{Colors.END}")
             raise
     
     # 📊 DASHBOARD
     def get_dashboard(self):
-        spinner = self.animations.loading_spinner("Chargement dashboard")
         try:
             result = self._make_request("GET", "/dashboard")
-            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Dashboard chargé{Colors.END}")
             return result
         except Exception as e:
-            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur dashboard: {e}{Colors.END}")
             raise
     
     # 🖥️ SYSTÈME
     def health_check(self):
-        spinner = self.animations.loading_spinner("Vérification du serveur")
         try:
             result = self._make_request("GET", "/health")
-            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Serveur opérationnel{Colors.END}")
             return result
         except Exception as e:
-            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Serveur hors ligne: {e}{Colors.END}")
             raise
     
     def get_system_info(self):
-        spinner = self.animations.loading_spinner("Informations système")
         try:
             result = self._make_request("GET", "/system/info")
-            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Informations système{Colors.END}")
             return result
         except Exception as e:
-            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur système: {e}{Colors.END}")
             raise
     
     def get_nginx_status(self):
-        spinner = self.animations.loading_spinner("Statut Nginx")
         try:
             result = self._make_request("GET", "/system/nginx/status")
-            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Statut Nginx{Colors.END}")
             return result
         except Exception as e:
-            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur Nginx: {e}{Colors.END}")
             raise
     
     # 📚 REPOSITORIES
     def create_repo(self, name: str, description: str = "", is_private: bool = False):
-        spinner = self.animations.loading_spinner("Création du repository")
         try:
             result = self._make_request("POST", "/repos",
                                 json={
@@ -402,25 +368,19 @@ class InitHUBClient:
                                     "is_private": is_private,
                                     "auto_init": True
                                 })
-            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Repository créé{Colors.END}")
             return result
         except Exception as e:
-            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur création: {e}{Colors.END}")
             raise
     
     def list_repos(self, page: int = 1, per_page: int = 30):
-        spinner = self.animations.loading_spinner("Récupération des repositories")
         try:
             result = self._make_request("GET", f"/repos?page={page}&per_page={per_page}")
-            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Repositories chargés{Colors.END}")
             return result
         except Exception as e:
-            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur chargement: {e}{Colors.END}")
             raise
     
     # 🤖 COPILOT
     def ask_copilot(self, question: str, context: str = "", max_length: int = 150, language: str = "auto"):
-        spinner = self.animations.loading_spinner("Copilot réfléchit")
         try:
             result = self._make_request("POST", "/copilot/ask",
                                 json={
@@ -429,209 +389,114 @@ class InitHUBClient:
                                     "max_length": max_length,
                                     "language": language
                                 })
-            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Réponse reçue{Colors.END}")
             return result
         except Exception as e:
-            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur Copilot: {e}{Colors.END}")
             raise
     
     def copilot_health(self):
-        spinner = self.animations.loading_spinner("Vérification Copilot")
         try:
             result = self._make_request("GET", "/copilot/health")
-            self.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Copilot vérifié{Colors.END}")
             return result
         except Exception as e:
-            self.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur vérification: {e}{Colors.END}")
+            raise
+    
+    # 🚀 PROJETS AVEC PUSH/PULL
+    def create_project(self, project_name: str):
+        """Crée un projet dans la base de données"""
+        try:
+            result = self._make_request("POST", "/repos",
+                                json={
+                                    "name": project_name,
+                                    "description": f"Projet {project_name}",
+                                    "is_private": True,
+                                    "auto_init": True
+                                })
+            return result
+        except Exception as e:
+            raise
+    
+    def push_project(self, project_name: str, files: List[Dict[str, Any]], force: bool = False):
+        """Pousse un projet vers initHUB"""
+        try:
+            result = self._make_request("POST", "/projects/push",
+                                json={
+                                    "project_name": project_name,
+                                    "files": files,
+                                    "force": force
+                                })
+            return result
+        except Exception as e:
+            raise
+    
+    def pull_project(self, project_name: str, target_path: str = None, force: bool = False):
+        """Télécharge un projet depuis initHUB"""
+        try:
+            result = self._make_request("POST", "/projects/pull",
+                                json={
+                                    "project_name": project_name,
+                                    "target_path": target_path,
+                                    "force": force
+                                })
+            return result
+        except Exception as e:
+            raise
+    
+    def list_projects(self, page: int = 1, per_page: int = 20):
+        """Liste tous les projets"""
+        try:
+            result = self._make_request("GET", f"/projects?page={page}&per_page={per_page}")
+            return result
+        except Exception as e:
+            raise
+    
+    def get_project_details(self, username: str, project_name: str):
+        """Récupère les détails d'un projet spécifique"""
+        try:
+            result = self._make_request("GET", f"/projects/{username}/{project_name}")
+            return result
+        except Exception as e:
+            raise
+    
+    def get_project_file(self, username: str, project_name: str, file_path: str):
+        """Récupère un fichier spécifique d'un projet"""
+        try:
+            result = self._make_request("GET", f"/projects/{username}/{project_name}/files/{file_path}")
+            return result
+        except Exception as e:
+            raise
+    
+    def upload_project_file(self, username: str, project_name: str, file_path: str, remote_path: str = ""):
+        """Upload un fichier dans un projet"""
+        try:
+            with open(file_path, 'rb') as f:
+                files = {'file': (Path(file_path).name, f)}
+                data = {'path': remote_path} if remote_path else {}
+                result = self._make_request("POST", f"/projects/{username}/{project_name}/upload", 
+                                         files=files, data=data)
+            return result
+        except Exception as e:
+            raise
+    
+    def delete_project(self, username: str, project_name: str):
+        """Supprime un projet"""
+        try:
+            result = self._make_request("DELETE", f"/projects/{username}/{project_name}")
+            return result
+        except Exception as e:
+            raise
+    
+    def sync_project(self, project_name: str, action: str = "status"):
+        """Synchronise un projet (push/pull/status)"""
+        try:
+            result = self._make_request("POST", f"/projects/sync?action={action}&project_name={project_name}")
+            return result
+        except Exception as e:
             raise
 
 api_client = InitHUBClient()
 
 # ============================================================================
-# 📄 SYSTÈME .SSF AVANCÉ
-# ============================================================================
-
-def create_ssf_manifest(project_name: str, project_type: str = "projet", 
-                       env: str = "python", description: str = "") -> str:
-    """Crée un manifest .ssf avancé"""
-    
-    ssf_content = f"""init.conf(
-    [name: {project_name}]
-    {{version: 1.0.0}}
-    :{{{{description: {description or f"Projet {project_name}"}}}}}
-    [{{type: {project_type}}}]
-    [{{env: {env}}}]
-    
-    # Dépendances
-    [{{dep=>env: requests, numpy}}]
-    
-    # Structure de fichiers
-    files: [
-        - *.py
-        - *.md
-        - requirements.txt
-        - !__pycache__/**
-        - !*.pyc
-    ]
-    
-    # Configuration
-    config: {{
-        main: main.py
-        language: {env}
-    }}
-)
-"""
-    return ssf_content
-
-def create_initignore(project_path: str):
-    """Crée un fichier .initignore par défaut"""
-    ignore_content = """# Fichiers à ignorer pour initHUB
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-.env
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
-*.log
-.cache
-.coverage
-.pytest_cache/
-build/
-dist/
-*.egg-info/
-"""
-    
-    ignore_path = Path(project_path) / ".initignore"
-    with open(ignore_path, 'w', encoding='utf-8') as f:
-        f.write(ignore_content)
-    
-    return ignore_path
-
-def create_web_project_template(project_path: str, project_type: str = "static"):
-    """Crée un template de projet web"""
-    project_path = Path(project_path)
-    
-    # Structure de base
-    (project_path / "public_html").mkdir(exist_ok=True)
-    (project_path / "public_html" / "css").mkdir(exist_ok=True)
-    (project_path / "public_html" / "js").mkdir(exist_ok=True)
-    (project_path / "public_html" / "images").mkdir(exist_ok=True)
-    
-    # index.html
-    index_content = """<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Site initHUB</title>
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            min-height: 100vh;
-        }
-        
-        .hero {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 4rem 2rem;
-            text-align: center;
-        }
-        
-        h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .btn {
-            display: inline-block;
-            background: white;
-            color: #667eea;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            margin-top: 2rem;
-            transition: transform 0.3s;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-    </style>
-</head>
-<body>
-    <div class="hero">
-        <h1>🚀 Bienvenue sur initHUB Cloud!</h1>
-        <p>Votre site web est hébergé sur initHUB Cloud Enterprise</p>
-        <a href="https://inithub.com" class="btn">Documentation</a>
-    </div>
-    
-    <script src="js/main.js"></script>
-</body>
-</html>"""
-    
-    (project_path / "public_html" / "index.html").write_text(index_content)
-    
-    # style.css
-    css_content = """/* Style principal */
-.hero {
-    animation: fadeIn 1s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}"""
-    
-    (project_path / "public_html" / "css" / "style.css").write_text(css_content)
-    
-    # main.js
-    js_content = """// Script principal
-console.log('🚀 Site initHUB chargé!');
-
-// Animation simple
-document.addEventListener('DOMContentLoaded', function() {
-    const hero = document.querySelector('.hero');
-    if (hero) {
-        hero.style.opacity = '0';
-        setTimeout(() => {
-            hero.style.transition = 'opacity 0.5s ease';
-            hero.style.opacity = '1';
-        }, 100);
-    }
-});"""
-    
-    (project_path / "public_html" / "js" / "main.js").write_text(js_content)
-    
-    return True
-
-# ============================================================================
-# 🚀 COMMANDES PRINCIPALES - TOUTES LES FONCTIONS
+# 🚀 COMMANDES PRINCIPALES
 # ============================================================================
 
 def handle_auth_login(args):
@@ -641,7 +506,6 @@ def handle_auth_login(args):
     email = args.email
     password = args.password
     
-    # Si pas d'email/password, demander interactivement
     if not email:
         email = input(f"{Colors.CYAN}📧 Email: {Colors.END}")
     if not password:
@@ -667,7 +531,6 @@ def handle_auth_register(args):
     password = args.password
     full_name = args.full_name or ""
     
-    # Si pas de paramètres, demander interactivement
     if not username:
         username = input(f"{Colors.CYAN}👤 Username: {Colors.END}")
     if not email:
@@ -720,7 +583,6 @@ def handle_auth_status(args):
         if user:
             print_success(f"Connecté en tant que: {user['username']}")
             
-            # Afficher le statut des services
             services = health.get('services', {})
             print(f"\n{Colors.YELLOW}🛠️ Services:{Colors.END}")
             for service, status in services.items():
@@ -750,28 +612,22 @@ def handle_hosting_create(args):
     domain = args.domain
     site_type = args.type or "static"
     
+    spinner = api_client.animations.loading_spinner("Création du site web")
     try:
         site = api_client.create_hosting_site(name, domain, site_type)
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Site web créé{Colors.END}")
         
         print_success(f"Site web créé: {site['name']}")
         print(f"{Colors.BLUE}🌐 URL:{Colors.END} {config.get_server_url()}{site['url']}")
         print(f"{Colors.YELLOW}🔧 Type:{Colors.END} {site['type']}")
         print(f"{Colors.GREEN}📅 Créé le:{Colors.END} {site['created_at']}")
         
-        # Créer une structure de projet local
-        if args.create_local:
-            local_path = Path(name)
-            if local_path.exists() and not args.force:
-                print_warning(f"Le dossier '{name}' existe déjà. Utilisez --force pour écraser.")
-            else:
-                create_web_project_template(name)
-                print_info(f"Structure de projet créée dans: ./{name}")
-        
         if args.open:
             webbrowser.open(f"{config.get_server_url()}{site['url']}")
         
         return True
     except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur création site{Colors.END}")
         print_error(f"Erreur création site: {e}")
         return False
 
@@ -782,8 +638,10 @@ def handle_hosting_list(args):
         print_error("Non connecté. Utilisez 'inithub auth login' d'abord.")
         return False
     
+    spinner = api_client.animations.loading_spinner("Récupération des sites")
     try:
         sites = api_client.list_hosting_sites()
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Sites chargés{Colors.END}")
         
         if not sites:
             print_info("Aucun site d'hébergement")
@@ -810,6 +668,7 @@ def handle_hosting_list(args):
         
         return True
     except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur liste sites{Colors.END}")
         print_error(f"Erreur liste sites: {e}")
         return False
 
@@ -820,26 +679,24 @@ def handle_hosting_status(args):
         print_error("Non connecté. Utilisez 'inithub auth login' d'abord.")
         return False
     
+    spinner = api_client.animations.loading_spinner("Vérification hébergement")
     try:
         status = api_client.get_hosting_status()
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Statut hébergement{Colors.END}")
         
         print_success(f"Statut hébergement pour {status['user']}")
         print(f"{Colors.BLUE}📊 Sites actifs:{Colors.END} {status['active_sites']}")
         print(f"{Colors.GREEN}💾 Espace utilisé:{Colors.END} {status['disk_usage']}")
-        
-        if status.get('monthly_traffic'):
-            print(f"{Colors.YELLOW}📈 Trafic mensuel:{Colors.END} {status['monthly_traffic']}")
         
         if status.get('limits'):
             limits = status['limits']
             print(f"\n{Colors.CYAN}📋 Limites:{Colors.END}")
             print(f"   📦 Stockage max: {limits['max_storage']}")
             print(f"   🌐 Sites max: {limits['max_sites']}")
-            if limits.get('max_databases'):
-                print(f"   🗄️  Bases de données max: {limits['max_databases']}")
         
         return True
     except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur statut hébergement{Colors.END}")
         print_error(f"Erreur statut hébergement: {e}")
         return False
 
@@ -850,8 +707,11 @@ def handle_files_list(args):
         print_error("Non connecté. Utilisez 'inithub auth login' d'abord.")
         return False
     
+    spinner = api_client.animations.loading_spinner("Liste des fichiers")
     try:
         files_data = api_client.list_files(args.path)
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Fichiers chargés{Colors.END}")
+        
         files = files_data.get('files', [])
         current_path = files_data.get('path', '')
         
@@ -867,7 +727,6 @@ def handle_files_list(args):
         for file in files:
             file_type = "📁" if file['type'] == 'directory' else "📄"
             size = f"{file['size'] / 1024:.1f} KB" if file['size'] > 0 else "-"
-            
             mod_time = datetime.fromtimestamp(file['modified']).strftime('%Y-%m-%d %H:%M')
             
             rows.append([
@@ -881,6 +740,7 @@ def handle_files_list(args):
         
         return True
     except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur liste fichiers{Colors.END}")
         print_error(f"Erreur liste fichiers: {e}")
         return False
 
@@ -896,17 +756,18 @@ def handle_files_upload(args):
         print_error(f"Fichier non trouvé: {file_path}")
         return False
     
+    spinner = api_client.animations.loading_spinner("Upload du fichier")
     try:
         result = api_client.upload_file(file_path, args.path)
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Fichier uploadé{Colors.END}")
         
         print_success(f"Fichier uploadé: {result['filename']}")
         print(f"{Colors.BLUE}📁 Chemin:{Colors.END} {result['path']}")
         print(f"{Colors.GREEN}📦 Taille:{Colors.END} {result['size']} bytes")
-        if result.get('url'):
-            print(f"{Colors.YELLOW}🌐 URL:{Colors.END} {config.get_server_url()}{result['url']}")
         
         return True
     except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur upload{Colors.END}")
         print_error(f"Erreur upload: {e}")
         return False
 
@@ -917,8 +778,10 @@ def handle_dashboard_show(args):
         print_error("Non connecté. Utilisez 'inithub auth login' d'abord.")
         return False
     
+    spinner = api_client.animations.loading_spinner("Chargement dashboard")
     try:
         dashboard = api_client.get_dashboard()
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Dashboard chargé{Colors.END}")
         
         print_success("Dashboard initHUB Cloud")
         print(f"{Colors.BLUE}📊 Vue d'ensemble:{Colors.END}")
@@ -926,30 +789,24 @@ def handle_dashboard_show(args):
         print(f"   ⭐ Stars: {dashboard['total_stars']}")
         print(f"   🔀 Forks: {dashboard['total_forks']}")
         
-        if dashboard.get('user_activity'):
-            activity = dashboard['user_activity']
-            print(f"\n{Colors.GREEN}📈 Votre activité:{Colors.END}")
-            if activity.get('repos_created'):
-                print(f"   📁 Repos créés: {activity['repos_created']}")
-            if activity.get('repos_starred'):
-                print(f"   ⭐ Repos starés: {activity['repos_starred']}")
-        
         if args.open:
             webbrowser.open(f"{config.get_server_url()}/app")
         
         return True
     except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur dashboard{Colors.END}")
         print_error(f"Erreur dashboard: {e}")
         return False
 
 def handle_system_health(args):
     """Vérifie la santé du système"""
+    spinner = api_client.animations.loading_spinner("Vérification du serveur")
     try:
         health = api_client.health_check()
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Serveur opérationnel{Colors.END}")
         
         print_success("initHUB Cloud - Santé du système")
         print(f"{Colors.BLUE}📊 Version:{Colors.END} {health.get('version', 'N/A')}")
-        print(f"{Colors.GREEN}📅 Date:{Colors.END} {health.get('timestamp', 'N/A')}")
         
         if health.get('services'):
             print(f"\n{Colors.YELLOW}🛠️ Services:{Colors.END}")
@@ -957,20 +814,18 @@ def handle_system_health(args):
                 status_icon = "🟢" if status in ['online', 'running'] else "🔴"
                 print(f"   {status_icon} {service}: {status}")
         
-        if health.get('resources'):
-            print(f"\n{Colors.CYAN}📦 Ressources:{Colors.END}")
-            for resource, value in health['resources'].items():
-                print(f"   📊 {resource}: {value}")
-        
         return True
     except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Serveur hors ligne{Colors.END}")
         print_error(f"Erreur vérification santé: {e}")
         return False
 
 def handle_system_info(args):
     """Informations système détaillées"""
+    spinner = api_client.animations.loading_spinner("Informations système")
     try:
         info = api_client.get_system_info()
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Informations système{Colors.END}")
         
         print_success("Informations système détaillées")
         
@@ -986,73 +841,67 @@ def handle_system_info(args):
                 for key, value in details.items():
                     print(f"     📌 {key}: {value}")
         
-        if info.get('inithub'):
-            print(f"\n{Colors.YELLOW}🚀 initHUB:{Colors.END}")
-            init_info = info['inithub']
-            if init_info.get('storage_paths'):
-                print("   📁 Chemins de stockage:")
-                for name, path in init_info['storage_paths'].items():
-                    print(f"     📂 {name}: {path}")
-            
-            if init_info.get('git_repos_count'):
-                print(f"   📚 Repos Git: {init_info['git_repos_count']}")
-        
         return True
     except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur informations système{Colors.END}")
         print_error(f"Erreur informations système: {e}")
         return False
 
 def handle_system_nginx(args):
     """Statut de nginx"""
+    spinner = api_client.animations.loading_spinner("Statut Nginx")
     try:
         nginx_status = api_client.get_nginx_status()
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Statut Nginx{Colors.END}")
         
         if nginx_status['running']:
             print_success("Nginx est en cours d'exécution")
             print(f"{Colors.GREEN}🌐 Sites activés:{Colors.END} {nginx_status['sites_enabled']}")
-            print(f"{Colors.BLUE}📁 Configuration:{Colors.END} {nginx_status['config_path']}")
         else:
             print_error("Nginx n'est pas en cours d'exécution")
-            if nginx_status.get('error'):
-                print(f"   {Colors.RED}Erreur:{Colors.END} {nginx_status['error']}")
         
         return nginx_status['running']
     except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur Nginx{Colors.END}")
         print_error(f"Erreur statut nginx: {e}")
         return False
 
 def handle_repo_create(args):
     """Crée un nouveau repository"""
-    name = args.name
-    description = args.description or ""
-    is_private = args.private
-    
     user = api_client.get_current_user()
     if not user:
         print_error("Non connecté. Utilisez 'inithub auth login' d'abord.")
         return False
     
+    name = args.name
+    description = args.description or ""
+    is_private = args.private
+    
+    spinner = api_client.animations.loading_spinner("Création du repository")
     try:
         repo = api_client.create_repo(name, description, is_private)
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Repository créé{Colors.END}")
         
         print_success(f"Repository créé: {repo['full_name']}")
         print(f"{Colors.BLUE}📝 Description:{Colors.END} {repo['description'] or 'Aucune description'}")
         print(f"{Colors.YELLOW}🔒 Visibilité:{Colors.END} {'🔒 Privé' if repo['is_private'] else '🌐 Public'}")
         print(f"{Colors.CYAN}🌐 URL:{Colors.END} {repo['html_url']}")
-        print(f"{Colors.GREEN}📅 Créé le:{Colors.END} {repo['created_at']}")
         
         if args.open:
             webbrowser.open(repo['html_url'])
         
         return True
     except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur création repository{Colors.END}")
         print_error(f"Erreur création repository: {e}")
         return False
 
 def handle_repo_list(args):
     """Liste les repositories"""
+    spinner = api_client.animations.loading_spinner("Récupération des repositories")
     try:
         repos = api_client.list_repos()
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Repositories chargés{Colors.END}")
         
         if not repos:
             print_info("Aucun repository trouvé")
@@ -1073,17 +922,15 @@ def handle_repo_list(args):
                 stats.append(f"{Colors.YELLOW}⭐ {repo['stars_count']}{Colors.END}")
             if repo.get('forks_count', 0) > 0:
                 stats.append(f"{Colors.GREEN}🔀 {repo['forks_count']}{Colors.END}")
-            if repo.get('watchers_count', 0) > 0:
-                stats.append(f"{Colors.CYAN}👁️ {repo['watchers_count']}{Colors.END}")
             
             if stats:
                 print(f"   {' '.join(stats)}")
             
-            print(f"   {Colors.MAGENTA}📅 Mis à jour:{Colors.END} {repo.get('updated_at', 'N/A')}")
             print()
         
         return True
     except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur liste repositories{Colors.END}")
         print_error(f"Erreur liste repositories: {e}")
         return False
 
@@ -1092,7 +939,6 @@ def handle_copilot_ask(args):
     question = args.question
     context = args.context or ""
     
-    # Si pas de question, demander interactivement
     if not question:
         question = input(f"{Colors.CYAN}🤖 Question pour Copilot: {Colors.END}")
     
@@ -1100,57 +946,41 @@ def handle_copilot_ask(args):
         print_error("Question requise")
         return False
     
+    spinner = api_client.animations.loading_spinner("Copilot réfléchit")
     try:
-        # Vérifier d'abord la santé de Copilot avec animation
-        health_spinner = api_client.animations.loading_spinner("Vérification Copilot")
-        try:
-            health = api_client.copilot_health()
-            api_client.animations.stop_loading(health_spinner, f"{Colors.GREEN}✅ Copilot disponible{Colors.END}")
-        except:
-            api_client.animations.stop_loading(health_spinner, f"{Colors.RED}❌ Copilot indisponible{Colors.END}")
-            return False
-        
-        if not health.get('online', False):
-            print_error("Copilot n'est pas disponible")
-            return False
-        
         response = api_client.ask_copilot(question, context)
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Réponse reçue{Colors.END}")
         
         print(f"\n{Colors.CYAN}🤖 Copilot 🪖:{Colors.END}")
         print("─" * 80)
         print(f"{Colors.WHITE}{response['response']}{Colors.END}")
         print("─" * 80)
         
-        if response.get('copilot_online'):
-            print(f"{Colors.GREEN}🟢 Copilot en ligne{Colors.END}")
-        
-        if response.get('timestamp'):
-            print(f"{Colors.BLUE}📅 Réponse générée à:{Colors.END} {response['timestamp']}")
-        
         return True
     except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur Copilot{Colors.END}")
         print_error(f"Erreur Copilot: {e}")
         return False
 
 def handle_copilot_health(args):
     """Vérifie l'état de Copilot"""
+    spinner = api_client.animations.loading_spinner("Vérification Copilot")
     try:
         health = api_client.copilot_health()
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Copilot vérifié{Colors.END}")
         
         status = f"{Colors.GREEN}🟢 EN LIGNE{Colors.END}" if health['online'] else f"{Colors.RED}🔴 HORS LIGNE{Colors.END}"
         print(f"{Colors.CYAN}🤖 Copilot:{Colors.END} {status}")
         print(f"{Colors.BLUE}🌐 URL:{Colors.END} {health['base_url']}")
         
-        if health.get('timestamp'):
-            print(f"{Colors.YELLOW}📅 Dernière vérification:{Colors.END} {health['timestamp']}")
-        
         return health['online']
     except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur vérification Copilot{Colors.END}")
         print_error(f"Erreur vérification Copilot: {e}")
         return False
 
-def handle_init_project(args):
-    """Initialise un nouveau projet avec manifest .ssf"""
+def handle_project_init(args):
+    """Initialise un nouveau projet local"""
     project_name = args.project_name or "mon-projet"
     project_type = args.type or "projet"
     env = args.env or "python"
@@ -1168,19 +998,23 @@ def handle_init_project(args):
         # Créer la structure
         project_path.mkdir(exist_ok=True)
         
-        # Créer le manifest .ssf
-        ssf_content = create_ssf_manifest(project_name, project_type, env, description)
-        ssf_path = project_path / "init.ssf"
-        with open(ssf_path, 'w', encoding='utf-8') as f:
-            f.write(ssf_content)
-        
-        # Créer .initignore
-        ignore_path = create_initignore(project_path)
-        
-        # Créer des fichiers de base
+        # Créer README
         readme_content = f"# {project_name}\n\n{description}\n"
         with open(project_path / "README.md", 'w', encoding='utf-8') as f:
             f.write(readme_content)
+        
+        # Créer .inithubignore
+        ignore_content = """# Fichiers à ignorer pour initHUB
+__pycache__/
+*.pyc
+.env
+.venv/
+node_modules/
+dist/
+build/
+"""
+        with open(project_path / ".inithubignore", 'w', encoding='utf-8') as f:
+            f.write(ignore_content)
         
         # Créer un fichier Python principal si env est python
         if env == "python":
@@ -1199,37 +1033,20 @@ if __name__ == "__main__":
             with open(project_path / "main.py", 'w', encoding='utf-8') as f:
                 f.write(main_content)
         
-        # Créer requirements.txt
-        requirements_content = f"""# Dépendances pour {project_name}
-requests>=2.28.0
-python-dotenv>=0.21.0
-"""
-        with open(project_path / "requirements.txt", 'w', encoding='utf-8') as f:
-            f.write(requirements_content)
-        
-        # Si c'est un projet web, créer la structure web
-        if project_type in ["web", "static", "api"]:
-            create_web_project_template(project_path, project_type)
-        
-        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Projet initialisé avec succès!{Colors.END}")
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Projet initialisé localement{Colors.END}")
         
         print(f"\n{Colors.CYAN}📁 Structure créée:{Colors.END}")
-        print(f"   📄 {ssf_path.name} {Colors.YELLOW}(manifest principal){Colors.END}")
-        print(f"   📄 {ignore_path.name} {Colors.BLUE}(fichiers ignorés){Colors.END}")
         print(f"   📄 README.md {Colors.GREEN}(documentation){Colors.END}")
+        print(f"   📄 .inithubignore {Colors.BLUE}(fichiers ignorés){Colors.END}")
         if env == "python":
             print(f"   📄 main.py {Colors.MAGENTA}(point d'entrée){Colors.END}")
-            print(f"   📄 requirements.txt {Colors.CYAN}(dépendances){Colors.END}")
-        
-        if project_type in ["web", "static", "api"]:
-            print(f"   📁 public_html/ {Colors.YELLOW}(contenu web){Colors.END}")
         
         print(f"\n{Colors.YELLOW}🚀 Prochaines étapes:{Colors.END}")
         print(f"   1. {Colors.CYAN}cd {project_name}{Colors.END}")
         print(f"   2. {Colors.GREEN}inithub auth login{Colors.END} {Colors.YELLOW}(si pas connecté){Colors.END}")
         
         if args.create_repo:
-            print(f"   3. {Colors.BLUE}inithub repo create --name {project_name} --description '{description}'{Colors.END}")
+            print(f"   3. {Colors.BLUE}inithub repo create --name {project_name}{Colors.END}")
         
         if args.create_hosting and project_type in ["web", "static"]:
             print(f"   4. {Colors.MAGENTA}inithub hosting create --name {project_name} --type {project_type}{Colors.END}")
@@ -1241,12 +1058,306 @@ python-dotenv>=0.21.0
         print_error(f"Erreur: {e}")
         return False
 
+def handle_project_push(args):
+    """Pousse un projet local vers initHUB"""
+    user = api_client.get_current_user()
+    if not user:
+        print_error("Non connecté. Utilisez 'inithub auth login' d'abord.")
+        return False
+    
+    project_name = args.project_name
+    force = args.force
+    
+    if not project_name:
+        project_name = input(f"{Colors.CYAN}📁 Nom du projet: {Colors.END}")
+    
+    if not project_name:
+        print_error("Nom du projet requis")
+        return False
+    
+    # Vérifier si le projet existe localement
+    project_path = Path(project_name)
+    if not project_path.exists():
+        print_error(f"Projet local '{project_name}' non trouvé")
+        return False
+    
+    spinner = api_client.animations.loading_spinner("Préparation du push")
+    
+    try:
+        # Lire les fichiers
+        files = []
+        total_size = 0
+        
+        for file_path in project_path.rglob("*"):
+            if file_path.is_file():
+                # Ignorer certains fichiers
+                if any(ignore in str(file_path) for ignore in ['.git', '__pycache__', '.venv']):
+                    continue
+                
+                with open(file_path, 'rb') as f:
+                    content = f.read()
+                
+                relative_path = str(file_path.relative_to(project_path))
+                
+                files.append({
+                    "name": file_path.name,
+                    "path": relative_path,
+                    "content": base64.b64encode(content).decode('utf-8'),
+                    "size": len(content)
+                })
+                total_size += len(content)
+        
+        if not files:
+            print_error("Aucun fichier à pousser")
+            return False
+        
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ {len(files)} fichiers prêts{Colors.END}")
+        
+        # Pousser vers le serveur
+        push_spinner = api_client.animations.loading_spinner("Envoi vers initHUB Cloud")
+        result = api_client.push_project(project_name, files, force)
+        api_client.animations.stop_loading(push_spinner, f"{Colors.GREEN}✅ Projet poussé avec succès{Colors.END}")
+        
+        print_success(f"Projet '{project_name}' poussé vers initHUB")
+        print(f"{Colors.BLUE}📦 Fichiers:{Colors.END} {len(files)}")
+        print(f"{Colors.GREEN}💾 Taille totale:{Colors.END} {total_size / 1024:.2f} KB")
+        print(f"{Colors.CYAN}🌐 URL du projet:{Colors.END} {config.get_server_url()}/projects/{user['username']}/{project_name}")
+        
+        return True
+        
+    except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur push{Colors.END}")
+        print_error(f"Erreur push: {e}")
+        return False
+
+def handle_project_pull(args):
+    """Télécharge un projet depuis initHUB"""
+    user = api_client.get_current_user()
+    if not user:
+        print_error("Non connecté. Utilisez 'inithub auth login' d'abord.")
+        return False
+    
+    project_name = args.project_name
+    target_path = args.path or project_name
+    force = args.force
+    
+    if not project_name:
+        project_name = input(f"{Colors.CYAN}📁 Nom du projet à télécharger: {Colors.END}")
+    
+    if not project_name:
+        print_error("Nom du projet requis")
+        return False
+    
+    # Vérifier si le dossier existe déjà
+    target_dir = Path(target_path)
+    if target_dir.exists() and not force:
+        print_error(f"Le dossier '{target_path}' existe déjà. Utilisez --force pour écraser.")
+        return False
+    
+    spinner = api_client.animations.loading_spinner("Téléchargement du projet")
+    
+    try:
+        # Télécharger le projet
+        result = api_client.pull_project(project_name, target_path, force)
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Projet téléchargé{Colors.END}")
+        
+        if not result.get('success', False):
+            print_error("Erreur lors du téléchargement")
+            return False
+        
+        files = result.get('files', [])
+        
+        print_success(f"Projet '{project_name}' téléchargé")
+        print(f"{Colors.BLUE}📦 Fichiers:{Colors.END} {len(files)}")
+        print(f"{Colors.GREEN}💾 Taille totale:{Colors.END} {result.get('total_size', 0) / 1024:.2f} KB")
+        print(f"{Colors.CYAN}📁 Dossier:{Colors.END} {target_path}")
+        
+        # Écrire les fichiers
+        for file_info in files:
+            file_path = target_dir / file_info['path']
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            content = base64.b64decode(file_info['content'])
+            with open(file_path, 'wb') as f:
+                f.write(content)
+        
+        print_success(f"✅ {len(files)} fichiers écrits dans '{target_path}'")
+        
+        return True
+        
+    except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur pull{Colors.END}")
+        print_error(f"Erreur pull: {e}")
+        return False
+
+def handle_project_list(args):
+    """Liste les projets sur initHUB"""
+    user = api_client.get_current_user()
+    if not user:
+        print_error("Non connecté. Utilisez 'inithub auth login' d'abord.")
+        return False
+    
+    spinner = api_client.animations.loading_spinner("Récupération des projets")
+    
+    try:
+        result = api_client.list_projects()
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Projets chargés{Colors.END}")
+        
+        projects = result.get('projects', [])
+        
+        if not projects:
+            print_info("Aucun projet trouvé")
+            return True
+        
+        print(f"{Colors.CYAN}📁 Projets ({len(projects)}):{Colors.END}")
+        
+        headers = ["Nom", "Type", "Fichiers", "Taille", "Visibilité", "Dernière modif"]
+        rows = []
+        
+        for project in projects:
+            visibility = "🔒" if project.get('is_private', True) else "🌐"
+            size_mb = (project.get('total_size', 0) / (1024 * 1024))
+            
+            rows.append([
+                project['full_name'],
+                project.get('type', 'projet'),
+                project.get('files_count', 0),
+                f"{size_mb:.1f} MB" if size_mb > 0 else "-",
+                visibility,
+                project.get('updated_at', 'N/A')[:10]
+            ])
+        
+        print_table(headers, rows)
+        
+        return True
+        
+    except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur liste projets{Colors.END}")
+        print_error(f"Erreur liste projets: {e}")
+        return False
+
+def handle_project_show(args):
+    """Affiche les détails d'un projet"""
+    user = api_client.get_current_user()
+    if not user:
+        print_error("Non connecté. Utilisez 'inithub auth login' d'abord.")
+        return False
+    
+    project_name = args.project_name
+    
+    if not project_name:
+        project_name = input(f"{Colors.CYAN}📁 Nom du projet: {Colors.END}")
+    
+    if not project_name:
+        print_error("Nom du projet requis")
+        return False
+    
+    spinner = api_client.animations.loading_spinner("Récupération des détails")
+    
+    try:
+        project = api_client.get_project_details(user['username'], project_name)
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Détails chargés{Colors.END}")
+        
+        print_success(f"📁 Projet: {project['full_name']}")
+        print(f"{Colors.BLUE}📝 Description:{Colors.END} {project.get('description', 'Aucune description')}")
+        print(f"{Colors.YELLOW}👤 Propriétaire:{Colors.END} {project['owner']['username']}")
+        print(f"{Colors.GREEN}🔒 Visibilité:{Colors.END} {'🔒 Privé' if project['is_private'] else '🌐 Public'}")
+        print(f"{Colors.CYAN}📊 Statistiques:{Colors.END}")
+        print(f"   📦 Fichiers: {project.get('files_count', 0)}")
+        print(f"   💾 Taille: {project.get('total_size', 0) / 1024:.2f} KB")
+        print(f"   ⭐ Stars: {project.get('stars_count', 0)}")
+        print(f"   🔀 Forks: {project.get('forks_count', 0)}")
+        
+        if project.get('files') and len(project['files']) > 0:
+            print(f"\n{Colors.MAGENTA}📄 Fichiers ({len(project['files'])}):{Colors.END}")
+            for file in project['files'][:10]:  # Limiter à 10 fichiers
+                size_kb = file['size'] / 1024
+                print(f"   📄 {file['path']} ({size_kb:.1f} KB)")
+            
+            if len(project['files']) > 10:
+                print(f"   ... et {len(project['files']) - 10} autres fichiers")
+        
+        print(f"\n{Colors.YELLOW}🔗 URLs:{Colors.END}")
+        urls = project.get('urls', {})
+        for key, url in urls.items():
+            print(f"   {key}: {config.get_server_url()}{url}")
+        
+        return True
+        
+    except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur détails projet{Colors.END}")
+        print_error(f"Erreur détails projet: {e}")
+        return False
+
+def handle_project_sync(args):
+    """Synchronise un projet (push/pull/status)"""
+    user = api_client.get_current_user()
+    if not user:
+        print_error("Non connecté. Utilisez 'inithub auth login' d'abord.")
+        return False
+    
+    project_name = args.project_name
+    action = args.action or "status"
+    
+    if not project_name:
+        project_name = input(f"{Colors.CYAN}📁 Nom du projet: {Colors.END}")
+    
+    if not project_name:
+        print_error("Nom du projet requis")
+        return False
+    
+    spinner = api_client.animations.loading_spinner(f"Synchronisation ({action})")
+    
+    try:
+        result = api_client.sync_project(project_name, action)
+        api_client.animations.stop_loading(spinner, f"{Colors.GREEN}✅ Synchronisation terminée{Colors.END}")
+        
+        if action == "status":
+            print_success(f"📊 Statut de synchronisation pour '{project_name}'")
+            
+            sync_status = result.get('sync_status', {})
+            
+            local_only = sync_status.get('local_only', [])
+            remote_only = sync_status.get('remote_only', [])
+            both = sync_status.get('both', [])
+            
+            print(f"{Colors.BLUE}📁 Fichiers locaux uniquement:{Colors.END} {len(local_only)}")
+            if local_only and args.verbose:
+                for file in local_only[:5]:
+                    print(f"   📄 {file.get('path', 'N/A')}")
+            
+            print(f"{Colors.GREEN}☁️ Fichiers distants uniquement:{Colors.END} {len(remote_only)}")
+            if remote_only and args.verbose:
+                for file in remote_only[:5]:
+                    print(f"   📄 {file.get('path', 'N/A')}")
+            
+            print(f"{Colors.YELLOW}🔄 Fichiers synchronisés:{Colors.END} {len(both)}")
+            
+            if len(local_only) > 0:
+                print(f"\n{Colors.CYAN}💡 Conseils:{Colors.END}")
+                print("   Pour pousser les fichiers locaux: inithub project push")
+                print("   Pour télécharger les fichiers distants: inithub project pull")
+        
+        elif action == "push":
+            print_success(f"✅ Push réussi pour '{project_name}'")
+            print(f"{Colors.BLUE}📦 Fichiers envoyés:{Colors.END} {result.get('files_count', 0)}")
+        
+        elif action == "pull":
+            print_success(f"✅ Pull réussi pour '{project_name}'")
+            print(f"{Colors.GREEN}📥 Fichiers téléchargés:{Colors.END} {result.get('remote_files_count', 0)}")
+        
+        return True
+        
+    except Exception as e:
+        api_client.animations.stop_loading(spinner, f"{Colors.RED}❌ Erreur synchronisation{Colors.END}")
+        print_error(f"Erreur synchronisation: {e}")
+        return False
+
 def handle_config_set(args):
     """Configure les paramètres du CLI"""
     if args.server:
         print_warning("URL serveur verrouillée sur la production")
         print_info(f"Utilisation de: {config.get_server_url()}")
-        print_info("Le serveur ne peut pas être modifié - connecté à la production")
     
     if args.open_browser is not None:
         config.data["auto_open_browser"] = args.open_browser
@@ -1280,7 +1391,6 @@ def handle_config_show(args):
         user = api_client.get_current_user()
         if user:
             print(f"   👤 Utilisateur: {user['username']}")
-            print(f"   📧 Email: {user['email']}")
     else:
         print(f"\n{Colors.YELLOW}🔐 Connecté:{Colors.END} Non")
     
@@ -1289,7 +1399,6 @@ def handle_config_show(args):
     try:
         health = api_client.health_check()
         print(f"   {Colors.GREEN}🟢 Serveur accessible{Colors.END}")
-        print(f"   📊 Version: {health.get('version', 'N/A')}")
     except Exception as e:
         print(f"   {Colors.RED}🔴 Serveur inaccessible: {e}{Colors.END}")
     
@@ -1325,13 +1434,13 @@ def handle_apropos(args):
 {Colors.BLUE}🌐 URL: {config.get_server_url()}{Colors.END}
 
 {Colors.GREEN}🎯 QU'EST-CE QUE INITIUB ?{Colors.END}
-initHUB est une plateforme cloud complète pour le développement collaboratif
-avec Git, IA Copilot, gestion de projets, hébergement web et déploiement cloud.
+initHUB est une plateforme cloud complète avec Git, IA Copilot, hébergement web,
+gestion de projets et synchronisation cloud.
 
 {Colors.YELLOW}🚀 COMMANDES PRINCIPALES:{Colors.END}
 
 {Colors.CYAN}🔐 AUTHENTIFICATION:{Colors.END}
-  {Colors.BOLD}inithub auth login{Colors.END}          - Connexion au serveur
+  {Colors.BOLD}inithub auth login{Colors.END}          - Connexion
   {Colors.BOLD}inithub auth register{Colors.END}       - Création de compte
   {Colors.BOLD}inithub auth logout{Colors.END}         - Déconnexion
   {Colors.BOLD}inithub auth whoami{Colors.END}         - Utilisateur connecté
@@ -1346,22 +1455,26 @@ avec Git, IA Copilot, gestion de projets, hébergement web et déploiement cloud
   {Colors.BOLD}inithub files list{Colors.END}          - Lister les fichiers
   {Colors.BOLD}inithub files upload{Colors.END}        - Uploader un fichier
 
-{Colors.GREEN}📊 DASHBOARD:{Colors.END}
-  {Colors.BOLD}inithub dashboard{Colors.END}           - Afficher le dashboard
+{Colors.GREEN}🚀 GESTION DE PROJETS:{Colors.END}
+  {Colors.BOLD}inithub project init{Colors.END}        - Initialiser un projet local
+  {Colors.BOLD}inithub project push{Colors.END}        - Pousser un projet vers cloud
+  {Colors.BOLD}inithub project pull{Colors.END}        - Télécharger un projet depuis cloud
+  {Colors.BOLD}inithub project list{Colors.END}        - Lister mes projets
+  {Colors.BOLD}inithub project show{Colors.END}        - Détails d'un projet
+  {Colors.BOLD}inithub project sync{Colors.END}        - Synchroniser un projet
 
-{Colors.YELLOW}🛠️ SYSTÈME:{Colors.END}
-  {Colors.BOLD}inithub system health{Colors.END}       - Santé du système
-  {Colors.BOLD}inithub system info{Colors.END}         - Informations système
-  {Colors.BOLD}inithub system nginx{Colors.END}        - Statut nginx
-
-{Colors.CYAN}📁 GESTION PROJETS:{Colors.END}
-  {Colors.BOLD}inithub init{Colors.END}                - Initialiser un nouveau projet
+{Colors.YELLOW}📁 REPOSITORIES GIT:{Colors.END}
   {Colors.BOLD}inithub repo create{Colors.END}         - Créer un repository
   {Colors.BOLD}inithub repo list{Colors.END}           - Lister mes repositories
 
-{Colors.MAGENTA}🤖 ASSISTANT IA:{Colors.END}
+{Colors.CYAN}🤖 ASSISTANT IA:{Colors.END}
   {Colors.BOLD}inithub copilot ask{Colors.END}         - Poser une question à Copilot
   {Colors.BOLD}inithub copilot health{Colors.END}      - Vérifier Copilot
+
+{Colors.MAGENTA}🛠️ SYSTÈME:{Colors.END}
+  {Colors.BOLD}inithub system health{Colors.END}       - Santé du système
+  {Colors.BOLD}inithub system info{Colors.END}         - Informations système
+  {Colors.BOLD}inithub system nginx{Colors.END}        - Statut nginx
 
 {Colors.BLUE}⚙️ CONFIGURATION:{Colors.END}
   {Colors.BOLD}inithub config set{Colors.END}          - Configurer le CLI
@@ -1371,38 +1484,10 @@ avec Git, IA Copilot, gestion de projets, hébergement web et déploiement cloud
 {Colors.GREEN}📚 DOCUMENTATION:{Colors.END}
   {Colors.BOLD}inithub apropos{Colors.END}             - Cette documentation
 
-{Colors.YELLOW}📄 FORMAT .SSF:{Colors.END}
-Le format .ssf est le manifest initHUB pour décrire les projets.
-
-{Colors.CYAN}🎯 EXEMPLES PRATIQUES:{Colors.END}
-
-  1. {Colors.BOLD}Créer et héberger un site web:{Colors.END}
-     {Colors.GREEN}inithub init --project-name mon-site --type web{Colors.END}
-     {Colors.BLUE}inithub auth login{Colors.END}
-     {Colors.MAGENTA}inithub hosting create --name mon-site --type static{Colors.END}
-     {Colors.YELLOW}inithub web open{Colors.END}
-
-  2. {Colors.BOLD}Gérer un projet Git:{Colors.END}
-     {Colors.GREEN}inithub init --project-name mon-app{Colors.END}
-     {Colors.BLUE}inithub auth login{Colors.END}
-     {Colors.MAGENTA}inithub repo create --name mon-app{Colors.END}
-
-  3. {Colors.BOLD}Utiliser Copilot:{Colors.END}
-     {Colors.GREEN}inithub copilot ask --question "Comment créer une API REST?"{Colors.END}
-
-  4. {Colors.BOLD}Gestion de fichiers cloud:{Colors.END}
-     {Colors.GREEN}inithub files list{Colors.END}
-     {Colors.BLUE}inithub files upload monfichier.txt{Colors.END}
-
 {Colors.YELLOW}📞 SUPPORT:{Colors.END}
   • Documentation: {Colors.CYAN}inithub apropos{Colors.END}
   • Serveur: {Colors.GREEN}{config.get_server_url()}{Colors.END}
   • Interface web: {Colors.MAGENTA}inithub web open{Colors.END}
-
-{Colors.RED}🔒 SÉCURITÉ:{Colors.END}
-  • URL serveur verrouillée sur la production
-  • Impossible de changer de serveur
-  • Connexion sécurisée HTTPS
 """
     print(docs)
     return True
@@ -1414,19 +1499,6 @@ Le format .ssf est le manifest initHUB pour décrire les projets.
 def main():
     print_banner()
     
-    # SUPPRIME TOUTE ANCIENNE CONFIG LOCALHOST
-    config_path = Path.home() / ".inithub" / "config.json"
-    if config_path.exists():
-        try:
-            with open(config_path, 'r') as f:
-                old_config = json.load(f)
-                if old_config.get('server_url', '').startswith('http://localhost'):
-                    print_warning("⚠️  Suppression de l'ancienne configuration localhost")
-                    # Réinitialise la configuration
-                    config = CLIConfig()
-        except:
-            pass
-    
     parser = argparse.ArgumentParser(
         description=f"{Colors.CYAN}🚀 initHUB CLI - Plateforme Cloud Production{Colors.END}",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -1436,22 +1508,20 @@ def main():
 
 {Colors.YELLOW}📖 Exemples rapides:{Colors.END}
 
-{Colors.GREEN}Créer un compte:{Colors.END}
-  inithub auth register --email votre@email.com --password secret --username votrepseudo
+{Colors.GREEN}Créer et pousser un projet:{Colors.END}
+  inithub project init --project-name mon-app
+  inithub auth login
+  inithub project push --project-name mon-app
 
-{Colors.GREEN}Se connecter:{Colors.END}
-  inithub auth login --email votre@email.com --password secret
+{Colors.GREEN}Héberger un site web:{Colors.END}
+  inithub hosting create --name mon-site --type static
 
-{Colors.GREEN}Vérifier la connexion:{Colors.END}
-  inithub auth status
-
-{Colors.GREEN}Créer un site web:{Colors.END}
-  inithub init --project-name mon-site --type web
-  inithub hosting create --name mon-site
+{Colors.GREEN}Gérer des fichiers:{Colors.END}
+  inithub files list
+  inithub files upload monfichier.txt
 
 {Colors.YELLOW}Documentation:{Colors.END}
   inithub apropos
-  inithub web open --page docs
         """
     )
     
@@ -1484,8 +1554,6 @@ def main():
     hosting_create_parser.add_argument('--name', required=True, help='Nom du site')
     hosting_create_parser.add_argument('--domain', help='Domaine personnalisé')
     hosting_create_parser.add_argument('--type', choices=['static', 'php', 'nodejs', 'python'], default='static', help='Type de site')
-    hosting_create_parser.add_argument('--create-local', action='store_true', help='Créer une structure locale')
-    hosting_create_parser.add_argument('--force', action='store_true', help='Écraser les fichiers existants')
     hosting_create_parser.add_argument('--open', action='store_true', help='Ouvrir dans le navigateur')
     
     hosting_subparsers.add_parser('list', help='Lister les sites')
@@ -1502,30 +1570,40 @@ def main():
     files_upload_parser.add_argument('file', help='Chemin du fichier local')
     files_upload_parser.add_argument('--path', default='', help='Chemin distant')
     
-    # 📊 Dashboard
-    dashboard_parser = subparsers.add_parser('dashboard', help='📊 Tableau de bord')
-    dashboard_parser.add_argument('--open', action='store_true', help='Ouvrir dans le navigateur')
+    # 🚀 Projets
+    project_parser = subparsers.add_parser('project', help='🚀 Gestion de projets')
+    project_subparsers = project_parser.add_subparsers(dest='project_command', help='Sous-commandes')
     
-    # 🛠️ Système
-    system_parser = subparsers.add_parser('system', help='🛠️ Système et monitoring')
-    system_subparsers = system_parser.add_subparsers(dest='system_command', help='Sous-commandes')
+    project_init_parser = project_subparsers.add_parser('init', help='Initialiser un projet local')
+    project_init_parser.add_argument('--project-name', help='Nom du projet')
+    project_init_parser.add_argument('--type', choices=['projet', 'web', 'api', 'cloud'], default='projet', help='Type de projet')
+    project_init_parser.add_argument('--env', choices=['python', 'javascript', 'node', 'java'], default='python', help='Environnement')
+    project_init_parser.add_argument('--description', help='Description du projet')
+    project_init_parser.add_argument('--force', action='store_true', help='Écraser le projet existant')
+    project_init_parser.add_argument('--create-repo', action='store_true', help='Créer un repository après initialisation')
+    project_init_parser.add_argument('--create-hosting', action='store_true', help='Créer un hébergement web après initialisation')
     
-    system_subparsers.add_parser('health', help='Santé du système')
-    system_subparsers.add_parser('info', help='Informations système')
-    system_subparsers.add_parser('nginx', help='Statut nginx')
+    project_push_parser = project_subparsers.add_parser('push', help='Pousser un projet vers cloud')
+    project_push_parser.add_argument('--project-name', help='Nom du projet')
+    project_push_parser.add_argument('--force', action='store_true', help='Forcer le push')
     
-    # 📁 Projets
-    init_parser = subparsers.add_parser('init', help='📁 Initialiser un nouveau projet')
-    init_parser.add_argument('--project-name', help='Nom du projet')
-    init_parser.add_argument('--type', choices=['projet', 'web', 'api', 'cloud'], default='projet', help='Type de projet')
-    init_parser.add_argument('--env', choices=['python', 'javascript', 'node', 'java'], default='python', help='Environnement')
-    init_parser.add_argument('--description', help='Description du projet')
-    init_parser.add_argument('--force', action='store_true', help='Écraser le projet existant')
-    init_parser.add_argument('--create-repo', action='store_true', help='Créer un repository après initialisation')
-    init_parser.add_argument('--create-hosting', action='store_true', help='Créer un hébergement web après initialisation')
+    project_pull_parser = project_subparsers.add_parser('pull', help='Télécharger un projet depuis cloud')
+    project_pull_parser.add_argument('--project-name', help='Nom du projet')
+    project_pull_parser.add_argument('--path', help='Chemin de destination')
+    project_pull_parser.add_argument('--force', action='store_true', help='Écraser les fichiers existants')
     
-    # 📚 Repositories
-    repo_parser = subparsers.add_parser('repo', help='📚 Gestion des repositories Git')
+    project_subparsers.add_parser('list', help='Lister les projets')
+    
+    project_show_parser = project_subparsers.add_parser('show', help='Détails d\'un projet')
+    project_show_parser.add_argument('--project-name', help='Nom du projet')
+    
+    project_sync_parser = project_subparsers.add_parser('sync', help='Synchroniser un projet')
+    project_sync_parser.add_argument('--project-name', help='Nom du projet')
+    project_sync_parser.add_argument('--action', choices=['push', 'pull', 'status'], default='status', help='Action de synchronisation')
+    project_sync_parser.add_argument('--verbose', action='store_true', help='Afficher les détails')
+    
+    # 📁 Repositories
+    repo_parser = subparsers.add_parser('repo', help='📁 Gestion des repositories Git')
     repo_subparsers = repo_parser.add_subparsers(dest='repo_command', help='Sous-commandes')
     
     repo_create_parser = repo_subparsers.add_parser('create', help='Créer un repository')
@@ -1545,6 +1623,18 @@ def main():
     copilot_ask_parser.add_argument('--context', help='Contexte supplémentaire')
     
     copilot_subparsers.add_parser('health', help='Santé de Copilot')
+    
+    # 🛠️ Système
+    system_parser = subparsers.add_parser('system', help='🛠️ Système et monitoring')
+    system_subparsers = system_parser.add_subparsers(dest='system_command', help='Sous-commandes')
+    
+    system_subparsers.add_parser('health', help='Santé du système')
+    system_subparsers.add_parser('info', help='Informations système')
+    system_subparsers.add_parser('nginx', help='Statut nginx')
+    
+    # 📊 Dashboard
+    dashboard_parser = subparsers.add_parser('dashboard', help='📊 Tableau de bord')
+    dashboard_parser.add_argument('--open', action='store_true', help='Ouvrir dans le navigateur')
     
     # ⚙️ Configuration
     config_parser = subparsers.add_parser('config', help='⚙️ Configuration du CLI')
@@ -1608,21 +1698,21 @@ def main():
             else:
                 files_parser.print_help()
         
-        elif args.command == 'dashboard':
-            success = handle_dashboard_show(args)
-        
-        elif args.command == 'system':
-            if args.system_command == 'health':
-                success = handle_system_health(args)
-            elif args.system_command == 'info':
-                success = handle_system_info(args)
-            elif args.system_command == 'nginx':
-                success = handle_system_nginx(args)
+        elif args.command == 'project':
+            if args.project_command == 'init':
+                success = handle_project_init(args)
+            elif args.project_command == 'push':
+                success = handle_project_push(args)
+            elif args.project_command == 'pull':
+                success = handle_project_pull(args)
+            elif args.project_command == 'list':
+                success = handle_project_list(args)
+            elif args.project_command == 'show':
+                success = handle_project_show(args)
+            elif args.project_command == 'sync':
+                success = handle_project_sync(args)
             else:
-                system_parser.print_help()
-        
-        elif args.command == 'init':
-            success = handle_init_project(args)
+                project_parser.print_help()
         
         elif args.command == 'repo':
             if args.repo_command == 'create':
@@ -1639,6 +1729,19 @@ def main():
                 success = handle_copilot_health(args)
             else:
                 copilot_parser.print_help()
+        
+        elif args.command == 'system':
+            if args.system_command == 'health':
+                success = handle_system_health(args)
+            elif args.system_command == 'info':
+                success = handle_system_info(args)
+            elif args.system_command == 'nginx':
+                success = handle_system_nginx(args)
+            else:
+                system_parser.print_help()
+        
+        elif args.command == 'dashboard':
+            success = handle_dashboard_show(args)
         
         elif args.command == 'config':
             if args.config_command == 'set':
