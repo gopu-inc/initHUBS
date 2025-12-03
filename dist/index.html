@@ -3,1308 +3,1191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 initHUB Military - Plateforme Cloud Tactique</title>
-    <meta name="description" content="Plateforme cloud militaire avec connexion tactique aux hubs opérationnels">
-    
+    <title>🪖 initHUB Cloud Enterprise - Terminal & Plateforme Cloud</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
     <style>
-        /* Variables militaires */
+        /* Styles spécifiques pour le terminal avancé */
         :root {
-            --primary: #006400; /* Vert militaire */
-            --primary-dark: #004d00;
-            --primary-light: #228B22;
-            --secondary: #8B4513; /* Brun militaire */
-            --secondary-dark: #654321;
-            --secondary-light: #A0522D;
-            --background: #0a0f0a;
-            --surface: #1a1f1a;
-            --surface-light: #2a2f2a;
-            --surface-dark: #050a05;
-            --border: #2e4d2e;
-            --border-light: #3e5d3e;
-            --text: #e0f0e0;
-            --text-secondary: #a0b0a0;
-            --text-muted: #708070;
-            --success: #32CD32;
-            --warning: #FFD700;
-            --danger: #DC143C;
-            --info: #00BFFF;
-            
-            --gradient-military: linear-gradient(135deg, #006400 0%, #8B4513 100%);
-            --gradient-camo: linear-gradient(45deg, #006400 25%, #8B4513 25%, #8B4513 50%, #006400 50%, #006400 75%, #8B4513 75%);
-            --gradient-dark: linear-gradient(135deg, #050a05 0%, #0a0f0a 100%);
-            
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
-            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.7);
-            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.9);
-            
-            --radius-sm: 4px;
-            --radius-md: 8px;
-            --radius-lg: 12px;
+            --terminal-bg: #1a1b26;
+            --terminal-header: #2a2b3a;
+            --terminal-text: #c0caf5;
+            --terminal-green: #9ece6a;
+            --terminal-blue: #7aa2f7;
+            --terminal-red: #f7768e;
+            --terminal-yellow: #e0af68;
+            --terminal-purple: #bb9af7;
+            --terminal-cyan: #7dcfff;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Courier New', 'Consolas', monospace;
-            background: var(--background);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(0, 100, 0, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 80% 70%, rgba(139, 69, 19, 0.1) 0%, transparent 20%);
-        }
-
-        /* Navigation tactique */
-        .nav-tactical {
-            background: var(--surface);
-            border-bottom: 2px solid var(--border);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 70px;
-        }
-
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: var(--text);
-            font-weight: 700;
-            font-size: 1.3rem;
-            letter-spacing: 1px;
-        }
-
-        .nav-logo-icon {
-            background: var(--gradient-military);
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            border: 2px solid var(--border-light);
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 25px;
-            align-items: center;
-        }
-
-        .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            padding: 10px 15px;
-            border-radius: var(--radius-sm);
-            border: 1px solid transparent;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .nav-link:hover {
-            color: var(--text);
-            background: rgba(0, 100, 0, 0.1);
-            border-color: var(--border);
-        }
-
-        .nav-link.active {
-            color: var(--success);
-            background: rgba(0, 100, 0, 0.2);
-            border-color: var(--primary);
-        }
-
-        .nav-link.active::after {
-            content: '✓';
-            position: absolute;
-            right: 8px;
-            color: var(--success);
-            font-weight: bold;
-        }
-
-        /* Hero section tactique */
-        .hero-tactical {
-            background: var(--gradient-dark);
-            padding: 120px 20px 80px;
-            text-align: center;
-            border-bottom: 3px solid var(--border);
-            position: relative;
+        
+        .terminal-advanced {
+            background: var(--terminal-bg);
+            border-radius: 12px;
             overflow: hidden;
-            margin-top: 70px;
-        }
-
-        .hero-tactical::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(0, 100, 0, 0.05) 2px,
-                    rgba(0, 100, 0, 0.05) 4px
-                );
-        }
-
-        .hero-tactical h1 {
-            font-size: 3.5rem;
-            margin-bottom: 20px;
-            background: var(--gradient-military);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            letter-spacing: 2px;
-        }
-
-        .hero-subtitle {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            max-width: 800px;
-            margin: 0 auto 40px;
-            line-height: 1.6;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-        }
-
-        /* Conteneur principal */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Cartes tactiques */
-        .card-tactical {
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 25px;
-            margin-bottom: 25px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-tactical::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--gradient-military);
-        }
-
-        .card-tactical:hover {
-            border-color: var(--primary);
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .card-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--text);
-            letter-spacing: 0.5px;
-        }
-
-        .card-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: var(--radius-sm);
-            background: var(--gradient-military);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            border: 2px solid var(--border-light);
-        }
-
-        /* Boutons tactiques */
-        .btn-tactical {
-            background: var(--gradient-military);
-            color: white;
-            border: 2px solid var(--border);
-            padding: 12px 25px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .btn-tactical:hover {
-            background: var(--primary-dark);
-            border-color: var(--primary-light);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 100, 0, 0.4);
-        }
-
-        .btn-tactical:active {
-            transform: translateY(0);
-        }
-
-        .btn-tactical-secondary {
-            background: var(--surface-light);
-            color: var(--text);
-            border-color: var(--border);
-        }
-
-        .btn-tactical-secondary:hover {
-            background: var(--surface);
-            border-color: var(--border-light);
-        }
-
-        .btn-tactical-danger {
-            background: linear-gradient(135deg, var(--danger) 0%, #8B0000 100%);
-        }
-
-        .btn-tactical-success {
-            background: linear-gradient(135deg, var(--success) 0%, #006400 100%);
-        }
-
-        /* Terminal tactique */
-        .terminal-tactical {
-            background: #0a0a0a;
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            height: 500px;
+            height: 600px;
             display: flex;
             flex-direction: column;
-            border: 2px solid var(--border);
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
-
+        
         .terminal-header {
-            background: #1a1a1a;
-            padding: 15px;
+            background: var(--terminal-header);
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 2px solid var(--border);
+            border-bottom: 1px solid #3a3b4a;
         }
-
+        
+        .terminal-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .terminal-control-btn {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .terminal-control-close { background: #ff5f56; }
+        .terminal-control-minimize { background: #ffbd2e; }
+        .terminal-control-maximize { background: #27ca3f; }
+        
         .terminal-title {
-            color: var(--success);
-            font-weight: 700;
-            font-size: 1.1rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            color: var(--terminal-text);
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            flex: 1;
+            text-align: center;
         }
-
-        .terminal-status {
+        
+        .terminal-tabs {
+            display: flex;
+            gap: 2px;
+            background: var(--terminal-header);
+            padding: 0 20px;
+        }
+        
+        .terminal-tab {
+            padding: 8px 16px;
+            background: #1a1b26;
+            color: var(--terminal-text);
+            border: none;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+        }
+        
+        .terminal-tab.active {
+            background: #1a1b26;
+            color: var(--terminal-blue);
+            border-bottom: 2px solid var(--terminal-blue);
+        }
+        
+        .terminal-content {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .terminal-output {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            font-family: 'Fira Code', 'Cascadia Code', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--terminal-text);
+        }
+        
+        .terminal-line {
+            margin-bottom: 2px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .terminal-line.user { color: var(--terminal-green); }
+        .terminal-line.command { color: var(--terminal-blue); }
+        .terminal-line.output { color: var(--terminal-text); }
+        .terminal-line.error { color: var(--terminal-red); }
+        .terminal-line.success { color: var(--terminal-green); }
+        .terminal-line.info { color: var(--terminal-cyan); }
+        .terminal-line.warning { color: var(--terminal-yellow); }
+        
+        .terminal-input-container {
             display: flex;
             align-items: center;
-            gap: 10px;
+            padding: 10px 20px;
+            background: #16161e;
+            border-top: 1px solid #3a3b4a;
         }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
+        
+        .terminal-prompt {
+            color: var(--terminal-green);
+            margin-right: 8px;
+            font-family: 'Fira Code', monospace;
+            user-select: none;
+        }
+        
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--terminal-text);
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            outline: none;
+            caret-color: var(--terminal-blue);
+        }
+        
+        .terminal-input::placeholder {
+            color: #565f89;
+        }
+        
+        .terminal-buttons {
+            display: flex;
+            gap: 8px;
+            margin-left: 10px;
+        }
+        
+        .terminal-btn {
+            background: #3a3b4a;
+            border: none;
+            color: var(--terminal-text);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+        
+        .terminal-btn:hover {
+            background: #4a4b5a;
+        }
+        
+        .terminal-status {
+            padding: 8px 20px;
+            background: #16161e;
+            border-top: 1px solid #3a3b4a;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            color: #565f89;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .terminal-status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .terminal-connection-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .connection-dot {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background: var(--danger);
-            animation: pulse 2s infinite;
         }
-
-        .status-indicator.connected {
-            background: var(--success);
-            animation: pulse 1s infinite;
-        }
-
+        
+        .connection-dot.connected { background: var(--terminal-green); animation: pulse 2s infinite; }
+        .connection-dot.disconnected { background: var(--terminal-red); }
+        .connection-dot.connecting { background: var(--terminal-yellow); animation: pulse 1s infinite; }
+        
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-
-        .terminal-body {
-            flex: 1;
+        
+        /* Command palette */
+        .command-palette {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--terminal-header);
+            border-radius: 8px;
             padding: 20px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 14px;
-            overflow-y: auto;
-            color: #00ff00;
-            background: #0a0a0a;
-            line-height: 1.5;
+            width: 90%;
+            max-width: 600px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            border: 1px solid #3a3b4a;
         }
-
-        .terminal-line {
-            margin-bottom: 5px;
-            white-space: pre-wrap;
-            word-break: break-all;
+        
+        .command-palette.active {
+            display: block;
         }
-
-        .terminal-line.command {
-            color: #00ffff;
-        }
-
-        .terminal-line.output {
-            color: #00ff00;
-        }
-
-        .terminal-line.error {
-            color: #ff5555;
-        }
-
-        .terminal-line.success {
-            color: #55ff55;
-        }
-
-        .terminal-line.warning {
-            color: #ffff55;
-        }
-
-        /* Hub Connection */
-        .hub-connection {
-            background: var(--surface-dark);
-            border: 2px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 30px;
-            margin: 30px 0;
-        }
-
-        .connection-status {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .status-badge {
-            padding: 8px 16px;
-            border-radius: var(--radius-sm);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.9rem;
-        }
-
-        .status-badge.connected {
-            background: rgba(0, 255, 0, 0.2);
-            color: var(--success);
-            border: 2px solid var(--success);
-        }
-
-        .status-badge.disconnected {
-            background: rgba(255, 0, 0, 0.2);
-            color: var(--danger);
-            border: 2px solid var(--danger);
-        }
-
-        .hub-url {
-            background: var(--background);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 15px;
-            font-family: monospace;
-            font-size: 1.1rem;
-            color: var(--success);
-            word-break: break-all;
-            margin: 20px 0;
-        }
-
-        /* Section grille tactique */
-        .tactical-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin: 40px 0;
-        }
-
-        .tactical-item {
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 25px;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .tactical-item:hover {
-            border-color: var(--primary);
-            transform: translateY(-5px);
-        }
-
-        .tactical-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-        }
-
-        .tactical-item h3 {
-            color: var(--text);
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-        }
-
-        .tactical-item p {
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        /* Footer tactique */
-        .footer-tactical {
-            background: var(--surface-dark);
-            border-top: 3px solid var(--border);
-            padding: 40px 0;
-            margin-top: 60px;
-        }
-
-        .footer-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-        }
-
-        .footer-section h3 {
-            color: var(--text);
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-            border-left: 4px solid var(--primary);
-            padding-left: 15px;
-        }
-
-        .footer-section ul {
-            list-style: none;
-        }
-
-        .footer-section ul li {
+        
+        .command-palette input {
+            width: 100%;
+            padding: 12px;
+            background: #1a1b26;
+            border: 1px solid #3a3b4a;
+            border-radius: 6px;
+            color: var(--terminal-text);
+            font-family: 'Fira Code', monospace;
             margin-bottom: 10px;
         }
-
-        .footer-section ul li a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.3s ease;
+        
+        .command-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .command-item {
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .command-item:hover {
+            background: #2a2b3a;
+        }
+        
+        .command-shortcut {
+            color: #565f89;
+            font-size: 12px;
+        }
+        
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .toast {
+            background: var(--terminal-header);
+            color: var(--terminal-text);
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--terminal-blue);
         }
-
-        .footer-section ul li a:hover {
-            color: var(--text);
+        
+        .toast.success { border-left-color: var(--terminal-green); }
+        .toast.error { border-left-color: var(--terminal-red); }
+        .toast.warning { border-left-color: var(--terminal-yellow); }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
-
-        .copyright {
+        
+        /* Quick commands */
+        .quick-commands {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .quick-command {
+            background: var(--terminal-header);
+            border: 1px solid #3a3b4a;
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
             text-align: center;
-            padding-top: 30px;
-            margin-top: 30px;
-            border-top: 1px solid var(--border);
-            color: var(--text-muted);
-            font-size: 0.9rem;
         }
-
+        
+        .quick-command:hover {
+            background: #2a2b3a;
+            transform: translateY(-2px);
+        }
+        
+        /* Terminal shortcuts help */
+        .shortcuts-help {
+            background: var(--terminal-header);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-radius: 4px;
+            background: #1a1b26;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
-            .nav-container {
-                padding: 0 15px;
+            .terminal-advanced {
+                height: 500px;
             }
             
-            .nav-menu {
-                gap: 10px;
+            .terminal-tabs {
+                overflow-x: auto;
             }
             
-            .nav-link {
-                padding: 8px 10px;
-                font-size: 0.9rem;
+            .quick-commands {
+                grid-template-columns: repeat(2, 1fr);
             }
             
-            .hero-tactical h1 {
-                font-size: 2.5rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1rem;
-            }
-            
-            .tactical-grid {
+            .shortcuts-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .terminal-tactical {
-                height: 400px;
-            }
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--surface);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: var(--radius-sm);
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-light);
-        }
-
-        /* Utilitaires */
-        .mt-1 { margin-top: 10px; }
-        .mt-2 { margin-top: 20px; }
-        .mt-3 { margin-top: 30px; }
-        .mt-4 { margin-top: 40px; }
-        .mt-5 { margin-top: 50px; }
-
-        .mb-1 { margin-bottom: 10px; }
-        .mb-2 { margin-bottom: 20px; }
-        .mb-3 { margin-bottom: 30px; }
-        .mb-4 { margin-bottom: 40px; }
-        .mb-5 { margin-bottom: 50px; }
-
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .text-left { text-align: left; }
-
-        .flex { display: flex; }
-        .flex-col { flex-direction: column; }
-        .items-center { align-items: center; }
-        .justify-between { justify-content: space-between; }
-        .justify-center { justify-content: center; }
-        .gap-1 { gap: 10px; }
-        .gap-2 { gap: 20px; }
-        .gap-3 { gap: 30px; }
-
-        .hidden { display: none; }
-        .block { display: block; }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease forwards;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .blink {
-            animation: blink 1s infinite;
         }
     </style>
 </head>
 <body>
-    <!-- Navigation tactique -->
-    <nav class="nav-tactical">
+    <!-- Navigation -->
+    <nav class="navbar">
         <div class="nav-container">
-            <a href="#" class="nav-logo">
+            <a href="/" class="nav-logo">
                 <div class="nav-logo-icon">🪖</div>
-                <span>initHUB MILITARY</span>
+                <span>initHUB Cloud</span>
             </a>
-            
             <div class="nav-menu">
-                <a href="#dashboard" class="nav-link active">
-                    <span>📊</span> Tableau de bord
+                <a href="/" class="nav-link">
+                    <span>🏠</span> Accueil
                 </a>
-                <a href="#terminal" class="nav-link">
-                    <span>💻</span> Terminal tactique
+                <a href="/app" class="nav-link">
+                    <span>📱</span> Dashboard
                 </a>
-                <a href="#hubs" class="nav-link">
-                    <span>🔗</span> Hubs connectés
+                <a href="/app/terminal" class="nav-link active">
+                    <span>💻</span> Terminal
                 </a>
-                <a href="#operations" class="nav-link">
-                    <span>⚔️</span> Opérations
+                <a href="/app/hosting" class="nav-link">
+                    <span>🌐</span> Hébergement
                 </a>
-                <a href="#system" class="nav-link">
-                    <span>⚙️</span> Système
+                <a href="/api/docs" class="nav-link" target="_blank">
+                    <span>📚</span> API
                 </a>
+                <div class="user-menu">
+                    <span id="username">Invité</span>
+                    <button class="btn btn-secondary btn-sm" onclick="logout()">
+                        <span>🚪</span> Déconnexion
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Hero section -->
-    <section class="hero-tactical">
-        <h1>🪖 initHUB MILITARY EDITION</h1>
-        <p class="hero-subtitle">
-            Plateforme cloud tactique avec connexion sécurisée aux hubs opérationnels.<br>
-            Système de commandement et contrôle en temps réel.
-        </p>
-        <div class="mt-4">
-            <a href="#terminal" class="btn-tactical">
-                <span>🔌</span> Connexion au hub principal
-            </a>
-            <a href="#operations" class="btn-tactical btn-tactical-secondary">
-                <span>⚔️</span> Lancer une opération
-            </a>
+    <!-- Main Content -->
+    <main class="container mt-4">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1>🪖 Terminal initHUB Cloud</h1>
+                    <p class="text-secondary">Terminal avancé avec support complet (Ctrl+C, Copier/Coller, Esc, etc.)</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn btn-primary" onclick="connectTerminal()">
+                        <span>🔌</span> Connecter
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearTerminal()">
+                        <span>🧹</span> Effacer
+                    </button>
+                    <button class="btn btn-secondary" onclick="showCommandPalette()">
+                        <span>⌨️</span> Commandes
+                    </button>
+                </div>
+            </div>
         </div>
-    </section>
 
-    <!-- Contenu principal -->
-    <main class="container">
-        <!-- Dashboard -->
-        <section id="dashboard" class="mt-5">
-            <div class="card-tactical fade-in">
-                <div class="card-header">
-                    <h2 class="card-title">📊 DASHBOARD TACTIQUE</h2>
-                    <div class="card-icon">🪖</div>
+        <!-- Terminal Container -->
+        <div class="terminal-advanced" id="terminal-container">
+            <div class="terminal-header">
+                <div class="terminal-controls">
+                    <button class="terminal-control-btn terminal-control-close" onclick="disconnectTerminal()"></button>
+                    <button class="terminal-control-btn terminal-control-minimize" onclick="minimizeTerminal()"></button>
+                    <button class="terminal-control-btn terminal-control-maximize" onclick="maximizeTerminal()"></button>
+                </div>
+                <div class="terminal-title" id="terminal-title">terminal@inithub.cloud ~</div>
+                <div class="terminal-connection-status" id="connection-status">
+                    <div class="connection-dot disconnected" id="connection-dot"></div>
+                    <span id="connection-text">Déconnecté</span>
+                </div>
+            </div>
+            
+            <div class="terminal-tabs">
+                <button class="terminal-tab active" onclick="switchTab('main')">Main</button>
+                <button class="terminal-tab" onclick="switchTab('logs')">Logs</button>
+                <button class="terminal-tab" onclick="switchTab('output')">Output</button>
+            </div>
+            
+            <div class="terminal-content">
+                <div class="terminal-output" id="terminal-output">
+                    <div class="terminal-line info">
+                        <pre>
+██╗███╗   ██╗██╗████████╗██╗██╗   ██╗██████╗ ██╗   ██╗██████╗ 
+██║████╗  ██║██║╚══██╔══╝██║██║   ██║██╔══██╗██║   ██║██╔══██╗
+██║██╔██╗ ██║██║   ██║   ██║██║   ██║██████╔╝██║   ██║██████╔╝
+██║██║╚██╗██║██║   ██║   ██║██║   ██║██╔══██╗██║   ██║██╔══██╗
+██║██║ ╚████║██║   ██║   ██║╚██████╔╝██████╔╝╚██████╔╝██████╔╝
+╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═════╝  ╚═════╝ ╚═════╝ 
+                        </pre>
+                    </div>
+                    <div class="terminal-line info">🪖 initHUB Cloud Terminal v13.0.0</div>
+                    <div class="terminal-line info">🌐 Connectez-vous avec le bouton "Connecter" ci-dessus</div>
+                    <div class="terminal-line info">💡 Tapez 'help' pour voir les commandes disponibles</div>
+                    <div class="terminal-line info">🎯 Utilisez Ctrl+Shift+P pour ouvrir la palette de commandes</div>
                 </div>
                 
-                <div class="tactical-grid">
-                    <div class="tactical-item">
-                        <div class="tactical-icon">🌐</div>
-                        <h3>HUB PRINCIPAL</h3>
-                        <p>Connexion sécurisée au hub opérationnel principal</p>
-                        <div class="hub-url" id="main-hub-url">https://hubs-ja2g.onrender.com</div>
-                        <button class="btn-tactical btn-tactical-success w-full" onclick="connectToHub()">
-                            <span>🔌</span> Établir la connexion
-                        </button>
+                <div class="terminal-input-container">
+                    <span class="terminal-prompt" id="terminal-prompt">$</span>
+                    <input type="text" class="terminal-input" id="terminal-input" 
+                           placeholder="Tapez une commande..." autocomplete="off" disabled>
+                    <div class="terminal-buttons">
+                        <button class="terminal-btn" onclick="sendCommand()" id="send-btn" disabled>Envoyer</button>
+                        <button class="terminal-btn" onclick="clearTerminal()">Effacer</button>
                     </div>
-                    
-                    <div class="tactical-item">
-                        <div class="tactical-icon">🛡️</div>
-                        <h3>STATUT DE SÉCURITÉ</h3>
-                        <p>Système de sécurité militaire de niveau 3</p>
-                        <div class="status-badge connected mt-2">SÉCURISÉ</div>
+                </div>
+                
+                <div class="terminal-status">
+                    <div class="terminal-status-item">
+                        <span>Session:</span>
+                        <span id="session-id">Non connecté</span>
                     </div>
-                    
-                    <div class="tactical-item">
-                        <div class="tactical-icon">⚡</div>
-                        <h3>PERFORMANCES</h3>
-                        <p>Latence: <span id="latency">--</span>ms</p>
-                        <p>Uptime: <span id="uptime">100%</span></p>
+                    <div class="terminal-status-item">
+                        <span>Mode:</span>
+                        <span id="terminal-mode">Normal</span>
+                    </div>
+                    <div class="terminal-status-item">
+                        <span>Lignes:</span>
+                        <span id="line-count">5</span>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Hub Connection -->
-        <section id="hubs" class="mt-5">
-            <div class="hub-connection fade-in">
-                <div class="connection-status">
-                    <div class="status-badge disconnected" id="connection-status">
-                        DÉCONNECTÉ
-                    </div>
-                    <span id="connection-message">En attente de connexion...</span>
-                </div>
-                
-                <h3>CONFIGURATION DU HUB</h3>
-                <div class="hub-url">
-                    https://hubs-ja2g.onrender.com
-                </div>
-                
-                <div class="flex gap-2 mt-3">
-                    <button class="btn-tactical" onclick="testConnection()">
-                        <span>🔍</span> Tester la connexion
-                    </button>
-                    <button class="btn-tactical btn-tactical-success" onclick="connectToHub()">
-                        <span>🚀</span> Connexion complète
-                    </button>
-                    <button class="btn-tactical btn-tactical-danger" onclick="disconnectHub()">
-                        <span>✖️</span> Déconnexion
-                    </button>
-                </div>
-                
-                <div class="mt-3" id="hub-info">
-                    <!-- Les informations du hub seront affichées ici -->
-                </div>
+        <!-- Quick Commands -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2 class="card-title">⚡ Commandes Rapides</h2>
             </div>
-        </section>
-
-        <!-- Terminal tactique -->
-        <section id="terminal" class="mt-5">
-            <div class="card-tactical fade-in">
-                <div class="card-header">
-                    <h2 class="card-title">💻 TERMINAL TACTIQUE</h2>
-                    <div class="terminal-status">
-                        <div class="status-indicator" id="terminal-status"></div>
-                        <span id="terminal-status-text">En attente...</span>
+            <div class="card-body">
+                <div class="quick-commands">
+                    <div class="quick-command" onclick="sendQuickCommand('ls -la')">
+                        <div>📁</div>
+                        <div>ls -la</div>
                     </div>
-                </div>
-                
-                <div class="terminal-tactical">
-                    <div class="terminal-header">
-                        <div class="terminal-title">COMMAND & CONTROL TERMINAL</div>
-                        <div class="flex gap-2">
-                            <button class="btn-tactical btn-sm" onclick="clearTerminal()">
-                                🧹 Effacer
-                            </button>
-                            <button class="btn-tactical btn-sm" onclick="runDiagnostic()">
-                                🔧 Diagnostic
-                            </button>
-                        </div>
+                    <div class="quick-command" onclick="sendQuickCommand('pwd')">
+                        <div>📍</div>
+                        <div>pwd</div>
                     </div>
-                    
-                    <div class="terminal-body" id="terminal-output">
-                        <div class="terminal-line output">🪖 initialisation du terminal tactique...</div>
-                        <div class="terminal-line output">🔌 configuration de la connexion au hub...</div>
-                        <div class="terminal-line output">📡 recherche du signal...</div>
-                        <div class="terminal-line output">🔗 hub cible: https://hubs-ja2g.onrender.com</div>
-                        <div class="terminal-line output">⏳ en attente de connexion...</div>
-                        <div class="terminal-line command blink">$ _</div>
+                    <div class="quick-command" onclick="sendQuickCommand('whoami')">
+                        <div>👤</div>
+                        <div>whoami</div>
                     </div>
-                </div>
-                
-                <div class="mt-3">
-                    <div class="flex gap-2">
-                        <input type="text" id="terminal-input" class="flex-grow" 
-                               placeholder="Entrez une commande tactique..." 
-                               style="background: var(--surface-light); color: var(--text); border: 2px solid var(--border); padding: 12px; border-radius: var(--radius-sm);">
-                        <button class="btn-tactical" onclick="sendCommand()">
-                            <span>🚀</span> Exécuter
-                        </button>
+                    <div class="quick-command" onclick="sendQuickCommand('df -h')">
+                        <div>💾</div>
+                        <div>df -h</div>
+                    </div>
+                    <div class="quick-command" onclick="sendQuickCommand('ps aux')">
+                        <div>📊</div>
+                        <div>ps aux</div>
+                    </div>
+                    <div class="quick-command" onclick="sendQuickCommand('top')">
+                        <div>📈</div>
+                        <div>top</div>
+                    </div>
+                    <div class="quick-command" onclick="sendQuickCommand('curl localhost:8000/health')">
+                        <div>🌐</div>
+                        <div>health</div>
+                    </div>
+                    <div class="quick-command" onclick="sendQuickCommand('inithub --help')">
+                        <div>🪖</div>
+                        <div>inithub</div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Opérations -->
-        <section id="operations" class="mt-5">
-            <div class="card-tactical fade-in">
-                <div class="card-header">
-                    <h2 class="card-title">⚔️ OPÉRATIONS TACTIQUES</h2>
-                    <div class="card-icon">⚔️</div>
+        <!-- Shortcuts Help -->
+        <div class="shortcuts-help">
+            <h3>🎯 Raccourcis Clavier</h3>
+            <div class="shortcuts-grid">
+                <div class="shortcut-item">
+                    <span>Ctrl + C</span>
+                    <span class="command-shortcut">Interrompre</span>
                 </div>
-                
-                <div class="tactical-grid">
-                    <div class="tactical-item">
-                        <h3>📡 SCAN DE RÉSEAU</h3>
-                        <p>Analyse complète du réseau hub</p>
-                        <button class="btn-tactical mt-2 w-full" onclick="scanNetwork()">
-                            <span>📡</span> Lancer le scan
-                        </button>
-                    </div>
-                    
-                    <div class="tactical-item">
-                        <h3>🛠️ MAINTENANCE</h3>
-                        <p>Vérification et maintenance système</p>
-                        <button class="btn-tactical mt-2 w-full" onclick="runMaintenance()">
-                            <span>🔧</span> Exécuter maintenance
-                        </button>
-                    </div>
-                    
-                    <div class="tactical-item">
-                        <h3>🚀 DÉPLOIEMENT</h3>
-                        <p>Déploiement d'opérations spéciales</p>
-                        <button class="btn-tactical mt-2 w-full" onclick="deployOperation()">
-                            <span>🎯</span> Déployer opération
-                        </button>
-                    </div>
+                <div class="shortcut-item">
+                    <span>Ctrl + D</span>
+                    <span class="command-shortcut">Fin de fichier</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Ctrl + L</span>
+                    <span class="command-shortcut">Effacer l'écran</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Ctrl + U</span>
+                    <span class="command-shortcut">Effacer la ligne</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Ctrl + A</span>
+                    <span class="command-shortcut">Début de ligne</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Ctrl + E</span>
+                    <span class="command-shortcut">Fin de ligne</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Ctrl + K</span>
+                    <span class="command-shortcut">Effacer jusqu'à la fin</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Tab</span>
+                    <span class="command-shortcut">Auto-complétion</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Flèche Haut/Bas</span>
+                    <span class="command-shortcut">Historique</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Ctrl + Shift + P</span>
+                    <span class="command-shortcut">Palette de commandes</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Ctrl + Shift + C</span>
+                    <span class="command-shortcut">Copier</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Ctrl + Shift + V</span>
+                    <span class="command-shortcut">Coller</span>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Système -->
-        <section id="system" class="mt-5 mb-5">
-            <div class="card-tactical fade-in">
-                <div class="card-header">
-                    <h2 class="card-title">⚙️ SYSTÈME MILITAIRE</h2>
-                    <div class="card-icon">⚙️</div>
-                </div>
-                
+        <!-- Server Info -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2 class="card-title">🔗 Informations de Connexion</h2>
+            </div>
+            <div class="card-body">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <h3>🔄 STATUT DU SYSTÈME</h3>
-                        <div id="system-status">
-                            <p>✅ Authentification: <span class="success">ACTIVE</span></p>
-                            <p>✅ Cryptographie: <span class="success">ACTIVE</span></p>
-                            <p>🔌 Hub Connection: <span id="hub-connection-status" class="warning">EN ATTENTE</span></p>
-                            <p>📡 API Status: <span id="api-status" class="warning">TEST EN COURS</span></p>
-                        </div>
+                        <h3>🌐 API Server</h3>
+                        <p><strong>URL:</strong> <span id="api-url">Chargement...</span></p>
+                        <p><strong>Status:</strong> <span id="api-status">Vérification...</span></p>
+                        <p><strong>Version:</strong> <span id="api-version">13.0.0</span></p>
                     </div>
-                    
                     <div>
-                        <h3>📊 STATISTIQUES</h3>
-                        <div id="system-stats">
-                            <p>🕐 Temps de réponse: <span id="response-time">--</span>ms</p>
-                            <p>📈 Requêtes: <span id="request-count">0</span></p>
-                            <p>💾 Mémoire: <span id="memory-usage">--</span>MB</p>
-                            <p>🔥 CPU: <span id="cpu-usage">--</span>%</p>
-                        </div>
+                        <h3>💻 Terminal WebSocket</h3>
+                        <p><strong>Endpoint:</strong> <code>/ws/terminal</code></p>
+                        <p><strong>Port:</strong> <span id="ws-port">8000</span></p>
+                        <p><strong>Token:</strong> <span id="token-status">Non authentifié</span></p>
                     </div>
-                </div>
-                
-                <div class="mt-4">
-                    <button class="btn-tactical" onclick="refreshSystemStats()">
-                        <span>🔄</span> Actualiser les statistiques
-                    </button>
                 </div>
             </div>
-        </section>
+        </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer-tactical">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>🪖 INITIUB MILITARY</h3>
-                <p>Plateforme cloud tactique pour opérations spéciales</p>
-                <p class="mt-2">Version: 2.0.1</p>
-                <p>Classification: RESTREINT</p>
-            </div>
-            
-            <div class="footer-section">
-                <h3>📡 CONNECTIONS</h3>
-                <ul>
-                    <li><a href="#"><span>🔗</span> Hub Principal</a></li>
-                    <li><a href="#"><span>🌐</span> API REST</a></li>
-                    <li><a href="#"><span>💾</span> Stockage Sécurisé</a></li>
-                    <li><a href="#"><span>🔐</span> Authentification</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h3>⚔️ OPÉRATIONS</h3>
-                <ul>
-                    <li><a href="#"><span>📡</span> Surveillance</a></li>
-                    <li><a href="#"><span>🔧</span> Maintenance</a></li>
-                    <li><a href="#"><span>🚀</span> Déploiement</a></li>
-                    <li><a href="#"><span>🎯</span> Ciblage</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h3>⚙️ SYSTÈME</h3>
-                <ul>
-                    <li><a href="#"><span>📊</span> Dashboard</a></li>
-                    <li><a href="#"><span>💻</span> Terminal</a></li>
-                    <li><a href="#"><span>🔒</span> Sécurité</a></li>
-                    <li><a href="#"><span>📈</span> Logs</a></li>
-                </ul>
-            </div>
+    <!-- Command Palette -->
+    <div class="command-palette" id="command-palette">
+        <input type="text" id="command-search" placeholder="Rechercher une commande...">
+        <div class="command-list" id="command-list">
+            <!-- Les commandes seront ajoutées ici par JavaScript -->
         </div>
-        
-        <div class="copyright">
-            &copy; 2024 initHUB Military Edition. Tous droits réservés. Classification RESTREINTE.
-        </div>
-    </footer>
+    </div>
 
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="/static/js/main.js"></script>
     <script>
-        class initHUBMilitary {
-            constructor() {
-                this.hubUrl = 'https://hubs-ja2g.onrender.com';
-                this.isConnected = false;
-                this.connectionStartTime = null;
-                this.requestCount = 0;
-                this.systemStats = {
-                    responseTime: [],
-                    memoryUsage: 0,
-                    cpuUsage: 0
-                };
-                
-                this.init();
-            }
+        // Variables globales
+        let ws = null;
+        let terminalConnected = false;
+        let commandHistory = [];
+        let historyIndex = -1;
+        let currentSession = null;
+        let apiUrl = window.location.origin;
+        
+        // Éléments DOM
+        const terminalInput = document.getElementById('terminal-input');
+        const terminalOutput = document.getElementById('terminal-output');
+        const terminalPrompt = document.getElementById('terminal-prompt');
+        const sendButton = document.getElementById('send-btn');
+        const connectionDot = document.getElementById('connection-dot');
+        const connectionText = document.getElementById('connection-text');
+        const connectionStatus = document.getElementById('connection-status');
+        const sessionIdElement = document.getElementById('session-id');
+        const lineCountElement = document.getElementById('line-count');
+        const terminalModeElement = document.getElementById('terminal-mode');
+        const usernameElement = document.getElementById('username');
+        const apiUrlElement = document.getElementById('api-url');
+        const apiStatusElement = document.getElementById('api-status');
+        const apiVersionElement = document.getElementById('api-version');
+        const wsPortElement = document.getElementById('ws-port');
+        const tokenStatusElement = document.getElementById('token-status');
+        
+        // Palette de commandes
+        const commandPalette = document.getElementById('command-palette');
+        const commandSearch = document.getElementById('command-search');
+        const commandList = document.getElementById('command-list');
+        
+        // Commandes disponibles
+        const commands = [
+            { name: 'ls -la', description: 'Lister tous les fichiers', category: 'fichiers' },
+            { name: 'pwd', description: 'Afficher le répertoire courant', category: 'système' },
+            { name: 'whoami', description: 'Afficher l\'utilisateur courant', category: 'système' },
+            { name: 'df -h', description: 'Afficher l\'espace disque', category: 'système' },
+            { name: 'ps aux', description: 'Afficher les processus', category: 'système' },
+            { name: 'top', description: 'Monitorer le système', category: 'système' },
+            { name: 'clear', description: 'Effacer le terminal', category: 'terminal' },
+            { name: 'history', description: 'Afficher l\'historique', category: 'terminal' },
+            { name: 'help', description: 'Afficher l\'aide', category: 'terminal' },
+            { name: 'inithub --help', description: 'Aide initHUB', category: 'inithub' },
+            { name: 'curl localhost:8000/health', description: 'Vérifier santé API', category: 'api' },
+            { name: 'echo "Hello World"', description: 'Afficher un message', category: 'système' },
+            { name: 'cat /etc/passwd', description: 'Afficher fichier', category: 'fichiers' },
+            { name: 'mkdir test', description: 'Créer dossier', category: 'fichiers' },
+            { name: 'touch fichier.txt', description: 'Créer fichier', category: 'fichiers' },
+            { name: 'rm -rf test', description: 'Supprimer récursif', category: 'fichiers' },
+            { name: 'git status', description: 'Status Git', category: 'git' },
+            { name: 'git clone', description: 'Cloner repository', category: 'git' },
+            { name: 'python --version', description: 'Version Python', category: 'langages' },
+            { name: 'node --version', description: 'Version Node.js', category: 'langages' },
+            { name: 'php --version', description: 'Version PHP', category: 'langages' }
+        ];
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Charger l'utilisateur
+            await loadUser();
             
-            init() {
-                console.log('🪖 Initialisation initHUB Military...');
-                this.updateUI();
-                this.setupEventListeners();
-                this.testConnection();
-            }
+            // Mettre à jour les informations API
+            updateApiInfo();
             
-            async testConnection() {
-                this.logTerminal('📡 Test de connexion au hub...');
-                this.updateStatus('🔍 Test en cours...', 'warning');
-                
+            // Configurer la palette de commandes
+            setupCommandPalette();
+            
+            // Configurer les raccourcis clavier
+            setupKeyboardShortcuts();
+            
+            // Configurer le terminal
+            setupTerminal();
+            
+            // Tester la connexion API
+            testApiConnection();
+        });
+        
+        async function loadUser() {
+            const token = localStorage.getItem('token');
+            if (token) {
                 try {
-                    const startTime = Date.now();
-                    const response = await fetch(this.hubUrl, {
-                        method: 'GET',
-                        mode: 'cors',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
+                    const response = await fetch('/api/users/me', {
+                        headers: { 'Authorization': `Bearer ${token}` }
                     });
-                    
-                    const endTime = Date.now();
-                    const responseTime = endTime - startTime;
-                    
-                    this.requestCount++;
-                    this.systemStats.responseTime.push(responseTime);
                     
                     if (response.ok) {
-                        this.isConnected = true;
-                        this.connectionStartTime = Date.now();
-                        this.logTerminal(`✅ Connexion réussie! Temps de réponse: ${responseTime}ms`);
-                        this.updateStatus('CONNECTÉ', 'connected');
-                        this.updateConnectionInfo(response);
+                        const user = await response.json();
+                        usernameElement.textContent = user.username;
+                        terminalPrompt.textContent = `${user.username}@inithub:~$`;
+                        tokenStatusElement.textContent = 'Authentifié';
+                        tokenStatusElement.style.color = 'var(--terminal-green)';
                     } else {
-                        throw new Error(`Statut HTTP: ${response.status}`);
+                        logout();
                     }
                 } catch (error) {
-                    this.isConnected = false;
-                    this.logTerminal(`❌ Échec de connexion: ${error.message}`, 'error');
-                    this.updateStatus('DÉCONNECTÉ', 'disconnected');
+                    console.error('Erreur chargement utilisateur:', error);
                 }
-            }
-            
-            async connectToHub() {
-                this.logTerminal('🚀 Connexion au hub principal...');
-                this.logTerminal(`🔗 URL: ${this.hubUrl}`);
-                this.logTerminal('🔐 Initialisation du protocole sécurisé...');
-                
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                this.logTerminal('📡 Recherche du signal...', 'warning');
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                this.logTerminal('🔌 Établissement de la connexion...', 'warning');
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                // Tenter la connexion réelle
-                await this.testConnection();
-                
-                if (this.isConnected) {
-                    this.logTerminal('🎉 Connexion établie avec succès!', 'success');
-                    this.logTerminal('🔓 Authentification sécurisée activée', 'success');
-                    this.logTerminal('📡 Canal de communication ouvert', 'success');
-                    this.showAlert('Connexion établie avec succès!', 'success');
-                } else {
-                    this.logTerminal('⚠️ Échec de la connexion. Tentative de reconnexion...', 'error');
-                    this.showAlert('Échec de la connexion', 'danger');
-                }
-            }
-            
-            disconnectHub() {
-                if (this.isConnected) {
-                    this.isConnected = false;
-                    this.logTerminal('🔌 Déconnexion du hub...', 'warning');
-                    this.logTerminal('📴 Canal de communication fermé', 'output');
-                    this.updateStatus('DÉCONNECTÉ', 'disconnected');
-                    this.showAlert('Déconnecté du hub', 'info');
-                } else {
-                    this.showAlert('Non connecté', 'warning');
-                }
-            }
-            
-            updateStatus(status, type) {
-                const statusElement = document.getElementById('connection-status');
-                const statusText = document.getElementById('connection-status-text');
-                const terminalStatus = document.getElementById('terminal-status');
-                const terminalStatusText = document.getElementById('terminal-status-text');
-                
-                if (statusElement) {
-                    statusElement.textContent = status;
-                    statusElement.className = `status-badge ${type}`;
-                }
-                
-                if (statusText) {
-                    statusText.textContent = type === 'connected' ? 
-                        'Connexion active au hub' : 
-                        'En attente de connexion...';
-                }
-                
-                if (terminalStatus) {
-                    terminalStatus.className = `status-indicator ${type}`;
-                }
-                
-                if (terminalStatusText) {
-                    terminalStatusText.textContent = type === 'connected' ? 
-                        'Connecté' : 'En attente...';
-                }
-            }
-            
-            logTerminal(message, type = 'output') {
-                const terminal = document.getElementById('terminal-output');
-                if (!terminal) return;
-                
-                const line = document.createElement('div');
-                line.className = `terminal-line ${type}`;
-                line.textContent = message;
-                terminal.appendChild(line);
-                terminal.scrollTop = terminal.scrollHeight;
-            }
-            
-            sendCommand() {
-                const input = document.getElementById('terminal-input');
-                if (!input || !input.value.trim()) return;
-                
-                const command = input.value.trim();
-                this.logTerminal(`$ ${command}`, 'command');
-                
-                // Simulation de commandes
-                switch(command.toLowerCase()) {
-                    case 'status':
-                        this.logTerminal('📊 Statut système:', 'output');
-                        this.logTerminal(`  🔌 Hub: ${this.isConnected ? 'CONNECTÉ' : 'DÉCONNECTÉ'}`, 'output');
-                        this.logTerminal(`  📡 URL: ${this.hubUrl}`, 'output');
-                        this.logTerminal(`  🕐 Uptime: ${this.getUptime()}`, 'output');
-                        break;
-                        
-                    case 'ping':
-                        this.logTerminal('🏓 Envoi de ping...', 'output');
-                        setTimeout(() => {
-                            this.logTerminal('📡 Réponse reçue - 64 bytes', 'success');
-                        }, 1000);
-                        break;
-                        
-                    case 'clear':
-                        this.clearTerminal();
-                        break;
-                        
-                    case 'help':
-                        this.logTerminal('📚 Commandes disponibles:', 'output');
-                        this.logTerminal('  status - Afficher le statut système', 'output');
-                        this.logTerminal('  ping - Tester la connexion', 'output');
-                        this.logTerminal('  scan - Scanner le réseau', 'output');
-                        this.logTerminal('  clear - Effacer le terminal', 'output');
-                        this.logTerminal('  help - Afficher cette aide', 'output');
-                        break;
-                        
-                    case 'scan':
-                        this.scanNetwork();
-                        break;
-                        
-                    default:
-                        this.logTerminal(`Commande non reconnue: ${command}`, 'error');
-                        this.logTerminal('Tapez "help" pour la liste des commandes', 'output');
-                }
-                
-                input.value = '';
-            }
-            
-            clearTerminal() {
-                const terminal = document.getElementById('terminal-output');
-                if (terminal) {
-                    terminal.innerHTML = '';
-                    this.logTerminal('🧹 Terminal effacé', 'output');
-                    this.logTerminal('🔧 Terminal prêt pour nouvelles commandes', 'output');
-                    this.logTerminal('$ _', 'command blink');
-                }
-            }
-            
-            scanNetwork() {
-                this.logTerminal('📡 Lancement du scan réseau...', 'warning');
-                this.logTerminal('🔍 Recherche de nodes actifs...', 'output');
-                
-                setTimeout(() => {
-                    this.logTerminal('✅ Node principal trouvé: hubs-ja2g.onrender.com', 'success');
-                    this.logTerminal('✅ Port 443 ouvert (HTTPS)', 'success');
-                    this.logTerminal('✅ Protocole WebSocket disponible', 'success');
-                    this.logTerminal('✅ Latence: 45ms', 'success');
-                    this.logTerminal('📊 Scan terminé - 1 node actif détecté', 'output');
-                }, 2000);
-            }
-            
-            runDiagnostic() {
-                this.logTerminal('🔧 Démarrage du diagnostic système...', 'warning');
-                
-                const tests = [
-                    { name: 'Vérification réseau', delay: 500, result: '✅ OK' },
-                    { name: 'Test de sécurité', delay: 800, result: '✅ OK' },
-                    { name: 'Vérification API', delay: 600, result: '✅ OK' },
-                    { name: 'Test de performance', delay: 1000, result: '✅ OK' },
-                    { name: 'Vérification stockage', delay: 700, result: '✅ OK' }
-                ];
-                
-                tests.forEach((test, index) => {
-                    setTimeout(() => {
-                        this.logTerminal(`  ${test.name}... ${test.result}`, 'output');
-                        
-                        if (index === tests.length - 1) {
-                            setTimeout(() => {
-                                this.logTerminal('🎉 Diagnostic terminé - Système opérationnel', 'success');
-                            }, 300);
-                        }
-                    }, test.delay);
-                });
-            }
-            
-            runMaintenance() {
-                this.showAlert('Maintenance système démarrée', 'info');
-                this.logTerminal('🛠️ Démarrage de la maintenance système...', 'warning');
-                
-                setTimeout(() => {
-                    this.logTerminal('🧹 Nettoyage des logs...', 'output');
-                    this.logTerminal('🔧 Optimisation de la base de données...', 'output');
-                    this.logTerminal('🔄 Mise à jour des certificats...', 'output');
-                    this.logTerminal('🎉 Maintenance terminée avec succès!', 'success');
-                    this.showAlert('Maintenance terminée', 'success');
-                }, 1000);
-            }
-            
-            deployOperation() {
-                this.showAlert('Déploiement d\'opération démarré', 'info');
-                this.logTerminal('🚀 Préparation du déploiement...', 'warning');
-                
-                setTimeout(() => {
-                    this.logTerminal('📦 Packaging des ressources...', 'output');
-                    this.logTerminal('🔐 Chiffrement des données...', 'output');
-                    this.logTerminal('📡 Transmission sécurisée...', 'output');
-                    this.logTerminal('🎯 Déploiement réussi!', 'success');
-                    this.showAlert('Opération déployée avec succès', 'success');
-                }, 1500);
-            }
-            
-            updateConnectionInfo(response) {
-                const infoElement = document.getElementById('hub-info');
-                if (infoElement) {
-                    const now = new Date();
-                    infoElement.innerHTML = `
-                        <div class="mt-3">
-                            <p><strong>🕐 Connexion établie:</strong> ${now.toLocaleTimeString()}</p>
-                            <p><strong>🌐 URL:</strong> ${this.hubUrl}</p>
-                            <p><strong>🔒 Protocole:</strong> HTTPS/TLS 1.3</p>
-                            <p><strong>📡 Statut:</strong> <span class="success">ACTIF</span></p>
-                            <p><strong>⚡ Latence moyenne:</strong> ${this.getAverageResponseTime()}ms</p>
-                        </div>
-                    `;
-                }
-            }
-            
-            getUptime() {
-                if (!this.connectionStartTime) return '0s';
-                const uptime = Math.floor((Date.now() - this.connectionStartTime) / 1000);
-                return `${uptime}s`;
-            }
-            
-            getAverageResponseTime() {
-                if (this.systemStats.responseTime.length === 0) return 0;
-                const sum = this.systemStats.responseTime.reduce((a, b) => a + b, 0);
-                return Math.round(sum / this.systemStats.responseTime.length);
-            }
-            
-            updateUI() {
-                // Mettre à jour les statistiques système
-                const stats = document.getElementById('system-stats');
-                if (stats) {
-                    document.getElementById('response-time').textContent = this.getAverageResponseTime();
-                    document.getElementById('request-count').textContent = this.requestCount;
-                    document.getElementById('memory-usage').textContent = '128';
-                    document.getElementById('cpu-usage').textContent = '15';
-                }
-                
-                // Mettre à jour le statut du hub
-                const hubStatus = document.getElementById('hub-connection-status');
-                if (hubStatus) {
-                    hubStatus.textContent = this.isConnected ? 'CONNECTÉ' : 'DÉCONNECTÉ';
-                    hubStatus.className = this.isConnected ? 'success' : 'warning';
-                }
-            }
-            
-            refreshSystemStats() {
-                this.logTerminal('🔄 Actualisation des statistiques système...', 'output');
-                this.updateUI();
-                this.showAlert('Statistiques actualisées', 'info');
-            }
-            
-            showAlert(message, type = 'info') {
-                // Créer une alerte temporaire
-                const alert = document.createElement('div');
-                alert.className = `status-badge ${type === 'success' ? 'connected' : type === 'danger' ? 'disconnected' : ''}`;
-                alert.textContent = message;
-                alert.style.position = 'fixed';
-                alert.style.top = '100px';
-                alert.style.right = '20px';
-                alert.style.zIndex = '2000';
-                alert.style.padding = '15px 25px';
-                alert.style.borderRadius = 'var(--radius-sm)';
-                alert.style.boxShadow = 'var(--shadow-lg)';
-                
-                document.body.appendChild(alert);
-                
-                setTimeout(() => {
-                    alert.style.transition = 'opacity 0.5s';
-                    alert.style.opacity = '0';
-                    setTimeout(() => alert.remove(), 500);
-                }, 3000);
-            }
-            
-            setupEventListeners() {
-                // Entrée terminal
-                const terminalInput = document.getElementById('terminal-input');
-                if (terminalInput) {
-                    terminalInput.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') {
-                            this.sendCommand();
-                        }
-                    });
-                }
-                
-                // Navigation
-                const navLinks = document.querySelectorAll('.nav-link');
-                navLinks.forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const targetId = link.getAttribute('href').substring(1);
-                        const targetElement = document.getElementById(targetId);
-                        
-                        if (targetElement) {
-                            navLinks.forEach(l => l.classList.remove('active'));
-                            link.classList.add('active');
-                            
-                            targetElement.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'start'
-                            });
-                        }
-                    });
-                });
             }
         }
         
-        // Initialiser l'application
-        window.addEventListener('DOMContentLoaded', () => {
-            window.initHUB = new initHUBMilitary();
+        function logout() {
+            localStorage.removeItem('token');
+            usernameElement.textContent = 'Invité';
+            terminalPrompt.textContent = 'guest@inithub:~$';
+            tokenStatusElement.textContent = 'Non authentifié';
+            tokenStatusElement.style.color = 'var(--terminal-red)';
             
-            // Exposer les fonctions globalement
-            window.connectToHub = () => window.initHUB.connectToHub();
-            window.disconnectHub = () => window.initHUB.disconnectHub();
-            window.testConnection = () => window.initHUB.testConnection();
-            window.sendCommand = () => window.initHUB.sendCommand();
-            window.clearTerminal = () => window.initHUB.clearTerminal();
-            window.runDiagnostic = () => window.initHUB.runDiagnostic();
-            window.scanNetwork = () => window.initHUB.scanNetwork();
-            window.runMaintenance = () => window.initHUB.runMaintenance();
-            window.deployOperation = () => window.initHUB.deployOperation();
-            window.refreshSystemStats = () => window.initHUB.refreshSystemStats();
-        });
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+            
+            showToast('Déconnecté avec succès', 'info');
+        }
+        
+        function updateApiInfo() {
+            apiUrlElement.textContent = apiUrl;
+            
+            // Récupérer le port depuis l'URL
+            const port = window.location.port || (window.location.protocol === 'https:' ? 443 : 80);
+            wsPortElement.textContent = port;
+        }
+        
+        async function testApiConnection() {
+            try {
+                const response = await fetch('/api/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    apiStatusElement.textContent = 'En ligne ✓';
+                    apiStatusElement.style.color = 'var(--terminal-green)';
+                    apiVersionElement.textContent = data.version || '13.0.0';
+                } else {
+                    apiStatusElement.textContent = 'Hors ligne ✗';
+                    apiStatusElement.style.color = 'var(--terminal-red)';
+                }
+            } catch (error) {
+                apiStatusElement.textContent = 'Erreur de connexion';
+                apiStatusElement.style.color = 'var(--terminal-red)';
+            }
+        }
+        
+        function setupCommandPalette() {
+            // Organiser les commandes par catégorie
+            const categories = {};
+            commands.forEach(cmd => {
+                if (!categories[cmd.category]) {
+                    categories[cmd.category] = [];
+                }
+                categories[cmd.category].push(cmd);
+            });
+            
+            // Remplir la liste des commandes
+            commandList.innerHTML = '';
+            
+            Object.keys(categories).forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                categoryDiv.innerHTML = `<h4>${category}</h4>`;
+                
+                categories[category].forEach(cmd => {
+                    const item = document.createElement('div');
+                    item.className = 'command-item';
+                    item.innerHTML = `
+                        <div>
+                            <strong>${cmd.name}</strong>
+                            <div style="font-size: 12px; color: #565f89;">${cmd.description}</div>
+                        </div>
+                        <div class="command-shortcut">⏎</div>
+                    `;
+                    item.onclick = () => {
+                        if (terminalConnected) {
+                            sendCommand(cmd.name);
+                        } else {
+                            terminalInput.value = cmd.name;
+                        }
+                        hideCommandPalette();
+                    };
+                    categoryDiv.appendChild(item);
+                });
+                
+                commandList.appendChild(categoryDiv);
+            });
+            
+            // Recherche de commandes
+            commandSearch.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const allItems = commandList.querySelectorAll('.command-item');
+                
+                allItems.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Fermer la palette avec Esc
+            commandSearch.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    hideCommandPalette();
+                } else if (e.key === 'Enter') {
+                    const firstVisible = commandList.querySelector('.command-item[style="display: flex;"]');
+                    if (firstVisible) {
+                        firstVisible.click();
+                    }
+                }
+            });
+        }
+        
+        function showCommandPalette() {
+            commandPalette.classList.add('active');
+            commandSearch.focus();
+        }
+        
+        function hideCommandPalette() {
+            commandPalette.classList.remove('active');
+            commandSearch.value = '';
+            terminalInput.focus();
+        }
+        
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Ctrl+Shift+P pour la palette de commandes
+                if (e.ctrlKey && e.shiftKey && e.key === 'p') {
+                    e.preventDefault();
+                    showCommandPalette();
+                }
+                
+                // Ctrl+Shift+C pour copier (quand du texte est sélectionné)
+                if (e.ctrlKey && e.shiftKey && e.key === 'c') {
+                    if (window.getSelection().toString()) {
+                        navigator.clipboard.writeText(window.getSelection().toString())
+                            .then(() => showToast('Copié dans le presse-papier', 'success'));
+                    }
+                }
+                
+                // Ctrl+Shift+V pour coller
+                if (e.ctrlKey && e.shiftKey && e.key === 'v') {
+                    e.preventDefault();
+                    navigator.clipboard.readText()
+                        .then(text => {
+                            if (terminalInput) {
+                                terminalInput.value += text;
+                            }
+                        });
+                }
+                
+                // Ctrl+C pour interrompre (quand connecté)
+                if (e.ctrlKey && e.key === 'c') {
+                    if (terminalConnected && ws && ws.readyState === WebSocket.OPEN) {
+                        e.preventDefault();
+                        sendCommand('\x03'); // Ctrl+C character
+                    }
+                }
+                
+                // Ctrl+L pour effacer l'écran
+                if (e.ctrlKey && e.key === 'l') {
+                    e.preventDefault();
+                    clearTerminal();
+                }
+                
+                // Ctrl+U pour effacer la ligne
+                if (e.ctrlKey && e.key === 'u') {
+                    e.preventDefault();
+                    if (terminalInput) {
+                        terminalInput.value = '';
+                    }
+                }
+                
+                // Flèches pour l'historique
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (commandHistory.length > 0) {
+                        if (historyIndex < commandHistory.length - 1) {
+                            historyIndex++;
+                        }
+                        if (historyIndex >= 0 && historyIndex < commandHistory.length) {
+                            terminalInput.value = commandHistory[commandHistory.length - 1 - historyIndex];
+                        }
+                    }
+                }
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (historyIndex > 0) {
+                        historyIndex--;
+                        terminalInput.value = commandHistory[commandHistory.length - 1 - historyIndex];
+                    } else {
+                        historyIndex = -1;
+                        terminalInput.value = '';
+                    }
+                }
+                
+                // Tab pour auto-complétion
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    // Auto-complétion basique
+                    const currentInput = terminalInput.value;
+                    const matchingCommands = commands.filter(cmd => 
+                        cmd.name.startsWith(currentInput)
+                    );
+                    
+                    if (matchingCommands.length === 1) {
+                        terminalInput.value = matchingCommands[0].name;
+                    } else if (matchingCommands.length > 1) {
+                        // Afficher les possibilités
+                        addTerminalLine('=== Commandes correspondantes ===', 'info');
+                        matchingCommands.forEach(cmd => {
+                            addTerminalLine(`  ${cmd.name} - ${cmd.description}`, 'info');
+                        });
+                    }
+                }
+            });
+        }
+        
+        function setupTerminal() {
+            terminalInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendCommand();
+                }
+            });
+        }
+        
+        function connectTerminal() {
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                showToast('Veuillez vous connecter d\'abord', 'warning');
+                return;
+            }
+            
+            updateConnectionStatus('connecting');
+            
+            try {
+                // Construire l'URL WebSocket
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const host = window.location.host;
+                const wsUrl = `${protocol}//${host}/ws/terminal?token=${token}`;
+                
+                ws = new WebSocket(wsUrl);
+                
+                ws.onopen = () => {
+                    updateConnectionStatus('connected');
+                    terminalInput.disabled = false;
+                    sendButton.disabled = false;
+                    terminalConnected = true;
+                    addTerminalLine('✅ Connexion WebSocket établie', 'success');
+                    addTerminalLine('🎯 Tapez vos commandes ci-dessous', 'info');
+                };
+                
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleWebSocketMessage(data);
+                    } catch (error) {
+                        addTerminalLine(event.data, 'output');
+                    }
+                };
+                
+                ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    updateConnectionStatus('disconnected');
+                    addTerminalLine('❌ Erreur de connexion WebSocket', 'error');
+                    showToast('Erreur de connexion WebSocket', 'error');
+                };
+                
+                ws.onclose = () => {
+                    updateConnectionStatus('disconnected');
+                    terminalInput.disabled = true;
+                    sendButton.disabled = true;
+                    terminalConnected = false;
+                    addTerminalLine('📴 Connexion WebSocket fermée', 'info');
+                };
+                
+            } catch (error) {
+                console.error('Connection error:', error);
+                updateConnectionStatus('disconnected');
+                showToast('Erreur de connexion', 'error');
+            }
+        }
+        
+        function disconnectTerminal() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+            updateConnectionStatus('disconnected');
+            terminalInput.disabled = true;
+            sendButton.disabled = true;
+            terminalConnected = false;
+        }
+        
+        function updateConnectionStatus(status) {
+            const dot = document.getElementById('connection-dot');
+            const text = document.getElementById('connection-text');
+            
+            dot.className = 'connection-dot ' + status;
+            
+            switch(status) {
+                case 'connected':
+                    dot.style.background = 'var(--terminal-green)';
+                    text.textContent = 'Connecté';
+                    connectionStatus.style.color = 'var(--terminal-green)';
+                    break;
+                case 'disconnected':
+                    dot.style.background = 'var(--terminal-red)';
+                    text.textContent = 'Déconnecté';
+                    connectionStatus.style.color = 'var(--terminal-red)';
+                    break;
+                case 'connecting':
+                    dot.style.background = 'var(--terminal-yellow)';
+                    text.textContent = 'Connexion...';
+                    connectionStatus.style.color = 'var(--terminal-yellow)';
+                    break;
+            }
+        }
+        
+        function handleWebSocketMessage(data) {
+            switch(data.type) {
+                case 'init':
+                    currentSession = data.session_id;
+                    sessionIdElement.textContent = data.session_id.substring(0, 8) + '...';
+                    addTerminalLine(`✅ ${data.message}`, 'success');
+                    addTerminalLine(`📁 Workspace: ${data.workspace}`, 'info');
+                    break;
+                case 'output':
+                    if (data.content) {
+                        addTerminalLine(data.content, 'output');
+                    }
+                    if (data.result) {
+                        if (data.result.stdout) {
+                            addTerminalLine(data.result.stdout, 'output');
+                        }
+                        if (data.result.stderr) {
+                            addTerminalLine(data.result.stderr, 'error');
+                        }
+                    }
+                    break;
+                case 'error':
+                    addTerminalLine(data.message, 'error');
+                    break;
+                default:
+                    addTerminalLine(JSON.stringify(data), 'info');
+            }
+        }
+        
+        function sendCommand(command = null) {
+            const cmd = command || terminalInput.value.trim();
+            
+            if (!cmd) return;
+            
+            if (!terminalConnected || !ws || ws.readyState !== WebSocket.OPEN) {
+                showToast('Terminal non connecté', 'warning');
+                return;
+            }
+            
+            // Ajouter à l'historique
+            if (!command) {
+                commandHistory.push(cmd);
+                historyIndex = -1;
+                addTerminalLine(`$ ${cmd}`, 'command');
+                terminalInput.value = '';
+            } else {
+                addTerminalLine(`$ ${cmd}`, 'command');
+            }
+            
+            // Envoyer la commande
+            try {
+                ws.send(JSON.stringify({
+                    type: 'command',
+                    command: cmd
+                }));
+            } catch (error) {
+                console.error('Send error:', error);
+                addTerminalLine('❌ Erreur d\'envoi de commande', 'error');
+            }
+        }
+        
+        function sendQuickCommand(cmd) {
+            if (terminalConnected) {
+                sendCommand(cmd);
+            } else {
+                terminalInput.value = cmd;
+                if (terminalInput.disabled) {
+                    showToast('Connectez-vous d\'abord au terminal', 'warning');
+                }
+            }
+        }
+        
+        function addTerminalLine(text, type = 'output') {
+            const line = document.createElement('div');
+            line.className = `terminal-line ${type}`;
+            line.textContent = text;
+            terminalOutput.appendChild(line);
+            
+            // Mettre à jour le compteur de lignes
+            const lines = terminalOutput.querySelectorAll('.terminal-line').length;
+            lineCountElement.textContent = lines;
+            
+            // Scroll vers le bas
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+        
+        function clearTerminal() {
+            terminalOutput.innerHTML = '';
+            addTerminalLine('Terminal effacé', 'info');
+            lineCountElement.textContent = 1;
+        }
+        
+        function minimizeTerminal() {
+            const terminal = document.getElementById('terminal-container');
+            terminal.style.height = '300px';
+            showToast('Terminal minimisé', 'info');
+        }
+        
+        function maximizeTerminal() {
+            const terminal = document.getElementById('terminal-container');
+            terminal.style.height = '80vh';
+            showToast('Terminal maximisé', 'info');
+        }
+        
+        function switchTab(tabName) {
+            // Mettre à jour les onglets
+            document.querySelectorAll('.terminal-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Mettre à jour le mode
+            terminalModeElement.textContent = tabName.charAt(0).toUpperCase() + tabName.slice(1);
+        }
+        
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span>${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                <span>${message}</span>
+            `;
+            
+            const container = document.getElementById('toast-container');
+            container.appendChild(toast);
+            
+            // Supprimer après 5 secondes
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => {
+                    container.removeChild(toast);
+                }, 300);
+            }, 5000);
+        }
+        
+        // Exposer les fonctions globalement
+        window.connectTerminal = connectTerminal;
+        window.disconnectTerminal = disconnectTerminal;
+        window.clearTerminal = clearTerminal;
+        window.sendCommand = sendCommand;
+        window.sendQuickCommand = sendQuickCommand;
+        window.showCommandPalette = showCommandPalette;
+        window.minimizeTerminal = minimizeTerminal;
+        window.maximizeTerminal = maximizeTerminal;
+        window.switchTab = switchTab;
+        window.logout = logout;
     </script>
 </body>
 </html>
