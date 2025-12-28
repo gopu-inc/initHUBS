@@ -79,10 +79,301 @@
             50% { transform: scale(1.05); opacity: 0.8; }
         }
 
+        /* Auth Screen */
+        .auth-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow);
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        .auth-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: var(--gray);
+            margin-bottom: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            font-size: 0.875rem;
+        }
+
+        .auth-tab.active {
+            color: white;
+        }
+
+        .auth-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .auth-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .auth-input::placeholder {
+            color: var(--gray);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 0.875rem;
+            border-radius: var(--radius);
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+
+        .auth-button-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .auth-button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        .auth-button-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .auth-button-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: var(--gray);
+            font-size: 0.75rem;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-divider span {
+            padding: 0 1rem;
+        }
+
+        .auth-token-section {
+            margin-top: 1.5rem;
+        }
+
+        .auth-token-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-token-input {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .auth-token-display {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            font-family: monospace;
+            font-size: 0.75rem;
+            word-break: break-all;
+            color: var(--gray-light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-copy-btn {
+            padding: 0.75rem 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: var(--radius);
+            color: var(--primary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .auth-copy-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--gray);
+            font-size: 0.75rem;
+        }
+
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .auth-alert {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--secondary);
+            color: #a7f3d0;
+        }
+
+        .auth-alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger);
+            color: #fecaca;
+        }
+
+        .auth-alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--warning);
+            color: #fde68a;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-container {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .dashboard-container.active {
+            display: flex;
+        }
+
         /* Layout */
         .container {
             display: flex;
             min-height: 100vh;
+            flex: 1;
         }
 
         /* Sidebar */
@@ -561,17 +852,6 @@
             animation: slideIn 0.3s ease;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .alert-success {
             background: rgba(16, 185, 129, 0.1);
             border-left: 4px solid var(--secondary);
@@ -651,6 +931,10 @@
             
             .top-bar-actions {
                 justify-content: space-between;
+            }
+            
+            .auth-container {
+                padding: 1.5rem;
             }
         }
 
@@ -974,8 +1258,137 @@
         <div class="loading-text" id="loadingText">Chargement...</div>
     </div>
 
-    <!-- Main Container -->
-    <div class="container">
+    <!-- Auth Screen -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <div class="auth-logo-icon">⚡</div>
+                <h1 class="auth-title">Zenv Hub</h1>
+                <p class="auth-subtitle">Gestionnaire de packages privé</p>
+            </div>
+
+            <div class="auth-alert" id="authAlert" style="display: none;"></div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="showAuthTab('login')">Connexion</button>
+                <button class="auth-tab" onclick="showAuthTab('register')">Inscription</button>
+                <button class="auth-tab" onclick="showAuthTab('token')">Token</button>
+            </div>
+
+            <!-- Login Form -->
+            <div class="auth-form active" id="loginForm">
+                <div class="auth-form-group">
+                    <label class="auth-label" for="loginUsername">Nom d'utilisateur ou Email</label>
+                    <input type="text" class="auth-input" id="loginUsername" placeholder="admin" required>
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-label" for="loginPassword">Mot de passe</label>
+                    <input type="password" class="auth-input" id="loginPassword" placeholder="••••••••" required>
+                </div>
+
+                <button class="auth-button auth-button-primary" onclick="login()">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+
+                <div class="auth-divider">
+                    <span>OU</span>
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-label">Token Zenv</label>
+                    <input type="text" class="auth-input" id="loginToken" 
+                           placeholder="zenv_..." 
+                           onkeypress="if(event.key === 'Enter') loginWithToken()">
+                </div>
+
+                <button class="auth-button auth-button-secondary" onclick="loginWithToken()">
+                    <i class="fas fa-key"></i> Se connecter avec Token
+                </button>
+            </div>
+
+            <!-- Register Form -->
+            <div class="auth-form" id="registerForm">
+                <div class="auth-form-group">
+                    <label class="auth-label" for="registerUsername">Nom d'utilisateur *</label>
+                    <input type="text" class="auth-input" id="registerUsername" 
+                           placeholder="nouvel-utilisateur" required>
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-label" for="registerEmail">Email *</label>
+                    <input type="email" class="auth-input" id="registerEmail" 
+                           placeholder="email@example.com" required>
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-label" for="registerPassword">Mot de passe *</label>
+                    <input type="password" class="auth-input" id="registerPassword" 
+                           placeholder="••••••••" required>
+                    <div style="font-size: 0.75rem; color: var(--gray); margin-top: 0.25rem;">
+                        Minimum 8 caractères
+                    </div>
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-label" for="registerConfirmPassword">Confirmer le mot de passe *</label>
+                    <input type="password" class="auth-input" id="registerConfirmPassword" 
+                           placeholder="••••••••" required>
+                </div>
+
+                <button class="auth-button auth-button-success" onclick="register()">
+                    <i class="fas fa-user-plus"></i> S'inscrire
+                </button>
+            </div>
+
+            <!-- Token Form -->
+            <div class="auth-form" id="tokenForm">
+                <div class="auth-form-group">
+                    <label class="auth-label">Votre Token Zenv</label>
+                    <input type="text" class="auth-input" id="tokenInput" 
+                           placeholder="zenv_..." required>
+                </div>
+
+                <button class="auth-button auth-button-primary" onclick="verifyAndLoginWithToken()">
+                    <i class="fas fa-check"></i> Vérifier et Se connecter
+                </button>
+
+                <div class="auth-token-section">
+                    <div class="auth-token-label">Token d'exemple (admin) :</div>
+                    <div class="auth-token-input">
+                        <div class="auth-token-display" id="sampleToken">
+                            zenv_ead27bf9d1b91e30729eb574a82e7287d4c9f35df9f8feb4f581452444350a5b
+                        </div>
+                        <button class="auth-copy-btn" onclick="copySampleToken()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(245, 158, 11, 0.1); border-radius: var(--radius);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <i class="fas fa-info-circle" style="color: var(--warning);"></i>
+                        <div style="font-weight: 600; font-size: 0.875rem;">Note importante</div>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--gray-light); line-height: 1.5;">
+                        Ce token admin est fourni à titre d'exemple. Pour un usage en production, 
+                        générez votre propre token après connexion dans la section "Mes Tokens".
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-footer">
+                <p>En vous connectant, vous acceptez nos <a href="#" onclick="showTerms()">Conditions d'utilisation</a></p>
+                <p style="margin-top: 0.5rem;">
+                    <a href="https://github.com/gopu-inc/zenv" target="_blank">Documentation CLI</a> • 
+                    <a href="https://discord.gg/qWx5DszrC" target="_blank">Support Discord</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container" id="dashboardContainer">
         <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
             <a href="#" class="logo" onclick="showPage('dashboard')">
@@ -1576,72 +1989,6 @@
         </div>
     </div>
 
-    <!-- Login Modal -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Connexion à Zenv Hub</h3>
-                <button class="modal-close" onclick="hideModal('loginModal')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="tabs">
-                    <button class="tab active" onclick="showAuthTab('login')">Connexion</button>
-                    <button class="tab" onclick="showAuthTab('register')">Inscription</button>
-                </div>
-                
-                <div id="loginForm">
-                    <div class="form-group">
-                        <label class="form-label">Nom d'utilisateur ou Email</label>
-                        <input type="text" class="form-control" id="loginUsername" 
-                               placeholder="admin" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Mot de passe</label>
-                        <input type="password" class="form-control" id="loginPassword" 
-                               placeholder="••••••••" required>
-                    </div>
-                    
-                    <button class="btn btn-primary" onclick="login()" style="width: 100%; margin-top: 1rem;">
-                        <i class="fas fa-sign-in-alt"></i> Se connecter
-                    </button>
-                    
-                    <div style="text-align: center; margin-top: 1rem; color: var(--gray); font-size: 0.875rem;">
-                        <p>Token admin par défaut:</p>
-                        <code>zenv_ead27bf9d1b91e30729eb574a82e7287d4c9f35df9f8feb4f581452444350a5b</code>
-                    </div>
-                </div>
-                
-                <div id="registerForm" style="display: none;">
-                    <div class="form-group">
-                        <label class="form-label">Nom d'utilisateur *</label>
-                        <input type="text" class="form-control" id="registerUsername" 
-                               placeholder="nouvel-utilisateur" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Email *</label>
-                        <input type="email" class="form-control" id="registerEmail" 
-                               placeholder="email@example.com" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Mot de passe *</label>
-                        <input type="password" class="form-control" id="registerPassword" 
-                               placeholder="••••••••" required>
-                        <div style="font-size: 0.75rem; color: var(--gray); margin-top: 0.25rem;">
-                            Minimum 8 caractères
-                        </div>
-                    </div>
-                    
-                    <button class="btn btn-success" onclick="register()" style="width: 100%; margin-top: 1rem;">
-                        <i class="fas fa-user-plus"></i> S'inscrire
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Package Details Modal -->
     <div class="modal" id="packageDetailsModal">
         <div class="modal-content">
@@ -1680,27 +2027,29 @@
             const storedUser = localStorage.getItem('zenv_user');
             
             if (storedToken && storedUser) {
-                currentToken = storedToken;
-                currentUser = JSON.parse(storedUser);
-                updateUserInfo();
-                await loadDashboardData();
-            } else {
-                showModal('loginModal');
+                // Verify token is still valid
+                try {
+                    const response = await fetch(`${API_BASE}/api/tokens/verify?token=${storedToken}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.valid) {
+                            currentToken = storedToken;
+                            currentUser = JSON.parse(storedUser);
+                            showDashboard();
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    // Token verification failed
+                }
+                
+                // Clear invalid token
+                localStorage.removeItem('zenv_token');
+                localStorage.removeItem('zenv_user');
             }
-
-            // Initialize badge preview
-            updateBadgePreview();
             
-            // Setup event listeners for badge creation form
-            document.getElementById('badgeName').addEventListener('input', updateBadgePreview);
-            document.getElementById('badgeLabel').addEventListener('input', updateBadgePreview);
-            document.getElementById('badgeValue').addEventListener('input', updateBadgePreview);
-            
-            // Setup drag and drop for file upload
-            setupDragAndDrop();
-            
-            // Check server health
-            checkServerHealth();
+            // Show auth screen
+            showAuthScreen();
         });
 
         // Show/Hide Loading Overlay
@@ -1745,7 +2094,224 @@
             localStorage.setItem('zenv_theme', newTheme);
         }
 
-        // Show Page
+        // Show Auth Screen
+        function showAuthScreen() {
+            document.getElementById('authScreen').style.display = 'flex';
+            document.getElementById('dashboardContainer').classList.remove('active');
+            showAuthTab('login');
+        }
+
+        // Show Dashboard
+        function showDashboard() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('dashboardContainer').classList.add('active');
+            updateUserInfo();
+            loadDashboardData();
+            showPage('dashboard');
+        }
+
+        // Show Auth Tab
+        function showAuthTab(tab) {
+            // Update tabs
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Hide all forms
+            document.querySelectorAll('.auth-form').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            // Show selected form
+            document.getElementById(tab + 'Form').classList.add('active');
+            
+            // Clear alert
+            hideAuthAlert();
+        }
+
+        // Show/Hide Auth Alert
+        function showAuthAlert(message, type = 'error') {
+            const alertDiv = document.getElementById('authAlert');
+            alertDiv.className = `auth-alert auth-alert-${type}`;
+            alertDiv.innerHTML = `
+                <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
+                <div>${message}</div>
+            `;
+            alertDiv.style.display = 'flex';
+        }
+
+        function hideAuthAlert() {
+            document.getElementById('authAlert').style.display = 'none';
+        }
+
+        // Copy Sample Token
+        function copySampleToken() {
+            const token = document.getElementById('sampleToken').textContent;
+            navigator.clipboard.writeText(token).then(() => {
+                showAuthAlert('Token copié dans le presse-papier', 'success');
+            });
+        }
+
+        // Authentication Functions
+        async function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            
+            if (!username || !password) {
+                showAuthAlert('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+            
+            showLoading('Connexion en cours...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentToken = data.token.access_token;
+                    currentUser = data.token.user;
+                    
+                    // Store in localStorage
+                    localStorage.setItem('zenv_token', currentToken);
+                    localStorage.setItem('zenv_user', JSON.stringify(currentUser));
+                    
+                    hideLoading();
+                    showDashboard();
+                    showAlert('Connexion réussie', 'success');
+                } else {
+                    const error = await response.json();
+                    hideLoading();
+                    showAuthAlert(error.error || 'Identifiants incorrects', 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showAuthAlert('Erreur réseau. Vérifiez votre connexion.', 'error');
+            }
+        }
+
+        async function loginWithToken() {
+            const token = document.getElementById('loginToken').value.trim();
+            
+            if (!token) {
+                showAuthAlert('Veuillez entrer un token', 'error');
+                return;
+            }
+            
+            await verifyAndLogin(token);
+        }
+
+        async function verifyAndLoginWithToken() {
+            const token = document.getElementById('tokenInput').value.trim();
+            
+            if (!token) {
+                showAuthAlert('Veuillez entrer un token', 'error');
+                return;
+            }
+            
+            await verifyAndLogin(token);
+        }
+
+        async function verifyAndLogin(token) {
+            showLoading('Vérification du token...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/tokens/verify?token=${token}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.valid) {
+                        currentToken = token;
+                        currentUser = data.user;
+                        
+                        // Store in localStorage
+                        localStorage.setItem('zenv_token', currentToken);
+                        localStorage.setItem('zenv_user', JSON.stringify(currentUser));
+                        
+                        hideLoading();
+                        showDashboard();
+                        showAlert('Connexion réussie avec token', 'success');
+                    } else {
+                        hideLoading();
+                        showAuthAlert('Token invalide ou expiré', 'error');
+                    }
+                } else {
+                    hideLoading();
+                    showAuthAlert('Erreur de vérification du token', 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showAuthAlert('Erreur réseau', 'error');
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
+            const confirmPassword = document.getElementById('registerConfirmPassword').value.trim();
+            
+            if (!username || !email || !password || !confirmPassword) {
+                showAuthAlert('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+            
+            if (password.length < 8) {
+                showAuthAlert('Le mot de passe doit contenir au moins 8 caractères', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showAuthAlert('Les mots de passe ne correspondent pas', 'error');
+                return;
+            }
+            
+            showLoading('Création de votre compte...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentToken = data.token.access_token;
+                    currentUser = data.token.user;
+                    
+                    // Store in localStorage
+                    localStorage.setItem('zenv_token', currentToken);
+                    localStorage.setItem('zenv_user', JSON.stringify(currentUser));
+                    
+                    hideLoading();
+                    showDashboard();
+                    showAlert('Inscription réussie ! Bienvenue sur Zenv Hub', 'success');
+                } else {
+                    const error = await response.json();
+                    hideLoading();
+                    showAuthAlert(error.error || 'Erreur lors de l\'inscription', 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showAuthAlert('Erreur réseau', 'error');
+            }
+        }
+
+        // Dashboard Functions
         function showPage(pageId) {
             // Hide all pages
             const pages = document.querySelectorAll('.page');
@@ -1863,6 +2429,9 @@
                     allBadges = badgesData.badges || [];
                     document.getElementById('totalBadges').textContent = badgesData.count || 0;
                 }
+                
+                // Check server health
+                await checkServerHealth();
                 
                 hideLoading();
             } catch (error) {
@@ -2132,7 +2701,7 @@
         async function uploadPackage() {
             if (!currentToken) {
                 showAlert('Vous devez être connecté pour uploader un package', 'error');
-                showModal('loginModal');
+                showAuthScreen();
                 return;
             }
             
@@ -2363,7 +2932,7 @@
         async function createBadge() {
             if (!currentToken) {
                 showAlert('Vous devez être connecté pour créer un badge', 'error');
-                showModal('loginModal');
+                showAuthScreen();
                 return;
             }
             
@@ -2442,127 +3011,11 @@
             }
         }
 
-        // Authentication
-        function showAuthTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
-            document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
-        }
-
-        async function login() {
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-            
-            if (!username || !password) {
-                showAlert('Veuillez remplir tous les champs', 'error');
-                return;
-            }
-            
-            showLoading('Connexion...');
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        password: password
-                    })
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    currentToken = data.token.access_token;
-                    currentUser = data.token.user;
-                    
-                    // Store in localStorage
-                    localStorage.setItem('zenv_token', currentToken);
-                    localStorage.setItem('zenv_user', JSON.stringify(currentUser));
-                    
-                    updateUserInfo();
-                    hideModal('loginModal');
-                    showAlert('Connexion réussie', 'success');
-                    
-                    // Load dashboard data
-                    await loadDashboardData();
-                    showPage('dashboard');
-                } else {
-                    const error = await response.json();
-                    showAlert(error.error || 'Identifiants incorrects', 'error');
-                }
-            } catch (error) {
-                showAlert('Erreur réseau', 'error');
-            }
-            
-            hideLoading();
-        }
-
-        async function register() {
-            const username = document.getElementById('registerUsername').value.trim();
-            const email = document.getElementById('registerEmail').value.trim();
-            const password = document.getElementById('registerPassword').value.trim();
-            
-            if (!username || !email || !password) {
-                showAlert('Veuillez remplir tous les champs', 'error');
-                return;
-            }
-            
-            if (password.length < 8) {
-                showAlert('Le mot de passe doit contenir au moins 8 caractères', 'error');
-                return;
-            }
-            
-            showLoading('Inscription...');
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/auth/register`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        email: email,
-                        password: password
-                    })
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    currentToken = data.token.access_token;
-                    currentUser = data.token.user;
-                    
-                    // Store in localStorage
-                    localStorage.setItem('zenv_token', currentToken);
-                    localStorage.setItem('zenv_user', JSON.stringify(currentUser));
-                    
-                    updateUserInfo();
-                    hideModal('loginModal');
-                    showAlert('Inscription réussie', 'success');
-                    
-                    // Load dashboard data
-                    await loadDashboardData();
-                    showPage('dashboard');
-                } else {
-                    const error = await response.json();
-                    showAlert(error.error || 'Erreur lors de l\'inscription', 'error');
-                }
-            } catch (error) {
-                showAlert('Erreur réseau', 'error');
-            }
-            
-            hideLoading();
-        }
-
         // Load Profile Data
         async function loadProfileData() {
             if (!currentToken) {
                 showAlert('Vous devez être connecté', 'error');
-                showModal('loginModal');
+                showAuthScreen();
                 return;
             }
             
@@ -2633,7 +3086,7 @@
         async function generateNewToken() {
             if (!currentToken) {
                 showAlert('Vous devez être connecté', 'error');
-                showModal('loginModal');
+                showAuthScreen();
                 return;
             }
             
@@ -2721,8 +3174,8 @@
                 localStorage.removeItem('zenv_user');
                 currentToken = null;
                 currentUser = null;
-                showModal('loginModal');
-                showPage('dashboard');
+                showAuthScreen();
+                showAlert('Déconnexion réussie', 'success');
             }
         }
 
@@ -2747,6 +3200,19 @@
             }, 5000);
         }
 
+        // Show Terms
+        function showTerms() {
+            alert(`Conditions d'utilisation Zenv Hub :
+
+1. Vous êtes responsable de vos packages et badges
+2. Ne partagez jamais vos tokens publiquement
+3. Respectez les droits d'auteur
+4. Les packages malveillants seront supprimés
+5. Le support est disponible via Discord
+
+Pour plus d'informations, contactez support@zenv.dev`);
+        }
+
         // Utility Functions
         function formatDate(dateString) {
             if (!dateString) return 'Inconnu';
@@ -2765,6 +3231,27 @@
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
+
+        // Initialize badge preview and drag & drop when page loads
+        setTimeout(() => {
+            updateBadgePreview();
+            setupDragAndDrop();
+            
+            // Setup event listeners for badge creation form
+            const badgeNameInput = document.getElementById('badgeName');
+            const badgeLabelInput = document.getElementById('badgeLabel');
+            const badgeValueInput = document.getElementById('badgeValue');
+            
+            if (badgeNameInput) {
+                badgeNameInput.addEventListener('input', updateBadgePreview);
+            }
+            if (badgeLabelInput) {
+                badgeLabelInput.addEventListener('input', updateBadgePreview);
+            }
+            if (badgeValueInput) {
+                badgeValueInput.addEventListener('input', updateBadgePreview);
+            }
+        }, 1000);
     </script>
 </body>
 </html>
