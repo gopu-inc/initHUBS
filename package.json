@@ -1,0 +1,14 @@
+{
+  "name": "zenv-hub-frontend",
+  "version": "1.0.0",
+  "description": "Interface web pour Zenv Package Hub",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'No build step required'",
+    "start": "npx serve ."
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "serve": "^14.0.0"
+  }
+}
