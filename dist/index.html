@@ -2,7 +2,9 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0066FF">
     <title>Zenv Package Hub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -22,30 +24,39 @@
             --gray-light: #E9ECEF;
             --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, Consolas, monospace;
-            --shadow: 0 4px 6px rgba(0, 102, 255, 0.1);
-            --shadow-lg: 0 10px 25px rgba(0, 102, 255, 0.15);
+            --shadow: 0 2px 8px rgba(0, 102, 255, 0.1);
+            --shadow-lg: 0 4px 12px rgba(0, 102, 255, 0.15);
             --radius: 12px;
             --radius-sm: 8px;
+            --safe-area: env(safe-area-inset-bottom, 0px);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
             font-family: var(--font-main);
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #f5f7fa;
             color: var(--dark);
             line-height: 1.6;
             min-height: 100vh;
+            padding-bottom: calc(20px + var(--safe-area));
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 16px;
         }
 
         /* Header */
@@ -55,28 +66,31 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--gray-light);
         }
 
         .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 0;
+            gap: 16px;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             text-decoration: none;
             color: var(--dark);
             font-weight: 700;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
+            flex-shrink: 0;
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             background: var(--primary);
             border-radius: 10px;
             display: flex;
@@ -84,13 +98,15 @@
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1rem;
         }
 
         .nav-links {
             display: flex;
-            gap: 2rem;
+            gap: 12px;
             align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         .nav-links a {
@@ -98,15 +114,20 @@
             color: var(--gray);
             font-weight: 500;
             transition: color 0.3s;
+            font-size: 0.9rem;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            white-space: nowrap;
         }
 
         .nav-links a:hover,
         .nav-links a.active {
             color: var(--primary);
+            background: rgba(0, 102, 255, 0.05);
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 10px 18px;
             border-radius: var(--radius-sm);
             border: none;
             font-weight: 600;
@@ -117,6 +138,8 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            font-size: 0.95rem;
+            touch-action: manipulation;
         }
 
         .btn-primary {
@@ -124,9 +147,10 @@
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover,
+        .btn-primary:active {
             background: var(--primary-dark);
-            transform: translateY(-2px);
+            transform: translateY(-1px);
             box-shadow: var(--shadow);
         }
 
@@ -136,97 +160,113 @@
             border: 2px solid var(--primary);
         }
 
-        .btn-outline:hover {
+        .btn-outline:hover,
+        .btn-outline:active {
             background: var(--primary);
             color: white;
         }
 
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 0.85rem;
+        }
+
         /* Hero Section */
         .hero {
-            padding: 80px 0;
+            padding: 40px 0;
             text-align: center;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
-            border-radius: 0 0 40px 40px;
-            margin-bottom: 40px;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 30px;
         }
 
         .hero h1 {
-            font-size: 3.5rem;
+            font-size: 2.2rem;
             margin-bottom: 1rem;
             font-weight: 800;
+            line-height: 1.2;
         }
 
         .hero p {
-            font-size: 1.2rem;
-            max-width: 600px;
+            font-size: 1.1rem;
+            max-width: 100%;
             margin: 0 auto 2rem;
-            opacity: 0.9;
+            opacity: 0.95;
+            padding: 0 10px;
         }
 
         .hero-badges {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-top: 2rem;
+            gap: 8px;
+            margin-top: 1.5rem;
             flex-wrap: wrap;
+        }
+
+        .hero-badges img {
+            height: 24px;
+            border-radius: 4px;
         }
 
         /* Stats */
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 30px;
         }
 
         .stat-card {
             background: white;
-            padding: 30px;
+            padding: 24px 16px;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             text-align: center;
             transition: transform 0.3s;
+            border: 1px solid var(--gray-light);
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             box-shadow: var(--shadow-lg);
         }
 
         .stat-number {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             color: var(--primary);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .stat-label {
             color: var(--gray);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         /* Packages Grid */
         .packages-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
         .package-card {
             background: white;
             border-radius: var(--radius);
-            padding: 25px;
+            padding: 20px;
             box-shadow: var(--shadow);
             transition: all 0.3s;
             border: 1px solid var(--gray-light);
+            display: flex;
+            flex-direction: column;
         }
 
         .package-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             box-shadow: var(--shadow-lg);
             border-color: var(--primary);
         }
@@ -235,14 +275,16 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+            gap: 10px;
         }
 
         .package-name {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: var(--dark);
             text-decoration: none;
+            word-break: break-word;
         }
 
         .package-name:hover {
@@ -251,50 +293,66 @@
 
         .package-version {
             background: var(--gray-light);
-            padding: 3px 10px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-family: var(--font-mono);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .package-description {
             color: var(--gray);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             line-height: 1.5;
+            flex-grow: 1;
+            font-size: 0.95rem;
         }
 
         .package-meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 20px;
-            padding-top: 15px;
+            margin-top: 16px;
+            padding-top: 16px;
             border-top: 1px solid var(--gray-light);
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .package-author {
             color: var(--gray);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .package-stats {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             color: var(--gray);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+        }
+
+        .package-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
         }
 
         /* Badge Workshop */
         .workshop {
             background: white;
             border-radius: var(--radius);
-            padding: 30px;
-            margin-bottom: 40px;
+            padding: 24px;
+            margin-bottom: 30px;
             box-shadow: var(--shadow);
         }
 
         .workshop-title {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -302,21 +360,21 @@
 
         .workshop-title i {
             color: var(--primary);
-            font-size: 1.5rem;
+            font-size: 1.3rem;
         }
 
         .badge-preview {
             text-align: center;
-            margin: 30px 0;
-            padding: 30px;
+            margin: 24px 0;
+            padding: 24px;
             background: var(--light);
             border-radius: var(--radius-sm);
         }
 
         .badge-controls {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr;
+            gap: 16px;
             margin-bottom: 20px;
         }
 
@@ -329,16 +387,19 @@
             margin-bottom: 8px;
             font-weight: 500;
             color: var(--dark);
+            font-size: 0.95rem;
         }
 
         .form-control {
             width: 100%;
-            padding: 12px 15px;
+            padding: 14px 16px;
             border: 2px solid var(--gray-light);
             border-radius: var(--radius-sm);
             font-family: var(--font-main);
             font-size: 1rem;
             transition: border-color 0.3s;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
         .form-control:focus {
@@ -353,15 +414,17 @@
         }
 
         .color-option {
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             cursor: pointer;
             border: 2px solid transparent;
             transition: transform 0.2s;
+            touch-action: manipulation;
         }
 
-        .color-option:hover {
+        .color-option:hover,
+        .color-option:active {
             transform: scale(1.1);
         }
 
@@ -370,24 +433,93 @@
             transform: scale(1.1);
         }
 
+        /* Package Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 16px;
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal {
+            background: white;
+            border-radius: var(--radius);
+            padding: 24px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .modal-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 5px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: var(--gray-light);
+        }
+
+        .modal-content {
+            max-height: calc(90vh - 100px);
+            overflow-y: auto;
+        }
+
         /* Footer */
         footer {
             background: var(--dark);
             color: white;
-            padding: 60px 0 30px;
-            margin-top: 60px;
+            padding: 40px 0 30px;
+            margin-top: 40px;
+            border-radius: 30px 30px 0 0;
         }
 
         .footer-content {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-bottom: 40px;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
         }
 
         .footer-section h3 {
-            margin-bottom: 20px;
-            font-size: 1.2rem;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
         }
 
         .footer-links {
@@ -395,13 +527,14 @@
         }
 
         .footer-links li {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .footer-links a {
             color: #adb5bd;
             text-decoration: none;
             transition: color 0.3s;
+            font-size: 0.9rem;
         }
 
         .footer-links a:hover {
@@ -410,16 +543,17 @@
 
         .footer-bottom {
             text-align: center;
-            padding-top: 30px;
+            padding-top: 20px;
             border-top: 1px solid #343a40;
             color: #adb5bd;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            line-height: 1.4;
         }
 
         /* Loading */
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 40px 20px;
             color: var(--gray);
         }
 
@@ -439,27 +573,327 @@
         }
 
         /* Responsive */
-        @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 20px;
+        @media (min-width: 640px) {
+            .container {
+                padding: 0 20px;
             }
-
-            .nav-links {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .packages-grid {
-                grid-template-columns: 1fr;
-            }
-
+            
             .stats {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .packages-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .footer-content {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 0 24px;
+            }
+            
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .packages-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .badge-controls {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .packages-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* iOS specific fixes */
+        @supports (-webkit-touch-callout: none) {
+            .hero {
+                padding-top: max(40px, env(safe-area-inset-top));
+            }
+            
+            .modal {
+                max-height: 80vh;
+            }
+        }
+
+        /* Android specific fixes */
+        @supports not (-webkit-touch-callout: none) {
+            .btn:active,
+            .color-option:active {
+                transform: scale(0.98);
+            }
+        }
+
+        /* Tab Navigation */
+        .tab-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--gray-light);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            padding-bottom: 2px;
+        }
+
+        .tab-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 10px 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--gray);
+            position: relative;
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-size: 0.95rem;
+        }
+
+        .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px 2px 0 0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Badge generator result */
+        .badge-result {
+            margin-top: 20px;
+            padding: 16px;
+            background: var(--light);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            word-break: break-all;
+            overflow-wrap: break-word;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 20px 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .badge-url-display {
+            background: var(--light);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            margin: 10px 0;
+            border: 1px solid var(--gray-light);
+        }
+
+        /* CLI Instructions */
+        .cli-instruction {
+            background: var(--light);
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            margin: 15px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .cli-command {
+            background: #2d2d2d;
+            color: #fff;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            margin: 10px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Search bar */
+        .search-container {
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 16px 14px 45px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236C757D' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 16px center;
+            background-size: 18px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+
+        /* Section headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--gray-light);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Package details */
+        .package-details {
+            margin-top: 20px;
+        }
+
+        .detail-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            color: var(--dark);
+        }
+
+        /* Info cards */
+        .info-card {
+            background: white;
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .info-card h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray-light);
+            margin-bottom: 20px;
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 3000;
+            transition: transform 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Swipe hint for mobile */
+        .swipe-hint {
+            display: none;
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin: 10px 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .swipe-hint {
+                display: block;
+            }
+            
+            .package-card {
+                padding: 16px;
+            }
+            
+            .modal {
+                padding: 20px;
+            }
+            
+            .hero {
+                padding: 30px 0;
+            }
+            
+            .hero h1 {
+                font-size: 1.8rem;
             }
         }
 
@@ -470,60 +904,96 @@
             color: var(--gray);
             cursor: pointer;
             font-size: 1.2rem;
-            padding: 5px;
+            padding: 8px;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Badge generator result */
-        .badge-result {
+        .theme-toggle:hover {
+            background: var(--gray-light);
+        }
+
+        /* Copy button */
+        .copy-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Readme content */
+        .readme-content {
+            background: white;
+            padding: 20px;
+            border-radius: var(--radius);
             margin-top: 20px;
-            padding: 20px;
-            background: var(--light);
-            border-radius: var(--radius-sm);
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-            word-break: break-all;
+            max-height: 400px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            border: 1px solid var(--gray-light);
         }
 
-        .code-block {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 20px;
-            border-radius: var(--radius-sm);
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-            overflow-x: auto;
-            margin: 20px 0;
-        }
-
-        .tab-container {
+        /* Filter buttons */
+        .filter-buttons {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
-            border-bottom: 1px solid var(--gray-light);
+            flex-wrap: wrap;
         }
 
-        .tab {
-            padding: 10px 20px;
-            background: none;
-            border: none;
+        .filter-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid var(--gray-light);
+            border-radius: 20px;
             cursor: pointer;
-            font-weight: 500;
-            color: var(--gray);
-            position: relative;
+            font-size: 0.9rem;
+            transition: all 0.3s;
         }
 
-        .tab.active {
-            color: var(--primary);
-        }
-
-        .tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            right: 0;
-            height: 3px;
+        .filter-btn.active {
             background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Package files list */
+        .files-list {
+            background: var(--light);
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            margin-top: 15px;
+        }
+
+        .file-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-icon {
+            color: var(--primary);
         }
     </style>
 </head>
@@ -537,15 +1007,14 @@
                     <span>Zenv Hub</span>
                 </a>
                 <div class="nav-links">
-                    <a href="#" class="active"><i class="fas fa-home"></i> Accueil</a>
-                    <a href="#packages"><i class="fas fa-box"></i> Packages</a>
-                    <a href="#workshop"><i class="fas fa-badge-check"></i> Badge Workshop</a>
-                    <a href="#docs"><i class="fas fa-book"></i> Docs</a>
-                    <button class="theme-toggle" onclick="toggleTheme()">
+                    <a href="#" class="active"><i class="fas fa-home"></i> <span class="mobile-hidden">Accueil</span></a>
+                    <a href="#packages"><i class="fas fa-box"></i> <span class="mobile-hidden">Packages</span></a>
+                    <a href="#workshop"><i class="fas fa-badge-check"></i> <span class="mobile-hidden">Badges</span></a>
+                    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Changer le thème">
                         <i class="fas fa-moon"></i>
                     </button>
-                    <a href="https://github.com/gopu-inc/zenv" class="btn btn-outline" target="_blank">
-                        <i class="fab fa-github"></i> GitHub
+                    <a href="https://github.com/gopu-inc/zenv" class="btn btn-sm btn-outline" target="_blank">
+                        <i class="fab fa-github"></i> <span class="mobile-hidden">GitHub</span>
                     </a>
                 </div>
             </nav>
@@ -556,19 +1025,19 @@
     <section class="hero">
         <div class="container">
             <h1>Zenv Package Hub</h1>
-            <p>Le hub officiel pour partager et découvrir des packages Zenv. Publiez, gérez et distribuez vos packages en toute simplicité.</p>
+            <p>Découvrez, explorez et téléchargez des packages Zenv. Géré via CLI.</p>
             <div class="hero-buttons">
                 <a href="#packages" class="btn btn-primary">
-                    <i class="fas fa-rocket"></i> Explorer les Packages
+                    <i class="fas fa-rocket"></i> Explorer
                 </a>
-                <a href="#workshop" class="btn btn-outline" style="background: rgba(255,255,255,0.1); color: white;">
-                    <i class="fas fa-magic"></i> Créer un Badge
+                <a href="#docs" class="btn btn-outline" style="background: rgba(255,255,255,0.1); color: white;">
+                    <i class="fas fa-book"></i> Docs CLI
                 </a>
             </div>
             <div class="hero-badges">
-                <img src="/badge/custom/API/v2.1.0/blue" alt="API Version">
-                <img src="/badge/custom/Packages/4/green" alt="Packages Count">
-                <img src="/badge/custom/GitHub/Private/orange/github" alt="GitHub">
+                <img src="/badge/custom/API/v2.1.0/blue" alt="API Version" loading="lazy">
+                <img src="/badge/custom/Zenv/CLI/green" alt="Zenv CLI">
+                <img src="/badge/custom/GitHub/Private/orange/github" alt="GitHub Private" loading="lazy">
             </div>
         </div>
     </section>
@@ -589,32 +1058,57 @@
                 <div class="stat-label">API Version</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">24/7</div>
-                <div class="stat-label">Disponibilité</div>
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Disponible</div>
             </div>
         </div>
 
+        <!-- Search -->
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-input" placeholder="Rechercher un package..." oninput="filterPackages()">
+        </div>
+
         <!-- Packages Section -->
-        <section id="packages">
-            <h2 style="margin-bottom: 25px; font-size: 2rem; color: var(--dark);">
+        <div class="section-header">
+            <div class="section-title">
                 <i class="fas fa-box-open"></i> Packages Disponibles
-            </h2>
-            <div id="packages-container" class="packages-grid">
-                <!-- Packages will be loaded here -->
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                    <p>Chargement des packages...</p>
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterBy('all')">Tous</button>
+                <button class="filter-btn" onclick="filterBy('popular')">Populaires</button>
+                <button class="filter-btn" onclick="filterBy('recent')">Récents</button>
+            </div>
+        </div>
+        
+        <div id="packages-container" class="packages-grid">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Chargement des packages...</p>
+            </div>
+        </div>
+
+        <!-- Package Details Modal -->
+        <div id="package-modal" class="modal-overlay" onclick="closeModal(event)">
+            <div class="modal" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <div class="modal-title" id="modal-package-name"></div>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-content" id="modal-content">
+                    <!-- Content loaded dynamically -->
                 </div>
             </div>
-        </section>
+        </div>
 
         <!-- Badge Workshop -->
         <section id="workshop" class="workshop">
-            <div class="workshop-title">
-                <i class="fas fa-paint-brush"></i>
-                <h2>Atelier de Création de Badges</h2>
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-paint-brush"></i> Atelier de Badges
+                </div>
             </div>
-            <p>Créez des badges personnalisés pour vos packages Zenv avec notre outil interactif.</p>
+            
+            <p>Créez des badges personnalisés pour vos projets Zenv.</p>
             
             <div class="tab-container">
                 <button class="tab active" onclick="showTab('simple')">Simple</button>
@@ -622,66 +1116,79 @@
                 <button class="tab" onclick="showTab('shields')">Shields.io</button>
             </div>
 
-            <div id="simple-tab" class="tab-content">
+            <div id="simple-tab" class="tab-content active">
                 <div class="badge-controls">
                     <div class="form-group">
-                        <label>Label (Gauche)</label>
-                        <input type="text" id="badge-label" class="form-control" value="Zenv" placeholder="Version">
+                        <label><i class="fas fa-tag"></i> Label (Gauche)</label>
+                        <input type="text" id="badge-label" class="form-control" value="Zenv" placeholder="Version" oninput="updateBadgePreview()">
                     </div>
                     <div class="form-group">
-                        <label>Value (Droite)</label>
-                        <input type="text" id="badge-value" class="form-control" value="2.1.0" placeholder="1.0.0">
+                        <label><i class="fas fa-hashtag"></i> Value (Droite)</label>
+                        <input type="text" id="badge-value" class="form-control" value="2.1.0" placeholder="1.0.0" oninput="updateBadgePreview()">
                     </div>
                     <div class="form-group">
-                        <label>Couleur</label>
+                        <label><i class="fas fa-palette"></i> Couleur</label>
                         <div class="color-options">
-                            <div class="color-option active" style="background: #007ec6;" onclick="selectColor('blue')"></div>
-                            <div class="color-option" style="background: #4c1;" onclick="selectColor('green')"></div>
-                            <div class="color-option" style="background: #e05d44;" onclick="selectColor('red')"></div>
-                            <div class="color-option" style="background: #fe7d37;" onclick="selectColor('orange')"></div>
-                            <div class="color-option" style="background: #dfb317;" onclick="selectColor('yellow')"></div>
-                            <div class="color-option" style="background: #9f4ca5;" onclick="selectColor('purple')"></div>
+                            <div class="color-option active" style="background: #007ec6;" onclick="selectColor('blue')" title="Bleu"></div>
+                            <div class="color-option" style="background: #4c1;" onclick="selectColor('green')" title="Vert"></div>
+                            <div class="color-option" style="background: #e05d44;" onclick="selectColor('red')" title="Rouge"></div>
+                            <div class="color-option" style="background: #fe7d37;" onclick="selectColor('orange')" title="Orange"></div>
+                            <div class="color-option" style="background: #dfb317;" onclick="selectColor('yellow')" title="Jaune"></div>
+                            <div class="color-option" style="background: #9f4ca5;" onclick="selectColor('purple')" title="Violet"></div>
                         </div>
                         <input type="hidden" id="badge-color" value="blue">
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="generateBadge()">
-                    <i class="fas fa-bolt"></i> Générer le Badge
-                </button>
-
+                
                 <div class="badge-preview">
                     <h3>Prévisualisation</h3>
                     <div id="badge-preview">
-                        <img src="/badge/custom/Zenv/2.1.0/blue" alt="Badge Preview" id="badge-image">
+                        <img src="/badge/custom/Zenv/2.1.0/blue" alt="Badge Preview" id="badge-image" loading="lazy">
                     </div>
-                    <div class="badge-result" id="badge-result">
-                        <p><strong>URL du badge:</strong><br>
-                        <code id="badge-url">/badge/custom/Zenv/2.1.0/blue</code></p>
-                        <p><strong>Markdown:</strong><br>
-                        <code id="badge-markdown">![Zenv: 2.1.0](/badge/custom/Zenv/2.1.0/blue)</code></p>
+                    
+                    <div class="badge-url-display" id="badge-url-display">
+                        <strong>URL :</strong><br>
+                        <span id="badge-url">/badge/custom/Zenv/2.1.0/blue</span>
+                    </div>
+                    
+                    <button class="copy-btn" onclick="copyBadgeUrl()">
+                        <i class="fas fa-copy"></i> Copier l'URL
+                    </button>
+                    
+                    <div class="cli-instruction">
+                        <p><i class="fas fa-terminal"></i> <strong>Utilisation en Markdown :</strong></p>
+                        <div class="cli-command" id="badge-markdown">![Zenv: 2.1.0](/badge/custom/Zenv/2.1.0/blue)</div>
+                        <button class="copy-btn" onclick="copyMarkdown()">
+                            <i class="fas fa-copy"></i> Copier Markdown
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div id="advanced-tab" class="tab-content" style="display: none;">
+            <div id="advanced-tab" class="tab-content">
                 <div class="form-group">
-                    <label>Logo (Base64, URL ou nom)</label>
-                    <input type="text" id="badge-logo" class="form-control" placeholder="github, python, docker ou data:image/...">
-                    <small style="color: var(--gray);">Exemples: github, python, docker, ou une URL base64</small>
+                    <label><i class="fas fa-image"></i> Logo (optionnel)</label>
+                    <input type="text" id="badge-logo" class="form-control" placeholder="github, python, docker, ou URL base64">
+                    <small style="color: var(--gray); display: block; margin-top: 5px;">
+                        Exemples : "github", "python", "docker" ou une URL base64
+                    </small>
                 </div>
                 <div class="form-group">
-                    <label>Largeur du logo (px)</label>
-                    <input type="number" id="logo-width" class="form-control" value="20" min="10" max="50">
+                    <label><i class="fas fa-arrows-alt-h"></i> Largeur du logo (px)</label>
+                    <input type="range" id="logo-width" class="form-control" value="20" min="10" max="50" oninput="document.getElementById('logo-width-value').textContent = this.value + 'px'">
+                    <div style="text-align: center; color: var(--gray); font-size: 0.9rem;">
+                        <span id="logo-width-value">20px</span>
+                    </div>
                 </div>
                 <button class="btn btn-primary" onclick="generateBadgeWithLogo()">
                     <i class="fas fa-image"></i> Générer avec Logo
                 </button>
             </div>
 
-            <div id="shields-tab" class="tab-content" style="display: none;">
+            <div id="shields-tab" class="tab-content">
                 <p>Générez des badges au format shields.io :</p>
                 <div class="form-group">
-                    <label>Style</label>
+                    <label><i class="fas fa-layer-group"></i> Style</label>
                     <select id="shield-style" class="form-control">
                         <option value="flat">Flat</option>
                         <option value="plastic">Plastic</option>
@@ -692,45 +1199,79 @@
                 <button class="btn btn-primary" onclick="generateShieldsBadge()">
                     <i class="fas fa-shield-alt"></i> Générer Shields Badge
                 </button>
-                <div class="badge-result" id="shields-result"></div>
+                <div class="badge-result" id="shields-result" style="display: none;"></div>
             </div>
         </section>
 
-        <!-- Documentation -->
-        <section id="docs" class="workshop" style="margin-top: 40px;">
-            <div class="workshop-title">
-                <i class="fas fa-book"></i>
-                <h2>Documentation API</h2>
+        <!-- Documentation Section -->
+        <section id="docs" class="workshop">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-book"></i> Documentation CLI
+                </div>
             </div>
             
-            <div class="code-block">
-GET /api/packages                  # Lister tous les packages<br>
-GET /api/packages/download/:name/:version  # Télécharger un package<br>
-GET /api/readme/:package          # Lire le README (HTML)<br>
-GET /api/license/:package         # Lire la licence<br>
-GET /badge/custom/:label/:value/:color/:logo  # Générer un badge<br>
-POST /api/packages/upload         # Uploader (authentification requise)<br>
-POST /api/auth/login              # Connexion<br>
-POST /api/auth/register           # Inscription
+            <div class="info-card">
+                <h3><i class="fas fa-terminal"></i> Installation du CLI Zenv</h3>
+                <div class="cli-command">pip install zenv-lang</div>
+                <p>Ou depuis GitHub :</p>
+                <div class="cli-command">git clone https://github.com/gopu-inc/zenv.git<br>cd zenv<br>pip install -e .</div>
             </div>
 
-            <h3>Utilisation avec le CLI Zenv</h3>
-            <div class="code-block">
-# Se connecter au hub<br>
-zenv hub login zenv_votre_token<br><br>
+            <div class="info-card">
+                <h3><i class="fas fa-download"></i> Télécharger un Package</h3>
+                <div class="cli-command">zenv pkg install mon-package</div>
+                <p>Ou spécifiez une version :</p>
+                <div class="cli-command">zenv pkg install mon-package==1.0.0</div>
+            </div>
 
-# Publier un package<br>
-zenv hub publish mon-package-1.0.0.zv<br><br>
+            <div class="info-card">
+                <h3><i class="fas fa-search"></i> Rechercher des Packages</h3>
+                <div class="cli-command">zenv hub search "database"</div>
+                <p>Voir tous les packages disponibles :</p>
+                <div class="cli-command">zenv hub list</div>
+            </div>
 
-# Installer un package<br>
-zenv pkg install mon-package<br><br>
+            <div class="info-card">
+                <h3><i class="fas fa-info-circle"></i> Informations Package</h3>
+                <div class="cli-command">zenv hub info mon-package</div>
+                <p>Affiche : description, version, auteur, licence, dépendances</p>
+            </div>
 
-# Rechercher des packages<br>
-zenv hub search "database"<br><br>
+            <div class="info-card">
+                <h3><i class="fas fa-eye"></i> Lire README/Licence</h3>
+                <div class="cli-command">zenv hub readme mon-package</div>
+                <div class="cli-command">zenv hub license mon-package</div>
+            </div>
 
-# Créer un package<br>
-zenv init mon-package<br>
-zenv build -f package.zcf
+            <div class="info-card">
+                <h3><i class="fas fa-sync-alt"></i> Mettre à jour</h3>
+                <div class="cli-command">zenv pkg update mon-package</div>
+                <p>Mettre à jour tous les packages :</p>
+                <div class="cli-command">zenv pkg update --all</div>
+            </div>
+
+            <div class="info-card">
+                <h3><i class="fas fa-trash-alt"></i> Supprimer un Package</h3>
+                <div class="cli-command">zenv pkg remove mon-package</div>
+            </div>
+
+            <div class="info-card">
+                <h3><i class="fas fa-list"></i> Lister les Packages Installés</h3>
+                <div class="cli-command">zenv pkg list</div>
+            </div>
+
+            <div class="info-card">
+                <h3><i class="fas fa-key"></i> Authentification</h3>
+                <div class="cli-command">zenv hub login zenv_votre_token</div>
+                <div class="cli-command">zenv hub logout</div>
+                <div class="cli-command">zenv hub status</div>
+            </div>
+
+            <div class="info-card">
+                <h3><i class="fas fa-code"></i> Créer un Package</h3>
+                <div class="cli-command">zenv init mon-package</div>
+                <div class="cli-command">zenv build -f package.zcf</div>
             </div>
         </section>
     </div>
@@ -741,74 +1282,84 @@ zenv build -f package.zcf
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>Zenv Hub</h3>
-                    <p>Le hub officiel pour l'écosystème Zenv. Partagez et découvrez des packages.</p>
-                    <div style="margin-top: 20px;">
-                        <a href="https://zenv-hub.onrender.com/api/version" class="btn btn-outline" style="color: white; border-color: white;">
-                            Vérifier l'API
+                    <p>Le hub officiel pour l'écosystème Zenv.</p>
+                    <div style="margin-top: 15px;">
+                        <a href="https://zenv-hub.onrender.com/api/version" class="btn btn-sm btn-outline" style="color: white; border-color: white;">
+                            <i class="fas fa-code"></i> API Status
                         </a>
                     </div>
                 </div>
                 <div class="footer-section">
-                    <h3>Liens Rapides</h3>
+                    <h3>Navigation</h3>
                     <ul class="footer-links">
-                        <li><a href="#packages">Packages</a></li>
-                        <li><a href="#workshop">Badge Workshop</a></li>
-                        <li><a href="#docs">Documentation</a></li>
-                        <li><a href="https://github.com/gopu-inc/zenv">GitHub</a></li>
-                        <li><a href="https://pypi.org/project/zenv-lang/">PyPI</a></li>
+                        <li><a href="#"><i class="fas fa-home"></i> Accueil</a></li>
+                        <li><a href="#packages"><i class="fas fa-box"></i> Packages</a></li>
+                        <li><a href="#workshop"><i class="fas fa-badge-check"></i> Badges</a></li>
+                        <li><a href="#docs"><i class="fas fa-book"></i> Documentation</a></li>
+                        <li><a href="https://github.com/gopu-inc/zenv" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h3>API Endpoints</h3>
                     <ul class="footer-links">
-                        <li><a href="/api/packages">Liste packages</a></li>
-                        <li><a href="/api/badges">Liste badges</a></li>
-                        <li><a href="/api/health">Santé API</a></li>
-                        <li><a href="/api/version">Version API</a></li>
-                        <li><a href="/api/badge-workshop">Atelier badges</a></li>
+                        <li><a href="/api/packages"><i class="fas fa-list"></i> Liste packages</a></li>
+                        <li><a href="/api/badges"><i class="fas fa-badge"></i> Liste badges</a></li>
+                        <li><a href="/api/health"><i class="fas fa-heartbeat"></i> Santé API</a></li>
+                        <li><a href="/api/version"><i class="fas fa-code-branch"></i> Version API</a></li>
+                        <li><a href="/api/badge-workshop"><i class="fas fa-paint-brush"></i> Atelier badges</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>© 2024 Zenv Package Hub. API Version 2.1.0. Dépôt GitHub privé: gopu-inc/gsql-badge</p>
-                <p>Déployé sur Render | Connecté à Vercel</p>
+                <p>© 2024 Zenv Package Hub | API v2.1.0 | Dépôt privé: gopu-inc/gsql-badge</p>
+                <p>Render + Vercel | Optimisé mobile iOS/Android</p>
             </div>
         </div>
     </footer>
 
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
     <script>
         // Variables globales
-        let currentTab = 'simple';
+        let allPackages = [];
+        let currentFilter = 'all';
         let currentColor = 'blue';
 
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
             loadPackages();
-            loadStats();
             updateBadgePreview();
             
-            // Vérifier le thème sauvegardé
-            if (localStorage.getItem('theme') === 'dark') {
-                document.body.classList.add('dark-mode');
-                document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+            // iOS safe area
+            if (CSS.supports('padding-top: env(safe-area-inset-top)')) {
+                document.documentElement.style.setProperty('--safe-area', 'env(safe-area-inset-bottom)');
             }
+            
+            // Vérifier le thème
+            if (localStorage.getItem('theme') === 'dark') {
+                enableDarkMode();
+            }
+            
+            // Mobile swipe detection
+            setupSwipeDetection();
         });
 
         // Charger les packages
         async function loadPackages() {
             try {
+                showLoading(true);
                 const response = await fetch('/api/packages');
                 const data = await response.json();
-                displayPackages(data.packages);
-                updateStats(data.packages);
+                allPackages = data.packages;
+                displayPackages(allPackages);
+                updateStats(allPackages);
+                showToast('Packages chargés avec succès', 'success');
             } catch (error) {
                 console.error('Erreur:', error);
-                document.getElementById('packages-container').innerHTML = `
-                    <div class="loading">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: var(--danger); margin-bottom: 10px;"></i>
-                        <p>Erreur de chargement des packages</p>
-                    </div>
-                `;
+                showError('Erreur de chargement des packages');
+            } finally {
+                showLoading(false);
             }
         }
 
@@ -816,14 +1367,20 @@ zenv build -f package.zcf
         function displayPackages(packages) {
             const container = document.getElementById('packages-container');
             if (!packages || packages.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--gray);">Aucun package disponible</p>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <h3>Aucun package disponible</h3>
+                        <p>Utilisez le CLI Zenv pour publier des packages</p>
+                    </div>
+                `;
                 return;
             }
 
             container.innerHTML = packages.map(pkg => `
-                <div class="package-card">
+                <div class="package-card" data-package="${pkg.name.toLowerCase()}" data-downloads="${pkg.downloads_count}">
                     <div class="package-header">
-                        <a href="#" onclick="showPackageDetails('${pkg.name}')" class="package-name">
+                        <a href="#" onclick="showPackageDetails('${pkg.name}'); return false;" class="package-name">
                             ${pkg.name}
                         </a>
                         <span class="package-version">${pkg.version}</span>
@@ -834,21 +1391,66 @@ zenv build -f package.zcf
                             <i class="fas fa-user"></i> ${pkg.author}
                         </span>
                         <div class="package-stats">
-                            <span><i class="fas fa-download"></i> ${pkg.downloads_count}</span>
-                            <span><i class="fas fa-file-code"></i> ${formatSize(pkg.size)}</span>
-                            <span><i class="fas fa-balance-scale"></i> ${pkg.license}</span>
+                            <span title="Téléchargements"><i class="fas fa-download"></i> ${pkg.downloads_count}</span>
+                            <span title="Taille"><i class="fas fa-weight"></i> ${formatSize(pkg.size)}</span>
                         </div>
                     </div>
-                    <div style="margin-top: 15px; display: flex; gap: 10px;">
-                        <a href="${pkg.download_url}" class="btn btn-outline" style="padding: 8px 15px; font-size: 0.9rem;">
+                    <div class="package-actions">
+                        <button class="btn btn-sm btn-primary" onclick="showPackageDetails('${pkg.name}')">
+                            <i class="fas fa-info-circle"></i> Détails
+                        </button>
+                        <a href="${pkg.download_url}" class="btn btn-sm btn-outline" download>
                             <i class="fas fa-download"></i> Télécharger
                         </a>
-                        <a href="${pkg.readme_url}" target="_blank" class="btn btn-outline" style="padding: 8px 15px; font-size: 0.9rem;">
-                            <i class="fas fa-book"></i> README
-                        </a>
+                        <button class="btn btn-sm btn-outline" onclick="showCLIInstructions('${pkg.name}', '${pkg.version}')">
+                            <i class="fas fa-terminal"></i> CLI
+                        </button>
                     </div>
                 </div>
             `).join('');
+        }
+
+        // Filtrer les packages
+        function filterPackages() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            let filtered = allPackages;
+            
+            if (searchTerm) {
+                filtered = filtered.filter(pkg => 
+                    pkg.name.toLowerCase().includes(searchTerm) ||
+                    (pkg.description && pkg.description.toLowerCase().includes(searchTerm)) ||
+                    pkg.author.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Appliquer le filtre actif
+            filtered = applyCurrentFilter(filtered);
+            displayPackages(filtered);
+        }
+
+        // Appliquer le filtre actif
+        function applyCurrentFilter(packages) {
+            switch(currentFilter) {
+                case 'popular':
+                    return [...packages].sort((a, b) => b.downloads_count - a.downloads_count);
+                case 'recent':
+                    return [...packages].sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+                default:
+                    return packages;
+            }
+        }
+
+        // Changer de filtre
+        function filterBy(filterType) {
+            currentFilter = filterType;
+            
+            // Mettre à jour les boutons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            filterPackages();
         }
 
         // Mettre à jour les statistiques
@@ -856,25 +1458,6 @@ zenv build -f package.zcf
             const totalDownloads = packages.reduce((sum, pkg) => sum + pkg.downloads_count, 0);
             document.getElementById('total-packages').textContent = packages.length;
             document.getElementById('total-downloads').textContent = totalDownloads;
-            
-            // Mettre à jour le badge dans le hero
-            document.querySelector('.hero-badges').innerHTML = `
-                <img src="/badge/custom/API/v2.1.0/blue" alt="API Version">
-                <img src="/badge/custom/Packages/${packages.length}/green" alt="Packages Count">
-                <img src="/badge/custom/Downloads/${totalDownloads}/orange" alt="Downloads">
-                <img src="/badge/custom/GitHub/Private/orange/github" alt="GitHub">
-            `;
-        }
-
-        // Charger les stats depuis l'API
-        async function loadStats() {
-            try {
-                const response = await fetch('/api/health');
-                const data = await response.json();
-                console.log('Statut API:', data);
-            } catch (error) {
-                console.error('Erreur stats:', error);
-            }
         }
 
         // Formater la taille
@@ -884,10 +1467,150 @@ zenv build -f package.zcf
             return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
 
+        // Afficher les détails d'un package
+        async function showPackageDetails(packageName) {
+            try {
+                showLoading(true);
+                
+                // Récupérer les infos du package
+                const packageInfo = allPackages.find(p => p.name === packageName);
+                if (!packageInfo) return;
+                
+                // Charger README et LICENSE
+                const [readmeResponse, licenseResponse] = await Promise.allSettled([
+                    fetch(`/api/readme/${packageName}`),
+                    fetch(`/api/license/${packageName}`)
+                ]);
+                
+                const readme = readmeResponse.status === 'fulfilled' ? await readmeResponse.value.text() : 'Non disponible';
+                const license = licenseResponse.status === 'fulfilled' ? await licenseResponse.value.text() : 'Non disponible';
+                
+                // Afficher la modal
+                document.getElementById('modal-package-name').textContent = packageName;
+                document.getElementById('modal-content').innerHTML = `
+                    <div class="package-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Version</div>
+                            <div class="detail-value">${packageInfo.version}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Description</div>
+                            <div class="detail-value">${packageInfo.description || 'Pas de description'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Auteur</div>
+                            <div class="detail-value">${packageInfo.author}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Licence</div>
+                            <div class="detail-value">${packageInfo.license}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Téléchargements</div>
+                            <div class="detail-value">${packageInfo.downloads_count}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Taille</div>
+                            <div class="detail-value">${formatSize(packageInfo.size)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Dernière mise à jour</div>
+                            <div class="detail-value">${new Date(packageInfo.updated_at).toLocaleDateString('fr-FR')}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="cli-instruction">
+                        <h3><i class="fas fa-terminal"></i> Installer avec CLI</h3>
+                        <div class="cli-command">zenv pkg install ${packageName}</div>
+                        <button class="copy-btn" onclick="copyToClipboard('zenv pkg install ${packageName}')">
+                            <i class="fas fa-copy"></i> Copier la commande
+                        </button>
+                    </div>
+                    
+                    <div class="cli-instruction">
+                        <h3><i class="fas fa-book"></i> README</h3>
+                        <div class="readme-content">
+                            ${readme.includes('<!DOCTYPE html>') ? readme : `<pre>${readme}</pre>`}
+                        </div>
+                    </div>
+                    
+                    <div class="cli-instruction">
+                        <h3><i class="fas fa-balance-scale"></i> Licence</h3>
+                        <div class="readme-content">
+                            <pre>${license}</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="package-actions" style="margin-top: 20px;">
+                        <a href="${packageInfo.download_url}" class="btn btn-primary" download>
+                            <i class="fas fa-download"></i> Télécharger (.zv)
+                        </a>
+                        <button class="btn btn-outline" onclick="showCLIInstructions('${packageName}', '${packageInfo.version}')">
+                            <i class="fas fa-terminal"></i> Plus d'options CLI
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('package-modal').style.display = 'flex';
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur de chargement des détails', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Fermer la modal
+        function closeModal(event) {
+            if (event && event.target.classList.contains('modal-overlay')) {
+                document.getElementById('package-modal').style.display = 'none';
+            } else if (!event) {
+                document.getElementById('package-modal').style.display = 'none';
+            }
+        }
+
+        // Afficher les instructions CLI
+        function showCLIInstructions(packageName, version) {
+            document.getElementById('modal-package-name').textContent = `Instructions CLI - ${packageName}`;
+            document.getElementById('modal-content').innerHTML = `
+                <div class="cli-instruction">
+                    <h3><i class="fas fa-download"></i> Installation</h3>
+                    <div class="cli-command">zenv pkg install ${packageName}</div>
+                    <div class="cli-command">zenv pkg install ${packageName}==${version}</div>
+                </div>
+                
+                <div class="cli-instruction">
+                    <h3><i class="fas fa-info-circle"></i> Informations</h3>
+                    <div class="cli-command">zenv hub info ${packageName}</div>
+                </div>
+                
+                <div class="cli-instruction">
+                    <h3><i class="fas fa-book"></i> Documentation</h3>
+                    <div class="cli-command">zenv hub readme ${packageName}</div>
+                    <div class="cli-command">zenv hub license ${packageName}</div>
+                </div>
+                
+                <div class="cli-instruction">
+                    <h3><i class="fas fa-trash-alt"></i> Désinstallation</h3>
+                    <div class="cli-command">zenv pkg remove ${packageName}</div>
+                </div>
+                
+                <div class="cli-instruction">
+                    <h3><i class="fas fa-sync-alt"></i> Mise à jour</h3>
+                    <div class="cli-command">zenv pkg update ${packageName}</div>
+                </div>
+                
+                <div class="package-actions" style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="copyToClipboard('zenv pkg install ${packageName}')">
+                        <i class="fas fa-copy"></i> Copier commande d'installation
+                    </button>
+                </div>
+            `;
+            document.getElementById('package-modal').style.display = 'flex';
+        }
+
         // Gestion des onglets
         function showTab(tabName) {
-            currentTab = tabName;
-            
             // Mettre à jour les onglets actifs
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
@@ -896,9 +1619,9 @@ zenv build -f package.zcf
             
             // Afficher le contenu de l'onglet
             document.querySelectorAll('.tab-content').forEach(content => {
-                content.style.display = 'none';
+                content.classList.remove('active');
             });
-            document.getElementById(tabName + '-tab').style.display = 'block';
+            document.getElementById(tabName + '-tab').classList.add('active');
         }
 
         // Sélectionner une couleur
@@ -912,51 +1635,43 @@ zenv build -f package.zcf
             updateBadgePreview();
         }
 
-        // Mettre à jour la prévisualisation
+        // Mettre à jour la prévisualisation du badge
         function updateBadgePreview() {
-            const label = document.getElementById('badge-label').value || 'Label';
-            const value = document.getElementById('badge-value').value || 'Value';
+            const label = encodeURIComponent(document.getElementById('badge-label').value || 'Zenv');
+            const value = encodeURIComponent(document.getElementById('badge-value').value || '2.1.0');
             const color = document.getElementById('badge-color').value;
             
-            const badgeUrl = `/badge/custom/${encodeURIComponent(label)}/${encodeURIComponent(value)}/${color}`;
+            const badgeUrl = `/badge/custom/${label}/${value}/${color}`;
             document.getElementById('badge-image').src = badgeUrl;
             document.getElementById('badge-url').textContent = badgeUrl;
-            document.getElementById('badge-markdown').textContent = `![${label}: ${value}](${badgeUrl})`;
-        }
-
-        // Générer un badge
-        function generateBadge() {
-            updateBadgePreview();
-            document.getElementById('badge-result').style.display = 'block';
+            document.getElementById('badge-markdown').textContent = `![${decodeURIComponent(label)}: ${decodeURIComponent(value)}](${badgeUrl})`;
         }
 
         // Générer un badge avec logo
-        function generateBadgeWithLogo() {
-            const label = document.getElementById('badge-label').value || 'Label';
-            const value = document.getElementById('badge-value').value || 'Value';
+        async function generateBadgeWithLogo() {
+            const label = encodeURIComponent(document.getElementById('badge-label').value || 'Zenv');
+            const value = encodeURIComponent(document.getElementById('badge-value').value || '2.1.0');
             const color = document.getElementById('badge-color').value;
             const logo = document.getElementById('badge-logo').value;
             
-            let badgeUrl = `/badge/custom/${encodeURIComponent(label)}/${encodeURIComponent(value)}/${color}`;
+            let badgeUrl = `/badge/custom/${label}/${value}/${color}`;
             if (logo) {
                 badgeUrl += `/${encodeURIComponent(logo)}`;
             }
             
             document.getElementById('badge-image').src = badgeUrl;
-            document.getElementById('badge-url').textContent = badgeUrl;
-            document.getElementById('badge-markdown').textContent = `![${label}: ${value}](${badgeUrl})`;
-            document.getElementById('badge-result').style.display = 'block';
+            updateBadgeDisplay(badgeUrl, label, value);
         }
 
         // Générer un badge shields.io
         async function generateShieldsBadge() {
-            const label = document.getElementById('badge-label').value || 'Label';
-            const value = document.getElementById('badge-value').value || 'Value';
+            const label = encodeURIComponent(document.getElementById('badge-label').value || 'Zenv');
+            const value = encodeURIComponent(document.getElementById('badge-value').value || '2.1.0');
             const color = document.getElementById('badge-color').value;
             const logo = document.getElementById('badge-logo').value;
             const style = document.getElementById('shield-style').value;
             
-            let shieldsUrl = `/badge/shields/${encodeURIComponent(label)}/${encodeURIComponent(value)}/${color}`;
+            let shieldsUrl = `/badge/shields/${label}/${value}/${color}`;
             if (logo) {
                 shieldsUrl += `/${encodeURIComponent(logo)}`;
                 shieldsUrl += `/${style}`;
@@ -965,107 +1680,221 @@ zenv build -f package.zcf
             try {
                 const response = await fetch(shieldsUrl + '?redirect=false');
                 const data = await response.json();
-                document.getElementById('shields-result').innerHTML = `
-                    <p><strong>URL Shields.io:</strong><br>
-                    <code>${data.url}</code></p>
-                    <p><strong>Markdown:</strong><br>
-                    <code>![${label}: ${value}](${data.url})</code></p>
-                    <a href="${data.url}" target="_blank" class="btn btn-primary" style="margin-top: 10px;">
-                        <i class="fas fa-external-link-alt"></i> Voir sur Shields.io
-                    </a>
+                
+                const resultDiv = document.getElementById('shields-result');
+                resultDiv.innerHTML = `
+                    <p><strong>URL Shields.io :</strong></p>
+                    <div class="badge-url-display">${data.url}</div>
+                    <p><strong>Markdown :</strong></p>
+                    <div class="cli-command">![${decodeURIComponent(label)}: ${decodeURIComponent(value)}](${data.url})</div>
+                    <div class="package-actions" style="margin-top: 15px;">
+                        <a href="${data.url}" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt"></i> Voir sur Shields.io
+                        </a>
+                        <button class="btn btn-outline" onclick="copyToClipboard('![${decodeURIComponent(label)}: ${decodeURIComponent(value)}](${data.url})')">
+                            <i class="fas fa-copy"></i> Copier Markdown
+                        </button>
+                    </div>
                 `;
+                resultDiv.style.display = 'block';
             } catch (error) {
-                document.getElementById('shields-result').innerHTML = `
-                    <p style="color: var(--danger);">Erreur: ${error.message}</p>
-                `;
+                showToast('Erreur: ' + error.message, 'error');
             }
         }
 
-        // Afficher les détails d'un package
-        function showPackageDetails(packageName) {
-            alert(`Détails du package: ${packageName}\n\nUtilisez la CLI Zenv pour plus d'options:\n\nzenv pkg install ${packageName}\nzenv hub info ${packageName}`);
+        // Mettre à jour l'affichage du badge
+        function updateBadgeDisplay(badgeUrl, encodedLabel, encodedValue) {
+            const label = decodeURIComponent(encodedLabel);
+            const value = decodeURIComponent(encodedValue);
+            
+            document.getElementById('badge-url').textContent = badgeUrl;
+            document.getElementById('badge-markdown').textContent = `![${label}: ${value}](${badgeUrl})`;
+            
+            showToast('Badge généré avec succès', 'success');
         }
 
-        // Basculer le thème
+        // Copier l'URL du badge
+        function copyBadgeUrl() {
+            const url = document.getElementById('badge-url').textContent;
+            copyToClipboard(url);
+            showToast('URL copiée dans le presse-papier', 'success');
+        }
+
+        // Copier le markdown
+        function copyMarkdown() {
+            const markdown = document.getElementById('badge-markdown').textContent;
+            copyToClipboard(markdown);
+            showToast('Markdown copié dans le presse-papier', 'success');
+        }
+
+        // Copier dans le presse-papier
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text);
+            } else {
+                // Fallback pour anciens navigateurs
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            }
+        }
+
+        // Basculer le thème sombre/clair
         function toggleTheme() {
             const body = document.body;
             const icon = document.querySelector('.theme-toggle i');
             
             if (body.classList.contains('dark-mode')) {
-                body.classList.remove('dark-mode');
-                icon.className = 'fas fa-moon';
+                disableDarkMode();
                 localStorage.setItem('theme', 'light');
             } else {
-                body.classList.add('dark-mode');
-                icon.className = 'fas fa-sun';
+                enableDarkMode();
                 localStorage.setItem('theme', 'dark');
             }
         }
 
-        // Mettre à jour les champs en temps réel
-        document.getElementById('badge-label').addEventListener('input', updateBadgePreview);
-        document.getElementById('badge-value').addEventListener('input', updateBadgePreview);
+        // Activer le mode sombre
+        function enableDarkMode() {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+            
+            // Appliquer les styles sombres
+            document.documentElement.style.setProperty('--light', '#1a1a1a');
+            document.documentElement.style.setProperty('--dark', '#e0e0e0');
+            document.documentElement.style.setProperty('--gray-light', '#2d2d2d');
+            document.documentElement.style.setProperty('--gray', '#888');
+        }
+
+        // Désactiver le mode sombre
+        function disableDarkMode() {
+            document.body.classList.remove('dark-mode');
+            document.querySelector('.theme-toggle i').className = 'fas fa-moon';
+            
+            // Restaurer les styles clairs
+            document.documentElement.style.setProperty('--light', '#F8F9FA');
+            document.documentElement.style.setProperty('--dark', '#212529');
+            document.documentElement.style.setProperty('--gray-light', '#E9ECEF');
+            document.documentElement.style.setProperty('--gray', '#6C757D');
+        }
+
+        // Afficher un toast
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast';
+            toast.classList.add('show');
+            
+            if (type === 'success') {
+                toast.style.background = 'var(--success)';
+            } else if (type === 'error') {
+                toast.style.background = 'var(--danger)';
+            } else {
+                toast.style.background = 'var(--primary)';
+            }
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Afficher une erreur
+        function showError(message) {
+            document.getElementById('packages-container').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i>
+                    <h3>Erreur de chargement</h3>
+                    <p>${message}</p>
+                    <button class="btn btn-primary" onclick="loadPackages()">
+                        <i class="fas fa-redo"></i> Réessayer
+                    </button>
+                </div>
+            `;
+        }
+
+        // Afficher/masquer le loading
+        function showLoading(show) {
+            const container = document.getElementById('packages-container');
+            if (show) {
+                container.innerHTML = `
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Chargement...</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Configuration du swipe pour mobile
+        function setupSwipeDetection() {
+            let startX, startY;
+            
+            document.addEventListener('touchstart', e => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            document.addEventListener('touchmove', e => {
+                if (!startX || !startY) return;
+                
+                const diffX = startX - e.touches[0].clientX;
+                const diffY = startY - e.touches[0].clientY;
+                
+                // Swipe horizontal détecté
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    if (diffX > 0) {
+                        // Swipe gauche - prochain onglet
+                        const tabs = document.querySelectorAll('.tab');
+                        const activeIndex = Array.from(tabs).findIndex(tab => tab.classList.contains('active'));
+                        if (activeIndex < tabs.length - 1) {
+                            tabs[activeIndex + 1].click();
+                        }
+                    } else {
+                        // Swipe droite - onglet précédent
+                        const tabs = document.querySelectorAll('.tab');
+                        const activeIndex = Array.from(tabs).findIndex(tab => tab.classList.contains('active'));
+                        if (activeIndex > 0) {
+                            tabs[activeIndex - 1].click();
+                        }
+                    }
+                    startX = null;
+                    startY = null;
+                }
+            }, { passive: true });
+        }
+
+        // Gestion du scroll fluide pour les ancres
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Prévenir le zoom sur les champs de saisie sur iOS
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.type === 'range' || e.target.tagName === 'INPUT') {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Gestion du clavier virtuel
+        window.addEventListener('resize', function() {
+            if (window.visualViewport) {
+                document.documentElement.style.setProperty('--safe-area', 'env(safe-area-inset-bottom, 0px)');
+            }
+        });
     </script>
-
-    <style>
-        /* Dark mode styles */
-        body.dark-mode {
-            background: #121212;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode header {
-            background: #1e1e1e;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        body.dark-mode .package-card,
-        body.dark-mode .workshop,
-        body.dark-mode .stat-card {
-            background: #1e1e1e;
-            border-color: #333;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .hero {
-            background: linear-gradient(135deg, #0052CC 0%, #4B0082 100%);
-        }
-
-        body.dark-mode footer {
-            background: #000;
-        }
-
-        body.dark-mode .btn-outline {
-            border-color: #666;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .btn-outline:hover {
-            background: #333;
-            border-color: #666;
-        }
-
-        body.dark-mode .form-control {
-            background: #2d2d2d;
-            border-color: #444;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .form-control:focus {
-            border-color: var(--primary);
-        }
-
-        body.dark-mode .badge-preview {
-            background: #2d2d2d;
-        }
-
-        body.dark-mode .badge-result {
-            background: #2d2d2d;
-        }
-
-        body.dark-mode .color-option.active {
-            border-color: #fff;
-        }
-    </style>
 </body>
 </html>
