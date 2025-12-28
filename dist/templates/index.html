@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenv Package Hub</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="logo">
+                    <i class="fas fa-code"></i>
+                    <span>Zenv Hub</span>
+                </div>
+            </div>
+            
+            <div class="nav-links">
+                <a href="#home" class="nav-link active"><i class="fas fa-home"></i> Accueil</a>
+                <a href="#packages" class="nav-link"><i class="fas fa-box"></i> Packages</a>
+                <a href="#badges" class="nav-link"><i class="fas fa-shield-alt"></i> Badges</a>
+                <a href="#docs" class="nav-link"><i class="fas fa-book"></i> Documentation</a>
+            </div>
+            
+            <div class="nav-auth" id="auth-section">
+                <!-- Dynamiquement rempli par JavaScript -->
+            </div>
+            
+            <button class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+        <div class="mobile-menu-header">
+            <h3>Menu</h3>
+            <button class="close-menu" id="close-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="#home" class="mobile-link"><i class="fas fa-home"></i> Accueil</a>
+            <a href="#packages" class="mobile-link"><i class="fas fa-box"></i> Packages</a>
+            <a href="#badges" class="mobile-link"><i class="fas fa-shield-alt"></i> Badges</a>
+            <a href="#docs" class="mobile-link"><i class="fas fa-book"></i> Documentation</a>
+            <div class="mobile-auth" id="mobile-auth-section"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Page d'accueil -->
+        <section id="home" class="page active">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1><span class="highlight">Zenv Package Hub</span></h1>
+                    <p class="hero-subtitle">Dépôt central pour les packages Zenv</p>
+                    <p class="hero-description">
+                        Un écosystème complet pour découvrir, partager et gérer vos packages Zenv.
+                        Connexion sécurisée à votre dépôt GitHub privé.
+                    </p>
+                    
+                    <div class="hero-stats">
+                        <div class="stat-card">
+                            <i class="fas fa-box-open"></i>
+                            <div>
+                                <h3 id="package-count">0</h3>
+                                <p>Packages</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-download"></i>
+                            <div>
+                                <h3 id="download-count">0</h3>
+                                <p>Téléchargements</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-shield-alt"></i>
+                            <div>
+                                <h3 id="badge-count">0</h3>
+                                <p>Badges</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-actions">
+                        <button class="btn btn-primary" onclick="showSection('packages')">
+                            <i class="fas fa-search"></i> Explorer les packages
+                        </button>
+                        <button class="btn btn-secondary" onclick="showSection('docs')">
+                            <i class="fas fa-book"></i> Voir la documentation
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="hero-code">
+                    <div class="code-header">
+                        <div class="code-dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span class="code-title">Exemple Zenv</span>
+                    </div>
+                    <pre><code class="language-zenv">// hello.zv
+function saluer(nom):
+    return "Bonjour " + nom + "!"
+
+let message = saluer("Monde")
+print message
+
+// Installation via CLI
+// zenv pkg install mon-package</code></pre>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="features">
+                <h2 class="section-title">Fonctionnalités</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Dépôt Privé Sécurisé</h3>
+                        <p>Stockage sécurisé sur votre dépôt GitHub privé. Accès public via API uniquement.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3>Transpilation Rapide</h3>
+                        <p>Conversion Zenv → Python en temps réel avec validation syntaxique.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-puzzle-piece"></i>
+                        </div>
+                        <h3>Système de Packages</h3>
+                        <p>Gestion complète des packages : installation, publication, dépendances.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-badge-check"></i>
+                        </div>
+                        <h3>Générateur de Badges</h3>
+                        <p>Créez des badges SVG personnalisés avec logos pour vos projets.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h2 class="section-title">Actions Rapides</h2>
+                <div class="actions-grid">
+                    <div class="action-card" onclick="showSection('packages')">
+                        <i class="fas fa-search"></i>
+                        <h3>Rechercher Packages</h3>
+                        <p>Explorez la bibliothèque de packages disponibles</p>
+                    </div>
+                    
+                    <div class="action-card" onclick="showBadgeWorkshop()">
+                        <i class="fas fa-palette"></i>
+                        <h3>Créer un Badge</h3>
+                        <p>Générez des badges SVG personnalisés</p>
+                    </div>
+                    
+                    <div class="action-card" onclick="showSection('docs')">
+                        <i class="fas fa-code"></i>
+                        <h3>API Documentation</h3>
+                        <p>Consultez la documentation complète de l'API</p>
+                    </div>
+                    
+                    <div class="action-card" onclick="checkServerStatus()">
+                        <i class="fas fa-server"></i>
+                        <h3>Statut Serveur</h3>
+                        <p>Vérifiez la connectivité avec le serveur</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Packages Section -->
+        <section id="packages" class="page">
+            <div class="section-header">
+                <h2><i class="fas fa-box"></i> Packages</h2>
+                <p>Explorer et gérer les packages Zenv</p>
+            </div>
+
+            <div class="package-controls">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="package-search" placeholder="Rechercher un package...">
+                </div>
+                
+                <div class="filter-controls">
+                    <select id="package-filter">
+                        <option value="all">Tous les packages</option>
+                        <option value="recent">Récemment mis à jour</option>
+                        <option value="popular">Les plus populaires</option>
+                    </select>
+                    
+                    <button class="btn btn-primary" id="refresh-packages">
+                        <i class="fas fa-sync-alt"></i> Actualiser
+                    </button>
+                </div>
+            </div>
+
+            <div class="packages-container">
+                <div class="loading" id="packages-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Chargement des packages...</p>
+                </div>
+                <div class="packages-grid" id="packages-grid">
+                    <!-- Packages will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Package Details Modal -->
+            <div class="modal" id="package-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="package-modal-title">Détails du Package</h3>
+                        <button class="close-modal" onclick="closePackageModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="package-modal-body">
+                        <!-- Package details will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Badges Section -->
+        <section id="badges" class="page">
+            <div class="section-header">
+                <h2><i class="fas fa-shield-alt"></i> Badges</h2>
+                <p>Créez et gérez vos badges SVG</p>
+            </div>
+
+            <div class="badges-container">
+                <div class="badges-actions">
+                    <button class="btn btn-primary" onclick="openBadgeCreator()">
+                        <i class="fas fa-plus"></i> Créer un Badge
+                    </button>
+                    <button class="btn btn-secondary" onclick="openBadgeWorkshop()">
+                        <i class="fas fa-palette"></i> Atelier de Badges
+                    </button>
+                </div>
+
+                <div class="badges-grid" id="badges-grid">
+                    <!-- Badges will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Badge Creator Modal -->
+            <div class="modal" id="badge-creator-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Créer un Badge</h3>
+                        <button class="close-modal" onclick="closeBadgeCreator()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="badge-form">
+                            <div class="form-group">
+                                <label for="badge-name">Nom du badge</label>
+                                <input type="text" id="badge-name" placeholder="badge_version" required>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="badge-label">Label (gauche)</label>
+                                    <input type="text" id="badge-label" placeholder="version" value="version" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="badge-value">Valeur (droite)</label>
+                                    <input type="text" id="badge-value" placeholder="1.0.0" value="1.0.0" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="badge-color">Couleur</label>
+                                    <select id="badge-color">
+                                        <option value="blue">Bleu</option>
+                                        <option value="green">Vert</option>
+                                        <option value="red">Rouge</option>
+                                        <option value="orange">Orange</option>
+                                        <option value="yellow">Jaune</option>
+                                        <option value="purple">Violet</option>
+                                        <option value="gray">Gris</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="badge-logo">Logo (optionnel)</label>
+                                    <input type="text" id="badge-logo" placeholder="github, python, docker...">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Aperçu</label>
+                                <div class="badge-preview" id="badge-preview">
+                                    <!-- Badge preview will be shown here -->
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="updateBadgePreview()">
+                                    <i class="fas fa-eye"></i> Aperçu
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="create-badge-btn">
+                                    <i class="fas fa-save"></i> Créer le Badge
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Documentation Section -->
+        <section id="docs" class="page">
+            <div class="section-header">
+                <h2><i class="fas fa-book"></i> Documentation</h2>
+                <p>Documentation de l'API Zenv Hub</p>
+            </div>
+
+            <div class="docs-container">
+                <div class="docs-sidebar">
+                    <div class="docs-nav">
+                        <a href="#docs-overview" class="docs-nav-link active">Aperçu</a>
+                        <a href="#docs-api" class="docs-nav-link">API Endpoints</a>
+                        <a href="#docs-cli" class="docs-nav-link">CLI Zenv</a>
+                        <a href="#docs-examples" class="docs-nav-link">Exemples</a>
+                        <a href="#docs-auth" class="docs-nav-link">Authentification</a>
+                    </div>
+                </div>
+                
+                <div class="docs-content">
+                    <div id="docs-overview" class="docs-section">
+                        <h3>Zenv Package Hub - Documentation</h3>
+                        <p>
+                            Le Zenv Package Hub est un serveur centralisé pour la gestion des packages Zenv.
+                            Il utilise un dépôt GitHub privé pour le stockage sécurisé tout en fournissant
+                            un accès public via une API RESTful.
+                        </p>
+                        
+                        <div class="info-box">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <strong>URL du serveur :</strong> https://zenv-hub.onrender.com
+                            </div>
+                        </div>
+                        
+                        <div class="info-box">
+                            <i class="fas fa-key"></i>
+                            <div>
+                                <strong>Token par défaut :</strong> zenv_ead27bf9d1b91e30729eb574a82e7287d4c9f35df9f8feb4f581452444350a5b
+                                <small>(Pré-configuré pour l'admin)</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="docs-api" class="docs-section" style="display: none;">
+                        <h3>Endpoints API</h3>
+                        
+                        <div class="endpoint-card">
+                            <div class="endpoint-header">
+                                <span class="method get">GET</span>
+                                <code>/api/packages</code>
+                            </div>
+                            <p>Liste tous les packages disponibles (Public)</p>
+                        </div>
+                        
+                        <div class="endpoint-card">
+                            <div class="endpoint-header">
+                                <span class="method post">POST</span>
+                                <code>/api/packages/upload</code>
+                            </div>
+                            <p>Upload un package (Token requis)</p>
+                        </div>
+                        
+                        <div class="endpoint-card">
+                            <div class="endpoint-header">
+                                <span class="method get">GET</span>
+                                <code>/api/packages/download/&lt;name&gt;/&lt;version&gt;</code>
+                            </div>
+                            <p>Télécharge un package (Public)</p>
+                        </div>
+                        
+                        <div class="endpoint-card">
+                            <div class="endpoint-header">
+                                <span class="method get">GET</span>
+                                <code>/api/badges</code>
+                            </div>
+                            <p>Liste tous les badges (Public)</p>
+                        </div>
+                        
+                        <div class="endpoint-card">
+                            <div class="endpoint-header">
+                                <span class="method post">POST</span>
+                                <code>/api/badges</code>
+                            </div>
+                            <p>Crée un badge (Token requis)</p>
+                        </div>
+                        
+                        <div class="endpoint-card">
+                            <div class="endpoint-header">
+                                <span class="method get">GET</span>
+                                <code>/badge/svg/&lt;name&gt;</code>
+                            </div>
+                            <p>Récupère un badge SVG (Public)</p>
+                        </div>
+                    </div>
+                    
+                    <div id="docs-cli" class="docs-section" style="display: none;">
+                        <h3>CLI Zenv - Commandes principales</h3>
+                        
+                        <pre><code class="language-bash"># Installation
+pip install zenv-lang
+
+# Version
+zenv version
+
+# Exécution
+zenv run fichier.zv
+
+# Transpilation
+zenv transpile fichier.zv -o fichier.py
+
+# Gestion des packages
+zenv pkg install nom-package
+zenv pkg list
+zenv pkg remove nom-package
+
+# Connexion au Hub
+zenv hub login zenv_votre_token
+
+# Publication
+zenv hub publish mon-package.zv
+
+# Recherche
+zenv hub search "web framework"</code></pre>
+                    </div>
+                    
+                    <div id="docs-examples" class="docs-section" style="display: none;">
+                        <h3>Exemples d'utilisation</h3>
+                        
+                        <h4>Exemple de package Zenv</h4>
+                        <pre><code class="language-zenv">// main.zv
+function hello(name):
+    return "Hello " + name + "!"
+
+if __name__ == "__main__":
+    print hello("World")</code></pre>
+                        
+                        <h4>Manifeste package.zcf</h4>
+                        <pre><code class="language-ini">[Zenv]
+name = mon-package
+version = 1.0.0
+author = Votre Nom
+description = Un package Zenv exemple
+license = MIT
+
+[File-build]
+main = main.zv
+files = *.zv
+        README.md
+        LICENSE
+
+[dep.zv]
+zenv-stdlib = 1.0.0
+
+[dep.py]
+requests = latest</code></pre>
+                    </div>
+                    
+                    <div id="docs-auth" class="docs-section" style="display: none;">
+                        <h3>Authentification</h3>
+                        
+                        <p>Le système utilise des tokens au format <code>zenv_</code> suivis de 64 caractères hexadécimaux.</p>
+                        
+                        <h4>Obtenir un token</h4>
+                        <pre><code class="language-bash"># Via CLI
+zenv hub login zenv_votre_token
+
+# Via API
+POST /api/auth/login
+{
+    "username": "admin",
+    "password": "password"
+}
+
+# Générer un token
+POST /api/tokens/generate
+Authorization: Token zenv_existing_token</code></pre>
+                        
+                        <h4>Utiliser un token</h4>
+                        <pre><code class="language-javascript">// Dans les headers
+Authorization: Token zenv_ead27bf9d1b91e30729eb574a82e7287d4c9f35df9f8feb4f581452444350a5b
+
+// Ou en paramètre
+/api/packages?token=zenv_...</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="logo">
+                    <i class="fas fa-code"></i>
+                    <span>Zenv Hub</span>
+                </div>
+                <p>Dépôt central pour l'écosystème Zenv</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Liens</h4>
+                <a href="https://zenv-hub.vercel.app" target="_blank">Site Zenv</a>
+                <a href="https://pypi.org/project/zenv-lang" target="_blank">PyPI</a>
+                <a href="https://github.com/gopu-inc/zenv" target="_blank">GitHub</a>
+            </div>
+            
+            <div class="footer-section">
+                <h4>API</h4>
+                <a href="#docs" onclick="showSection('docs')">Documentation</a>
+                <a href="#docs-api" onclick="showDocsSection('docs-api')">Endpoints</a>
+                <a href="#docs-examples" onclick="showDocsSection('docs-examples')">Exemples</a>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Statut</h4>
+                <div class="server-status" id="server-status">
+                    <span class="status-dot"></span>
+                    <span>Vérification...</span>
+                </div>
+                <p>API Version: <span id="api-version">2.1.0</span></p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 Zenv Package Hub. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="modal-overlay"></div>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Authentification</h3>
+                <button class="close-modal" onclick="closeAuthModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="showAuthTab('login')">Connexion</button>
+                    <button class="auth-tab" onclick="showAuthTab('register')">Inscription</button>
+                </div>
+                
+                <div id="login-form" class="auth-form active">
+                    <form onsubmit="login(event)">
+                        <div class="form-group">
+                            <label for="login-username">Nom d'utilisateur ou Email</label>
+                            <input type="text" id="login-username" placeholder="admin" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="login-password">Mot de passe</label>
+                            <input type="password" id="login-password" placeholder="••••••••" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-sign-in-alt"></i> Se connecter
+                        </button>
+                    </form>
+                </div>
+                
+                <div id="register-form" class="auth-form">
+                    <form onsubmit="register(event)">
+                        <div class="form-group">
+                            <label for="register-username">Nom d'utilisateur</label>
+                            <input type="text" id="register-username" placeholder="nouvel_utilisateur" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="register-email">Email</label>
+                            <input type="email" id="register-email" placeholder="email@example.com" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="register-password">Mot de passe</label>
+                            <input type="password" id="register-password" placeholder="••••••••" required>
+                            <small>Minimum 8 caractères</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-user-plus"></i> S'inscrire
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="token-login">
+                    <hr>
+                    <p>Ou utilisez un token Zenv :</p>
+                    <div class="form-group">
+                        <input type="text" id="token-input" placeholder="zenv_...">
+                    </div>
+                    <button class="btn btn-secondary btn-block" onclick="loginWithToken()">
+                        <i class="fas fa-key"></i> Se connecter avec Token
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/packages.js"></script>
+    <script src="/static/js/badges.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
