@@ -1,27 +1,31 @@
 <!DOCTYPE html>
-<html lang="fr" data-theme="dark">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zenv Package Hub - Dashboard</title>
-    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Zenv Package Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230066FF' rx='20'/><path d='M50 30L60 40H50L40 50H50L60 60H50L40 70H50V60H60V50H70V40H80V30H70H60H50V30H30V40H40V50H30V60H40V70H30V80H80V70H70V60H80V50H70V40H80V30H70Z' fill='white'/></svg>">
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #1e293b;
-            --darker: #0f172a;
-            --light: #f8fafc;
-            --gray: #64748b;
-            --gray-light: #cbd5e1;
+            --primary: #0066FF;
+            --primary-dark: #0052CC;
+            --secondary: #6610F2;
+            --success: #28A745;
+            --danger: #DC3545;
+            --warning: #FFC107;
+            --info: #17A2B8;
+            --light: #F8F9FA;
+            --dark: #212529;
+            --gray: #6C757D;
+            --gray-light: #E9ECEF;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, Consolas, monospace;
+            --shadow: 0 4px 6px rgba(0, 102, 255, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 102, 255, 0.15);
             --radius: 12px;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-sm: 8px;
         }
 
         * {
@@ -31,641 +35,199 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: var(--light);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Loading Screen */
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--darker);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-
-        .loading-logo {
-            font-size: 4rem;
-            margin-bottom: 2rem;
-            animation: pulse 2s infinite;
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(99, 102, 241, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-        }
-
-        /* Auth Screen */
-        .auth-screen {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        }
-
-        .auth-container {
-            width: 100%;
-            max-width: 400px;
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: var(--radius);
-            padding: 2.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: var(--shadow);
-        }
-
-        .auth-logo {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .auth-logo-icon {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            color: var(--primary);
-            display: inline-block;
-            animation: pulse 2s infinite;
-        }
-
-        .auth-title {
-            font-size: 1.875rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .auth-subtitle {
-            text-align: center;
-            color: var(--gray);
-            margin-bottom: 2rem;
-            font-size: 0.875rem;
-        }
-
-        .auth-tabs {
-            display: flex;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 1.5rem;
-        }
-
-        .auth-tab {
-            flex: 1;
-            padding: 0.75rem;
-            background: none;
-            border: none;
-            color: var(--gray);
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-            font-size: 0.875rem;
-        }
-
-        .auth-tab.active {
-            color: white;
-        }
-
-        .auth-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-        }
-
-        .auth-form {
-            display: none;
-        }
-
-        .auth-form.active {
-            display: block;
-        }
-
-        .auth-form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .auth-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: white;
-            font-size: 0.875rem;
-        }
-
-        .auth-input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius);
-            color: white;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.875rem;
-            transition: var(--transition);
-        }
-
-        .auth-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        .auth-input::placeholder {
-            color: var(--gray);
-        }
-
-        .auth-button {
-            width: 100%;
-            padding: 0.875rem;
-            border-radius: var(--radius);
-            border: none;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-top: 1rem;
-        }
-
-        .auth-button-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-        }
-
-        .auth-button-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
-        }
-
-        .auth-button-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-
-        .auth-button-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            margin: 1.5rem 0;
-            color: var(--gray);
-            font-size: 0.75rem;
-        }
-
-        .auth-divider::before,
-        .auth-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .auth-divider span {
-            padding: 0 1rem;
-        }
-
-        .auth-token-section {
-            margin-top: 1.5rem;
-        }
-
-        .auth-token-label {
-            font-size: 0.75rem;
-            color: var(--gray);
-            margin-bottom: 0.5rem;
-        }
-
-        .auth-token-input {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .auth-token-display {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 0.75rem 1rem;
-            border-radius: var(--radius);
-            font-family: monospace;
-            font-size: 0.75rem;
-            word-break: break-all;
-            color: var(--gray-light);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .auth-copy-btn {
-            padding: 0.75rem 1rem;
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: var(--radius);
-            color: var(--primary);
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .auth-copy-btn:hover {
-            background: rgba(99, 102, 241, 0.2);
-        }
-
-        .auth-footer {
-            text-align: center;
-            margin-top: 2rem;
-            color: var(--gray);
-            font-size: 0.75rem;
-        }
-
-        .auth-footer a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .auth-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .auth-alert {
-            padding: 0.75rem 1rem;
-            border-radius: var(--radius);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            animation: slideIn 0.3s ease;
-            font-size: 0.875rem;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .auth-alert-success {
-            background: rgba(16, 185, 129, 0.1);
-            border-left: 4px solid var(--secondary);
-            color: #a7f3d0;
-        }
-
-        .auth-alert-error {
-            background: rgba(239, 68, 68, 0.1);
-            border-left: 4px solid var(--danger);
-            color: #fecaca;
-        }
-
-        .auth-alert-warning {
-            background: rgba(245, 158, 11, 0.1);
-            border-left: 4px solid var(--warning);
-            color: #fde68a;
-        }
-
-        /* Dashboard Layout */
-        .dashboard-container {
-            display: none;
-            flex-direction: column;
+            font-family: var(--font-main);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
             min-height: 100vh;
         }
 
-        .dashboard-container.active {
-            display: flex;
-        }
-
-        /* Layout */
         .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
             display: flex;
-            min-height: 100vh;
-            flex: 1;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 260px;
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1.5rem;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            z-index: 100;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar.collapsed {
-            transform: translateX(-100%);
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 2.5rem;
-            padding: 0.5rem;
-            border-radius: var(--radius);
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--dark);
             font-weight: 700;
             font-size: 1.5rem;
-            text-decoration: none;
         }
 
         .logo-icon {
-            font-size: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             width: 40px;
             height: 40px;
-        }
-
-        .nav-section {
-            margin-bottom: 2rem;
-        }
-
-        .nav-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--gray);
-            margin-bottom: 0.75rem;
-            padding-left: 0.5rem;
-        }
-
-        .nav-item {
+            background: var(--primary);
+            border-radius: 10px;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            border-radius: var(--radius);
-            color: var(--gray-light);
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
             text-decoration: none;
-            transition: var(--transition);
-            margin-bottom: 0.25rem;
-            cursor: pointer;
+            color: var(--gray);
+            font-weight: 500;
+            transition: color 0.3s;
         }
 
-        .nav-item:hover {
-            background: rgba(99, 102, 241, 0.1);
-            color: white;
-            transform: translateX(5px);
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
         }
 
-        .nav-item.active {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            box-shadow: var(--shadow);
-        }
-
-        .nav-item i {
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 260px;
-            padding: 2rem;
-            transition: margin-left 0.3s ease;
-        }
-
-        .main-content.expanded {
-            margin-left: 0;
-        }
-
-        /* Top Bar */
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .page-title {
-            font-size: 1.875rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .top-bar-actions {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .user-menu:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: white;
-        }
-
-        .menu-toggle {
-            display: none;
-            background: none;
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
             border: none;
-            color: var(--light);
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: var(--radius);
-        }
-
-        /* Cards */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .card {
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            transition: var(--transition);
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow);
-            border-color: var(--primary);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .card-title {
-            font-size: 1.125rem;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: var(--font-main);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .card-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
+        .btn-primary {
+            background: var(--primary);
             color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 0;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border-radius: 0 0 40px 40px;
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+
+        .hero-badges {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
         }
 
         .stat-number {
             font-size: 2.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            line-height: 1;
-            margin-bottom: 0.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
         }
 
         .stat-label {
             color: var(--gray);
-            font-size: 0.875rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius);
-            border: none;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--secondary) 0%, #059669 100%);
-            color: white;
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.75rem;
-        }
-
-        /* Package Cards */
+        /* Packages Grid */
         .packages-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
         }
 
         .package-card {
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: white;
             border-radius: var(--radius);
-            padding: 1.5rem;
-            transition: var(--transition);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            border: 1px solid var(--gray-light);
         }
 
         .package-card:hover {
             transform: translateY(-5px);
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-lg);
             border-color: var(--primary);
         }
 
@@ -673,329 +235,285 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 1rem;
+            margin-bottom: 15px;
         }
 
         .package-name {
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             font-weight: 600;
-            color: white;
+            color: var(--dark);
+            text-decoration: none;
+        }
+
+        .package-name:hover {
+            color: var(--primary);
         }
 
         .package-version {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            background: rgba(99, 102, 241, 0.2);
-            color: var(--primary);
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-top: 0.25rem;
+            background: var(--gray-light);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-family: var(--font-mono);
         }
 
         .package-description {
-            color: var(--gray-light);
-            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 20px;
             line-height: 1.5;
-            margin-bottom: 1rem;
         }
 
         .package-meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.75rem;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .package-author {
             color: var(--gray);
-            margin-top: 1rem;
+            font-size: 0.9rem;
         }
 
-        /* Forms */
+        .package-stats {
+            display: flex;
+            gap: 15px;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Badge Workshop */
+        .workshop {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        .workshop-title {
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .workshop-title i {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .badge-preview {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: var(--light);
+            border-radius: var(--radius-sm);
+        }
+
+        .badge-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 20px;
         }
 
-        .form-label {
+        .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: white;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
         }
 
         .form-control {
             width: 100%;
-            padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius);
-            color: white;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.875rem;
-            transition: var(--transition);
+            padding: 12px 15px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-main);
+            font-size: 1rem;
+            transition: border-color 0.3s;
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
-        .form-control::placeholder {
-            color: var(--gray);
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
+        .color-options {
             display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
-        .modal-content {
-            background: var(--dark);
-            border-radius: var(--radius);
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            animation: modalSlideIn 0.3s ease;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--gray);
-            font-size: 1.5rem;
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
             cursor: pointer;
-            padding: 0.25rem;
-            border-radius: 4px;
-            transition: var(--transition);
+            border: 2px solid transparent;
+            transition: transform 0.2s;
         }
 
-        .modal-close:hover {
-            color: white;
-            background: rgba(255, 255, 255, 0.1);
+        .color-option:hover {
+            transform: scale(1.1);
         }
 
-        .modal-body {
-            padding: 1.5rem;
-        }
-
-        /* Badge Preview */
-        .badge-preview {
-            text-align: center;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: var(--radius);
-            margin: 1.5rem 0;
-        }
-
-        .badge-svg-container {
-            display: inline-block;
-            margin-bottom: 1rem;
-        }
-
-        .badge-markdown {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 1rem;
-            border-radius: var(--radius);
-            font-family: monospace;
-            font-size: 0.875rem;
-            word-break: break-all;
-            margin-top: 1rem;
-        }
-
-        /* Alerts */
-        .alert {
-            padding: 1rem 1.5rem;
-            border-radius: var(--radius);
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            animation: slideIn 0.3s ease;
-        }
-
-        .alert-success {
-            background: rgba(16, 185, 129, 0.1);
-            border-left: 4px solid var(--secondary);
-            color: #a7f3d0;
-        }
-
-        .alert-error {
-            background: rgba(239, 68, 68, 0.1);
-            border-left: 4px solid var(--danger);
-            color: #fecaca;
-        }
-
-        .alert-warning {
-            background: rgba(245, 158, 11, 0.1);
-            border-left: 4px solid var(--warning);
-            color: #fde68a;
+        .color-option.active {
+            border-color: var(--dark);
+            transform: scale(1.1);
         }
 
         /* Footer */
-        .footer {
-            margin-top: 3rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            color: var(--gray);
-            font-size: 0.875rem;
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
         }
 
         .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 1rem;
+            list-style: none;
         }
 
-        .footer-link {
-            color: var(--gray);
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #adb5bd;
             text-decoration: none;
-            transition: var(--transition);
+            transition: color 0.3s;
         }
 
-        .footer-link:hover {
-            color: var(--primary);
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #343a40;
+            color: #adb5bd;
+            font-size: 0.9rem;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        .loading-spinner {
+            border: 3px solid var(--gray-light);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
+            .navbar {
+                flex-direction: column;
+                gap: 20px;
             }
-            
-            .sidebar.active {
-                transform: translateX(0);
+
+            .nav-links {
+                flex-direction: column;
+                gap: 15px;
             }
-            
-            .main-content {
-                margin-left: 0;
+
+            .hero h1 {
+                font-size: 2.5rem;
             }
-            
-            .menu-toggle {
-                display: block;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-            
+
             .packages-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .top-bar {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: stretch;
-            }
-            
-            .top-bar-actions {
-                justify-content: space-between;
-            }
-            
-            .auth-container {
-                padding: 1.5rem;
+
+            .stats {
+                grid-template-columns: 1fr;
             }
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-dark);
-        }
-
-        /* Code Highlight */
-        code {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 0.875em;
-        }
-
-        pre {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 1rem;
-            border-radius: var(--radius);
-            overflow-x: auto;
-            margin: 1rem 0;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 1.5rem;
-        }
-
-        .tab {
-            padding: 0.75rem 1.5rem;
+        /* Dark mode toggle */
+        .theme-toggle {
             background: none;
             border: none;
             color: var(--gray);
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
             cursor: pointer;
-            transition: var(--transition);
+            font-size: 1.2rem;
+            padding: 5px;
+        }
+
+        /* Badge generator result */
+        .badge-result {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--light);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--gray);
             position: relative;
         }
 
         .tab.active {
-            color: white;
+            color: var(--primary);
         }
 
         .tab.active::after {
@@ -1004,2254 +522,550 @@
             bottom: -1px;
             left: 0;
             right: 0;
-            height: 2px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-        }
-
-        /* Badge Color Options */
-        .color-options {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .color-option {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .color-option.active {
-            border-color: white;
-            transform: scale(1.1);
-        }
-
-        .color-option[data-color="blue"] { background: #007ec6; }
-        .color-option[data-color="green"] { background: #4c1; }
-        .color-option[data-color="red"] { background: #e05d44; }
-        .color-option[data-color="orange"] { background: #fe7d37; }
-        .color-option[data-color="yellow"] { background: #dfb317; }
-
-        /* Token Display */
-        .token-display {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 1rem;
-            border-radius: var(--radius);
-            font-family: monospace;
-            word-break: break-all;
-            margin: 1rem 0;
-        }
-
-        /* Package Actions */
-        .package-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        /* Search Bar */
-        .search-bar {
-            position: relative;
-            max-width: 400px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 0.75rem 1rem 0.75rem 3rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius);
-            color: white;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .stat-item {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 1rem;
-            border-radius: var(--radius);
-            text-align: center;
-        }
-
-        .stat-item-value {
-            font-size: 2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .stat-item-label {
-            color: var(--gray);
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-
-        /* Loading Overlay */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(5px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            display: none;
-        }
-
-        .loading-overlay.active {
-            display: flex;
-        }
-
-        .loading-text {
-            margin-top: 1rem;
-            color: var(--gray);
-            font-size: 0.875rem;
-        }
-
-        /* Tooltip */
-        .tooltip {
-            position: relative;
-        }
-
-        .tooltip-text {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--dark);
-            color: white;
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-            margin-bottom: 0.5rem;
-            z-index: 1000;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .tooltip:hover .tooltip-text {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* Drag and Drop */
-        .drop-zone {
-            border: 2px dashed rgba(99, 102, 241, 0.5);
-            border-radius: var(--radius);
-            padding: 3rem 2rem;
-            text-align: center;
-            transition: var(--transition);
-            cursor: pointer;
-            background: rgba(99, 102, 241, 0.05);
-        }
-
-        .drop-zone.dragover {
-            background: rgba(99, 102, 241, 0.1);
-            border-color: var(--primary);
-        }
-
-        .drop-zone-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .drop-zone-icon {
-            font-size: 3rem;
-            color: var(--primary);
-        }
-
-        /* Table */
-        .table-responsive {
-            overflow-x: auto;
-            border-radius: var(--radius);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table th,
-        .table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .table th {
-            background: rgba(255, 255, 255, 0.05);
-            font-weight: 600;
-            color: var(--gray);
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .table tr:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        /* Quick Actions */
-        .quick-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: var(--gray);
-        }
-
-        .empty-state-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
+            height: 3px;
+            background: var(--primary);
         }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loading-screen">
-        <div class="loading-logo">⚡</div>
-        <div class="loading-spinner"></div>
-        <div>Chargement du Zenv Hub...</div>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
-        <div class="loading-text" id="loadingText">Chargement...</div>
-    </div>
-
-    <!-- Auth Screen -->
-    <div class="auth-screen" id="authScreen">
-        <div class="auth-container">
-            <div class="auth-logo">
-                <div class="auth-logo-icon">⚡</div>
-                <h1 class="auth-title">Zenv Hub</h1>
-                <p class="auth-subtitle">Gestionnaire de packages privé</p>
-            </div>
-
-            <div class="auth-alert" id="authAlert" style="display: none;"></div>
-
-            <div class="auth-tabs">
-                <button class="auth-tab active" onclick="showAuthTab('login')">Connexion</button>
-                <button class="auth-tab" onclick="showAuthTab('register')">Inscription</button>
-                <button class="auth-tab" onclick="showAuthTab('token')">Token</button>
-            </div>
-
-            <!-- Login Form -->
-            <div class="auth-form active" id="loginForm">
-                <div class="auth-form-group">
-                    <label class="auth-label" for="loginUsername">Nom d'utilisateur ou Email</label>
-                    <input type="text" class="auth-input" id="loginUsername" placeholder="admin" required>
-                </div>
-
-                <div class="auth-form-group">
-                    <label class="auth-label" for="loginPassword">Mot de passe</label>
-                    <input type="password" class="auth-input" id="loginPassword" placeholder="••••••••" required>
-                </div>
-
-                <button class="auth-button auth-button-primary" onclick="login()">
-                    <i class="fas fa-sign-in-alt"></i> Se connecter
-                </button>
-
-                <div class="auth-divider">
-                    <span>OU</span>
-                </div>
-
-                <div class="auth-form-group">
-                    <label class="auth-label">Token Zenv</label>
-                    <input type="text" class="auth-input" id="loginToken" 
-                           placeholder="zenv_..." 
-                           onkeypress="if(event.key === 'Enter') loginWithToken()">
-                </div>
-
-                <button class="auth-button auth-button-secondary" onclick="loginWithToken()">
-                    <i class="fas fa-key"></i> Se connecter avec Token
-                </button>
-            </div>
-
-            <!-- Register Form -->
-            <div class="auth-form" id="registerForm">
-                <div class="auth-form-group">
-                    <label class="auth-label" for="registerUsername">Nom d'utilisateur *</label>
-                    <input type="text" class="auth-input" id="registerUsername" 
-                           placeholder="nouvel-utilisateur" required>
-                </div>
-
-                <div class="auth-form-group">
-                    <label class="auth-label" for="registerEmail">Email *</label>
-                    <input type="email" class="auth-input" id="registerEmail" 
-                           placeholder="email@example.com" required>
-                </div>
-
-                <div class="auth-form-group">
-                    <label class="auth-label" for="registerPassword">Mot de passe *</label>
-                    <input type="password" class="auth-input" id="registerPassword" 
-                           placeholder="••••••••" required>
-                    <div style="font-size: 0.75rem; color: var(--gray); margin-top: 0.25rem;">
-                        Minimum 8 caractères
-                    </div>
-                </div>
-
-                <div class="auth-form-group">
-                    <label class="auth-label" for="registerConfirmPassword">Confirmer le mot de passe *</label>
-                    <input type="password" class="auth-input" id="registerConfirmPassword" 
-                           placeholder="••••••••" required>
-                </div>
-
-                <button class="auth-button auth-button-success" onclick="register()">
-                    <i class="fas fa-user-plus"></i> S'inscrire
-                </button>
-            </div>
-
-            <!-- Token Form -->
-            <div class="auth-form" id="tokenForm">
-                <div class="auth-form-group">
-                    <label class="auth-label">Votre Token Zenv</label>
-                    <input type="text" class="auth-input" id="tokenInput" 
-                           placeholder="zenv_..." required>
-                </div>
-
-                <button class="auth-button auth-button-primary" onclick="verifyAndLoginWithToken()">
-                    <i class="fas fa-check"></i> Vérifier et Se connecter
-                </button>
-
-                <div class="auth-token-section">
-                    <div class="auth-token-label">Token d'exemple (admin) :</div>
-                    <div class="auth-token-input">
-                        <div class="auth-token-display" id="sampleToken">
-                            zenv_ead27bf9d1b91e30729eb574a82e7287d4c9f35df9f8feb4f581452444350a5b
-                        </div>
-                        <button class="auth-copy-btn" onclick="copySampleToken()">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(245, 158, 11, 0.1); border-radius: var(--radius);">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                        <i class="fas fa-info-circle" style="color: var(--warning);"></i>
-                        <div style="font-weight: 600; font-size: 0.875rem;">Note importante</div>
-                    </div>
-                    <div style="font-size: 0.75rem; color: var(--gray-light); line-height: 1.5;">
-                        Ce token admin est fourni à titre d'exemple. Pour un usage en production, 
-                        générez votre propre token après connexion dans la section "Mes Tokens".
-                    </div>
-                </div>
-            </div>
-
-            <div class="auth-footer">
-                <p>En vous connectant, vous acceptez nos <a href="#" onclick="showTerms()">Conditions d'utilisation</a></p>
-                <p style="margin-top: 0.5rem;">
-                    <a href="https://github.com/gopu-inc/zenv" target="_blank">Documentation CLI</a> • 
-                    <a href="https://discord.gg/qWx5DszrC" target="_blank">Support Discord</a>
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Dashboard Container -->
-    <div class="dashboard-container" id="dashboardContainer">
-        <!-- Sidebar -->
-        <nav class="sidebar" id="sidebar">
-            <a href="#" class="logo" onclick="showPage('dashboard')">
-                <div class="logo-icon">⚡</div>
-                <span>Zenv Hub</span>
-            </a>
-
-            <div class="nav-section">
-                <div class="nav-title">Tableau de bord</div>
-                <a href="#" class="nav-item active" onclick="showPage('dashboard')">
-                    <i class="fas fa-home"></i>
-                    <span>Dashboard</span>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">
+                    <div class="logo-icon">Z</div>
+                    <span>Zenv Hub</span>
                 </a>
-                <a href="#" class="nav-item" onclick="showPage('profile')">
-                    <i class="fas fa-user"></i>
-                    <span>Mon Profil</span>
-                </a>
-                <a href="#" class="nav-item" onclick="showPage('tokens')">
-                    <i class="fas fa-key"></i>
-                    <span>Mes Tokens</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-title">Gestion des packages</div>
-                <a href="#" class="nav-item" onclick="showPage('explore')">
-                    <i class="fas fa-search"></i>
-                    <span>Explorer les packs</span>
-                </a>
-                <a href="#" class="nav-item" onclick="showPage('my-packages')">
-                    <i class="fas fa-box"></i>
-                    <span>Mes Packages</span>
-                </a>
-                <a href="#" class="nav-item" onclick="showPage('upload')">
-                    <i class="fas fa-upload"></i>
-                    <span>Uploader un pack</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-title">Badges</div>
-                <a href="#" class="nav-item" onclick="showPage('badges')">
-                    <i class="fas fa-medal"></i>
-                    <span>Voir les badges</span>
-                </a>
-                <a href="#" class="nav-item" onclick="showModal('createBadgeModal')">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Créer un badge</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-title">Documentation</div>
-                <a href="https://github.com/gopu-inc/zenv" target="_blank" class="nav-item">
-                    <i class="fab fa-github"></i>
-                    <span>GitHub CLI</span>
-                </a>
-                <a href="#" class="nav-item" onclick="showPage('api')">
-                    <i class="fas fa-code"></i>
-                    <span>API Reference</span>
-                </a>
-                <a href="https://pypi.org/project/zenv" target="_blank" class="nav-item">
-                    <i class="fab fa-python"></i>
-                    <span>PyPI Package</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-title">Support</div>
-                <a href="https://discord.gg/qWx5DszrC" target="_blank" class="nav-item">
-                    <i class="fab fa-discord"></i>
-                    <span>Discord</span>
-                </a>
-                <a href="https://github.com/gopu-inc" target="_blank" class="nav-item">
-                    <i class="fab fa-github"></i>
-                    <span>GitHub Org</span>
-                </a>
-                <a href="mailto:support@zenv.dev" class="nav-item">
-                    <i class="fas fa-envelope"></i>
-                    <span>Support Email</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-title">Système</div>
-                <div class="nav-item" onclick="toggleTheme()">
-                    <i class="fas fa-moon"></i>
-                    <span>Thème Sombre</span>
-                </div>
-                <a href="#" class="nav-item" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Déconnexion</span>
-                </a>
-            </div>
-        </nav>
-
-        <!-- Main Content -->
-        <main class="main-content" id="mainContent">
-            <!-- Top Bar -->
-            <div class="top-bar">
-                <button class="menu-toggle" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 class="page-title" id="pageTitle">Dashboard</h1>
-                <div class="top-bar-actions">
-                    <div class="search-bar">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" class="search-input" placeholder="Rechercher packages..." 
-                               oninput="searchPackages(this.value)">
-                    </div>
-                    <div class="user-menu" onclick="showPage('profile')">
-                        <div class="user-avatar" id="userAvatar">U</div>
-                        <div>
-                            <div id="userName">Utilisateur</div>
-                            <div style="font-size: 0.75rem; color: var(--gray);" id="userRole">User</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Alert Container -->
-            <div id="alertContainer"></div>
-
-            <!-- Page Content -->
-            <div id="pageContent">
-                <!-- Dashboard Page -->
-                <div class="page" id="dashboardPage">
-                    <div class="dashboard-grid">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Packages Totaux</h3>
-                                <div class="card-icon">
-                                    <i class="fas fa-box"></i>
-                                </div>
-                            </div>
-                            <div class="stat-number" id="totalPackages">0</div>
-                            <div class="stat-label">Packages disponibles</div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Badges Créés</h3>
-                                <div class="card-icon">
-                                    <i class="fas fa-medal"></i>
-                                </div>
-                            </div>
-                            <div class="stat-number" id="totalBadges">0</div>
-                            <div class="stat-label">Badges disponibles</div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Téléchargements</h3>
-                                <div class="card-icon">
-                                    <i class="fas fa-download"></i>
-                                </div>
-                            </div>
-                            <div class="stat-number" id="totalDownloads">0</div>
-                            <div class="stat-label">Téléchargements totaux</div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Statut Serveur</h3>
-                                <div class="card-icon">
-                                    <i class="fas fa-server"></i>
-                                </div>
-                            </div>
-                            <div class="stat-number" id="serverStatus">●</div>
-                            <div class="stat-label">Statut du hub</div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 2rem;">
-                        <h2 style="margin-bottom: 1rem;">Package Récents</h2>
-                        <div class="packages-grid" id="recentPackages">
-                            <!-- Packages will be loaded here -->
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 2rem;">
-                        <h2 style="margin-bottom: 1rem;">Quick Actions</h2>
-                        <div class="quick-actions">
-                            <button class="btn btn-primary" onclick="showPage('upload')">
-                                <i class="fas fa-upload"></i> Uploader un Package
-                            </button>
-                            <button class="btn btn-secondary" onclick="showModal('createBadgeModal')">
-                                <i class="fas fa-medal"></i> Créer un Badge
-                            </button>
-                            <button class="btn btn-secondary" onclick="showPage('explore')">
-                                <i class="fas fa-search"></i> Explorer les Packs
-                            </button>
-                            <button class="btn btn-secondary" onclick="generateNewToken()">
-                                <i class="fas fa-key"></i> Générer un Token
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Explore Packages Page -->
-                <div class="page" id="explorePage" style="display: none;">
-                    <div class="search-bar" style="max-width: 100%; margin-bottom: 2rem;">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" class="search-input" placeholder="Rechercher packages par nom, auteur ou description..." 
-                               oninput="searchPackages(this.value)">
-                    </div>
-                    
-                    <div class="packages-grid" id="allPackages">
-                        <!-- All packages will be loaded here -->
-                    </div>
-                    
-                    <div class="empty-state" id="noPackagesFound" style="display: none;">
-                        <div class="empty-state-icon">
-                            <i class="fas fa-box-open"></i>
-                        </div>
-                        <h3>Aucun package trouvé</h3>
-                        <p>Aucun package ne correspond à votre recherche.</p>
-                    </div>
-                </div>
-
-                <!-- My Packages Page -->
-                <div class="page" id="myPackagesPage" style="display: none;">
-                    <div style="margin-bottom: 2rem;">
-                        <h2 style="margin-bottom: 1rem;">Mes Packages</h2>
-                        <p class="stat-label">Packages que vous avez publiés</p>
-                    </div>
-                    
-                    <div class="packages-grid" id="myPackages">
-                        <!-- User packages will be loaded here -->
-                    </div>
-                    
-                    <div class="empty-state" id="noMyPackages" style="display: none;">
-                        <div class="empty-state-icon">
-                            <i class="fas fa-box-open"></i>
-                        </div>
-                        <h3>Aucun package publié</h3>
-                        <p>Vous n'avez pas encore publié de packages.</p>
-                        <button class="btn btn-primary" style="margin-top: 1rem;" onclick="showPage('upload')">
-                            <i class="fas fa-upload"></i> Publier mon premier package
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Upload Package Page -->
-                <div class="page" id="uploadPage" style="display: none;">
-                    <div style="max-width: 600px; margin: 0 auto;">
-                        <h2 style="margin-bottom: 1rem;">Uploader un Package</h2>
-                        <p class="stat-label" style="margin-bottom: 2rem;">Publiez votre package sur le Zenv Hub</p>
-                        
-                        <div id="uploadForm">
-                            <div class="form-group">
-                                <label class="form-label">Nom du Package *</label>
-                                <input type="text" class="form-control" id="packageName" 
-                                       placeholder="mon-package" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">Version *</label>
-                                <input type="text" class="form-control" id="packageVersion" 
-                                       placeholder="1.0.0" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">Description</label>
-                                <textarea class="form-control" id="packageDescription" 
-                                          rows="3" placeholder="Description du package"></textarea>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">Fichier .zv *</label>
-                                <div class="drop-zone" id="dropZone" 
-                                     onclick="document.getElementById('packageFile').click()">
-                                    <div class="drop-zone-content">
-                                        <i class="fas fa-cloud-upload-alt drop-zone-icon"></i>
-                                        <div>Cliquez ou glissez-déposez votre fichier .zv</div>
-                                        <div class="stat-label">Taille maximale: 100MB</div>
-                                    </div>
-                                </div>
-                                <input type="file" id="packageFile" style="display: none;" 
-                                       accept=".zv,.zcf,.gs" onchange="handleFileSelect(this)">
-                            </div>
-                            
-                            <div id="selectedFile" style="display: none; margin-top: 1rem;">
-                                <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(99, 102, 241, 0.1); border-radius: var(--radius);">
-                                    <i class="fas fa-file" style="color: var(--primary);"></i>
-                                    <div style="flex: 1;">
-                                        <div id="fileName"></div>
-                                        <div class="stat-label" id="fileSize"></div>
-                                    </div>
-                                    <button class="btn btn-danger btn-sm" onclick="clearFile()">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                                <button class="btn btn-primary" onclick="uploadPackage()">
-                                    <i class="fas fa-upload"></i> Publier le Package
-                                </button>
-                                <button class="btn btn-secondary" onclick="showPage('dashboard')">
-                                    Annuler
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Profile Page -->
-                <div class="page" id="profilePage" style="display: none;">
-                    <div style="max-width: 600px; margin: 0 auto;">
-                        <h2 style="margin-bottom: 1rem;">Mon Profil</h2>
-                        <p class="stat-label" style="margin-bottom: 2rem;">Gérez vos informations personnelles</p>
-                        
-                        <div class="card" style="margin-bottom: 2rem;">
-                            <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;">
-                                <div class="user-avatar" style="width: 80px; height: 80px; font-size: 2rem;" id="profileAvatar">
-                                    U
-                                </div>
-                                <div>
-                                    <h3 id="profileName">Utilisateur</h3>
-                                    <div class="stat-label" id="profileEmail">user@example.com</div>
-                                    <div class="stat-label" id="profileRole">Rôle: User</div>
-                                </div>
-                            </div>
-                            
-                            <div class="stats-grid">
-                                <div class="stat-item">
-                                    <div class="stat-item-value" id="profilePackages">0</div>
-                                    <div class="stat-item-label">Packages</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-item-value" id="profileBadges">0</div>
-                                    <div class="stat-item-label">Badges</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-item-value" id="profileDownloads">0</div>
-                                    <div class="stat-item-label">Téléchargements</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Token d'accès</label>
-                            <div class="token-display" id="profileToken">
-                                Chargement...
-                            </div>
-                            <button class="btn btn-secondary btn-sm" onclick="copyToken()" style="margin-top: 0.5rem;">
-                                <i class="fas fa-copy"></i> Copier le Token
-                            </button>
-                            <button class="btn btn-secondary btn-sm" onclick="generateNewToken()" style="margin-top: 0.5rem; margin-left: 0.5rem;">
-                                <i class="fas fa-redo"></i> Générer un nouveau
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tokens Page -->
-                <div class="page" id="tokensPage" style="display: none;">
-                    <div style="max-width: 800px; margin: 0 auto;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                            <div>
-                                <h2>Mes Tokens</h2>
-                                <p class="stat-label">Gérez vos tokens d'accès API</p>
-                            </div>
-                            <button class="btn btn-primary" onclick="generateNewToken()">
-                                <i class="fas fa-plus"></i> Nouveau Token
-                            </button>
-                        </div>
-                        
-                        <div class="table-responsive">
-                            <table class="table" id="tokensTable">
-                                <thead>
-                                    <tr>
-                                        <th>Token</th>
-                                        <th>Créé le</th>
-                                        <th>Rôle</th>
-                                        <th>Statut</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tokensList">
-                                    <!-- Tokens will be loaded here -->
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <div class="alert alert-warning" style="margin-top: 2rem;">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <div>
-                                <strong>Sécurité des Tokens</strong>
-                                <div style="font-size: 0.875rem; margin-top: 0.25rem;">
-                                    Gardez vos tokens secrets. Ne les partagez jamais publiquement.
-                                    Les tokens peuvent être utilisés pour accéder à votre compte.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Badges Page -->
-                <div class="page" id="badgesPage" style="display: none;">
-                    <div style="margin-bottom: 2rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h2>Badges Disponibles</h2>
-                            <button class="btn btn-primary" onclick="showModal('createBadgeModal')">
-                                <i class="fas fa-plus"></i> Créer un Badge
-                            </button>
-                        </div>
-                        <p class="stat-label">Badges SVG personnalisables pour vos projets</p>
-                    </div>
-                    
-                    <div class="packages-grid" id="badgesList">
-                        <!-- Badges will be loaded here -->
-                    </div>
-                    
-                    <div class="empty-state" id="noBadges" style="display: none;">
-                        <div class="empty-state-icon">
-                            <i class="fas fa-medal"></i>
-                        </div>
-                        <h3>Aucun badge disponible</h3>
-                        <p>Créez votre premier badge pour commencer.</p>
-                        <button class="btn btn-primary" style="margin-top: 1rem;" onclick="showModal('createBadgeModal')">
-                            <i class="fas fa-plus"></i> Créer un Badge
-                        </button>
-                    </div>
-                </div>
-
-                <!-- API Documentation Page -->
-                <div class="page" id="apiPage" style="display: none;">
-                    <div style="max-width: 800px; margin: 0 auto;">
-                        <h2 style="margin-bottom: 1rem;">API Reference</h2>
-                        <p class="stat-label" style="margin-bottom: 2rem;">Documentation de l'API Zenv Hub</p>
-                        
-                        <div class="card" style="margin-bottom: 2rem;">
-                            <h3 style="margin-bottom: 1rem;">Endpoint de Base</h3>
-                            <pre><code>https://zenv-hub.onrender.com</code></pre>
-                        </div>
-                        
-                        <div class="tabs">
-                            <button class="tab active" onclick="showApiTab('public')">Endpoints Publics</button>
-                            <button class="tab" onclick="showApiTab('private')">Endpoints Privés</button>
-                            <button class="tab" onclick="showApiTab('auth')">Authentification</button>
-                        </div>
-                        
-                        <div id="publicApi" class="api-tab">
-                            <h3 style="margin: 1.5rem 0 1rem 0;">Endpoints Publics</h3>
-                            
-                            <div class="card" style="margin-bottom: 1rem;">
-                                <h4 style="margin-bottom: 0.5rem;">GET /api/packages</h4>
-                                <p class="stat-label">Lister tous les packages</p>
-                                <pre><code>curl -X GET "https://zenv-hub.onrender.com/api/packages"</code></pre>
-                            </div>
-                            
-                            <div class="card" style="margin-bottom: 1rem;">
-                                <h4 style="margin-bottom: 0.5rem;">GET /api/packages/download/{name}/{version}</h4>
-                                <p class="stat-label">Télécharger un package</p>
-                                <pre><code>curl -X GET "https://zenv-hub.onrender.com/api/packages/download/mon-package/1.0.0" \
-  -o mon-package-1.0.0.zv</code></pre>
-                            </div>
-                            
-                            <div class="card" style="margin-bottom: 1rem;">
-                                <h4 style="margin-bottom: 0.5rem;">GET /badge/svg/{name}</h4>
-                                <p class="stat-label">Obtenir un badge SVG</p>
-                                <pre><code>&lt;img src="https://zenv-hub.onrender.com/badge/svg/mon-badge" alt="Badge"&gt;</code></pre>
-                            </div>
-                        </div>
-                        
-                        <div id="privateApi" class="api-tab" style="display: none;">
-                            <h3 style="margin: 1.5rem 0 1rem 0;">Endpoints Privés (Token requis)</h3>
-                            
-                            <div class="card" style="margin-bottom: 1rem;">
-                                <h4 style="margin-bottom: 0.5rem;">POST /api/packages/upload</h4>
-                                <p class="stat-label">Uploader un package</p>
-                                <pre><code>curl -X POST "https://zenv-hub.onrender.com/api/packages/upload" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -F "name=mon-package" \
-  -F "version=1.0.0" \
-  -F "file=@package.zv"</code></pre>
-                            </div>
-                            
-                            <div class="card" style="margin-bottom: 1rem;">
-                                <h4 style="margin-bottom: 0.5rem;">POST /api/badges</h4>
-                                <p class="stat-label">Créer un badge</p>
-                                <pre><code>curl -X POST "https://zenv-hub.onrender.com/api/badges" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"mon-badge","label":"Zenv","value":"1.0.0","color":"blue"}'</code></pre>
-                            </div>
-                        </div>
-                        
-                        <div id="authApi" class="api-tab" style="display: none;">
-                            <h3 style="margin: 1.5rem 0 1rem 0;">Authentification</h3>
-                            
-                            <div class="card" style="margin-bottom: 1rem;">
-                                <h4 style="margin-bottom: 0.5rem;">POST /api/auth/login</h4>
-                                <p class="stat-label">Se connecter</p>
-                                <pre><code>curl -X POST "https://zenv-hub.onrender.com/api/auth/login" \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"password"}'</code></pre>
-                            </div>
-                            
-                            <div class="card" style="margin-bottom: 1rem;">
-                                <h4 style="margin-bottom: 0.5rem;">POST /api/auth/register</h4>
-                                <p class="stat-label">S'inscrire</p>
-                                <pre><code>curl -X POST "https://zenv-hub.onrender.com/api/auth/register" \
-  -H "Content-Type: application/json" \
-  -d '{"username":"nouveau","email":"nouveau@example.com","password":"secret123"}'</code></pre>
-                            </div>
-                            
-                            <div class="card" style="margin-bottom: 1rem;">
-                                <h4 style="margin-bottom: 0.5rem;">GET /api/tokens/verify</h4>
-                                <p class="stat-label">Vérifier un token</p>
-                                <pre><code>curl -X GET "https://zenv-hub.onrender.com/api/tokens/verify?token=YOUR_TOKEN"</code></pre>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="footer">
-                <div>Zenv Package Hub v3.1.0 - Private Repository with Public Access</div>
-                <div class="footer-links">
-                    <a href="https://github.com/gopu-inc/zenv" target="_blank" class="footer-link">
-                        <i class="fab fa-github"></i> CLI GitHub
-                    </a>
-                    <a href="https://discord.gg/qWx5DszrC" target="_blank" class="footer-link">
-                        <i class="fab fa-discord"></i> Discord
-                    </a>
-                    <a href="https://pypi.org/project/zenv" target="_blank" class="footer-link">
-                        <i class="fab fa-python"></i> PyPI
-                    </a>
-                    <a href="#" onclick="showPage('api')" class="footer-link">
-                        <i class="fas fa-code"></i> API
-                    </a>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Create Badge Modal -->
-    <div class="modal" id="createBadgeModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Créer un Badge</h3>
-                <button class="modal-close" onclick="hideModal('createBadgeModal')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Nom du Badge *</label>
-                    <input type="text" class="form-control" id="badgeName" 
-                           placeholder="zenv-version" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Label *</label>
-                    <input type="text" class="form-control" id="badgeLabel" 
-                           placeholder="Zenv" value="Zenv" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Valeur *</label>
-                    <input type="text" class="form-control" id="badgeValue" 
-                           placeholder="1.0.0" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Couleur</label>
-                    <div class="color-options">
-                        <div class="color-option active" data-color="blue" onclick="selectColor('blue')"></div>
-                        <div class="color-option" data-color="green" onclick="selectColor('green')"></div>
-                        <div class="color-option" data-color="red" onclick="selectColor('red')"></div>
-                        <div class="color-option" data-color="orange" onclick="selectColor('orange')"></div>
-                        <div class="color-option" data-color="yellow" onclick="selectColor('yellow')"></div>
-                    </div>
-                </div>
-                
-                <div class="badge-preview" id="badgePreview">
-                    <div class="badge-svg-container" id="previewSvg">
-                        <!-- Badge preview will be generated here -->
-                    </div>
-                    <div>Prévisualisation</div>
-                </div>
-                
-                <div class="badge-markdown" id="badgeMarkdown">
-                    ![Zenv: 1.0.0](https://zenv-hub.onrender.com/badge/svg/zenv-version)
-                </div>
-                
-                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                    <button class="btn btn-primary" onclick="createBadge()">
-                        <i class="fas fa-plus-circle"></i> Créer le Badge
+                <div class="nav-links">
+                    <a href="#" class="active"><i class="fas fa-home"></i> Accueil</a>
+                    <a href="#packages"><i class="fas fa-box"></i> Packages</a>
+                    <a href="#workshop"><i class="fas fa-badge-check"></i> Badge Workshop</a>
+                    <a href="#docs"><i class="fas fa-book"></i> Docs</a>
+                    <button class="theme-toggle" onclick="toggleTheme()">
+                        <i class="fas fa-moon"></i>
                     </button>
-                    <button class="btn btn-secondary" onclick="hideModal('createBadgeModal')">
-                        Annuler
-                    </button>
+                    <a href="https://github.com/gopu-inc/zenv" class="btn btn-outline" target="_blank">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
                 </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Zenv Package Hub</h1>
+            <p>Le hub officiel pour partager et découvrir des packages Zenv. Publiez, gérez et distribuez vos packages en toute simplicité.</p>
+            <div class="hero-buttons">
+                <a href="#packages" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> Explorer les Packages
+                </a>
+                <a href="#workshop" class="btn btn-outline" style="background: rgba(255,255,255,0.1); color: white;">
+                    <i class="fas fa-magic"></i> Créer un Badge
+                </a>
+            </div>
+            <div class="hero-badges">
+                <img src="/badge/custom/API/v2.1.0/blue" alt="API Version">
+                <img src="/badge/custom/Packages/4/green" alt="Packages Count">
+                <img src="/badge/custom/GitHub/Private/orange/github" alt="GitHub">
             </div>
         </div>
+    </section>
+
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-packages">4</div>
+                <div class="stat-label">Packages</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-downloads">9</div>
+                <div class="stat-label">Téléchargements</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">v2.1.0</div>
+                <div class="stat-label">API Version</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Disponibilité</div>
+            </div>
+        </div>
+
+        <!-- Packages Section -->
+        <section id="packages">
+            <h2 style="margin-bottom: 25px; font-size: 2rem; color: var(--dark);">
+                <i class="fas fa-box-open"></i> Packages Disponibles
+            </h2>
+            <div id="packages-container" class="packages-grid">
+                <!-- Packages will be loaded here -->
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Chargement des packages...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Badge Workshop -->
+        <section id="workshop" class="workshop">
+            <div class="workshop-title">
+                <i class="fas fa-paint-brush"></i>
+                <h2>Atelier de Création de Badges</h2>
+            </div>
+            <p>Créez des badges personnalisés pour vos packages Zenv avec notre outil interactif.</p>
+            
+            <div class="tab-container">
+                <button class="tab active" onclick="showTab('simple')">Simple</button>
+                <button class="tab" onclick="showTab('advanced')">Avancé</button>
+                <button class="tab" onclick="showTab('shields')">Shields.io</button>
+            </div>
+
+            <div id="simple-tab" class="tab-content">
+                <div class="badge-controls">
+                    <div class="form-group">
+                        <label>Label (Gauche)</label>
+                        <input type="text" id="badge-label" class="form-control" value="Zenv" placeholder="Version">
+                    </div>
+                    <div class="form-group">
+                        <label>Value (Droite)</label>
+                        <input type="text" id="badge-value" class="form-control" value="2.1.0" placeholder="1.0.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Couleur</label>
+                        <div class="color-options">
+                            <div class="color-option active" style="background: #007ec6;" onclick="selectColor('blue')"></div>
+                            <div class="color-option" style="background: #4c1;" onclick="selectColor('green')"></div>
+                            <div class="color-option" style="background: #e05d44;" onclick="selectColor('red')"></div>
+                            <div class="color-option" style="background: #fe7d37;" onclick="selectColor('orange')"></div>
+                            <div class="color-option" style="background: #dfb317;" onclick="selectColor('yellow')"></div>
+                            <div class="color-option" style="background: #9f4ca5;" onclick="selectColor('purple')"></div>
+                        </div>
+                        <input type="hidden" id="badge-color" value="blue">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="generateBadge()">
+                    <i class="fas fa-bolt"></i> Générer le Badge
+                </button>
+
+                <div class="badge-preview">
+                    <h3>Prévisualisation</h3>
+                    <div id="badge-preview">
+                        <img src="/badge/custom/Zenv/2.1.0/blue" alt="Badge Preview" id="badge-image">
+                    </div>
+                    <div class="badge-result" id="badge-result">
+                        <p><strong>URL du badge:</strong><br>
+                        <code id="badge-url">/badge/custom/Zenv/2.1.0/blue</code></p>
+                        <p><strong>Markdown:</strong><br>
+                        <code id="badge-markdown">![Zenv: 2.1.0](/badge/custom/Zenv/2.1.0/blue)</code></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="advanced-tab" class="tab-content" style="display: none;">
+                <div class="form-group">
+                    <label>Logo (Base64, URL ou nom)</label>
+                    <input type="text" id="badge-logo" class="form-control" placeholder="github, python, docker ou data:image/...">
+                    <small style="color: var(--gray);">Exemples: github, python, docker, ou une URL base64</small>
+                </div>
+                <div class="form-group">
+                    <label>Largeur du logo (px)</label>
+                    <input type="number" id="logo-width" class="form-control" value="20" min="10" max="50">
+                </div>
+                <button class="btn btn-primary" onclick="generateBadgeWithLogo()">
+                    <i class="fas fa-image"></i> Générer avec Logo
+                </button>
+            </div>
+
+            <div id="shields-tab" class="tab-content" style="display: none;">
+                <p>Générez des badges au format shields.io :</p>
+                <div class="form-group">
+                    <label>Style</label>
+                    <select id="shield-style" class="form-control">
+                        <option value="flat">Flat</option>
+                        <option value="plastic">Plastic</option>
+                        <option value="flat-square">Flat Square</option>
+                        <option value="for-the-badge">For the Badge</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="generateShieldsBadge()">
+                    <i class="fas fa-shield-alt"></i> Générer Shields Badge
+                </button>
+                <div class="badge-result" id="shields-result"></div>
+            </div>
+        </section>
+
+        <!-- Documentation -->
+        <section id="docs" class="workshop" style="margin-top: 40px;">
+            <div class="workshop-title">
+                <i class="fas fa-book"></i>
+                <h2>Documentation API</h2>
+            </div>
+            
+            <div class="code-block">
+GET /api/packages                  # Lister tous les packages<br>
+GET /api/packages/download/:name/:version  # Télécharger un package<br>
+GET /api/readme/:package          # Lire le README (HTML)<br>
+GET /api/license/:package         # Lire la licence<br>
+GET /badge/custom/:label/:value/:color/:logo  # Générer un badge<br>
+POST /api/packages/upload         # Uploader (authentification requise)<br>
+POST /api/auth/login              # Connexion<br>
+POST /api/auth/register           # Inscription
+            </div>
+
+            <h3>Utilisation avec le CLI Zenv</h3>
+            <div class="code-block">
+# Se connecter au hub<br>
+zenv hub login zenv_votre_token<br><br>
+
+# Publier un package<br>
+zenv hub publish mon-package-1.0.0.zv<br><br>
+
+# Installer un package<br>
+zenv pkg install mon-package<br><br>
+
+# Rechercher des packages<br>
+zenv hub search "database"<br><br>
+
+# Créer un package<br>
+zenv init mon-package<br>
+zenv build -f package.zcf
+            </div>
+        </section>
     </div>
 
-    <!-- Package Details Modal -->
-    <div class="modal" id="packageDetailsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="packageModalTitle">Détails du Package</h3>
-                <button class="modal-close" onclick="hideModal('packageDetailsModal')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="packageDetailsContent">
-                    <!-- Package details will be loaded here -->
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Zenv Hub</h3>
+                    <p>Le hub officiel pour l'écosystème Zenv. Partagez et découvrez des packages.</p>
+                    <div style="margin-top: 20px;">
+                        <a href="https://zenv-hub.onrender.com/api/version" class="btn btn-outline" style="color: white; border-color: white;">
+                            Vérifier l'API
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Liens Rapides</h3>
+                    <ul class="footer-links">
+                        <li><a href="#packages">Packages</a></li>
+                        <li><a href="#workshop">Badge Workshop</a></li>
+                        <li><a href="#docs">Documentation</a></li>
+                        <li><a href="https://github.com/gopu-inc/zenv">GitHub</a></li>
+                        <li><a href="https://pypi.org/project/zenv-lang/">PyPI</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>API Endpoints</h3>
+                    <ul class="footer-links">
+                        <li><a href="/api/packages">Liste packages</a></li>
+                        <li><a href="/api/badges">Liste badges</a></li>
+                        <li><a href="/api/health">Santé API</a></li>
+                        <li><a href="/api/version">Version API</a></li>
+                        <li><a href="/api/badge-workshop">Atelier badges</a></li>
+                    </ul>
                 </div>
             </div>
+            <div class="footer-bottom">
+                <p>© 2024 Zenv Package Hub. API Version 2.1.0. Dépôt GitHub privé: gopu-inc/gsql-badge</p>
+                <p>Déployé sur Render | Connecté à Vercel</p>
+            </div>
         </div>
-    </div>
+    </footer>
 
     <script>
-        // Configuration
-        const API_BASE = 'https://zenv-hub.onrender.com';
-        let currentToken = null;
-        let currentUser = null;
-        let allPackages = [];
-        let allBadges = [];
+        // Variables globales
+        let currentTab = 'simple';
+        let currentColor = 'blue';
 
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Hide loading screen after 1.5 seconds
-            setTimeout(() => {
-                document.getElementById('loading-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loading-screen').style.display = 'none';
-                }, 500);
-            }, 1500);
-
-            // Check for stored token
-            const storedToken = localStorage.getItem('zenv_token');
-            const storedUser = localStorage.getItem('zenv_user');
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPackages();
+            loadStats();
+            updateBadgePreview();
             
-            if (storedToken && storedUser) {
-                // Verify token is still valid
-                try {
-                    const response = await fetch(`${API_BASE}/api/tokens/verify?token=${storedToken}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.valid) {
-                            currentToken = storedToken;
-                            currentUser = JSON.parse(storedUser);
-                            showDashboard();
-                            return;
-                        }
-                    }
-                } catch (error) {
-                    // Token verification failed
-                }
-                
-                // Clear invalid token
-                localStorage.removeItem('zenv_token');
-                localStorage.removeItem('zenv_user');
+            // Vérifier le thème sauvegardé
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.theme-toggle i').className = 'fas fa-sun';
             }
-            
-            // Show auth screen
-            showAuthScreen();
         });
 
-        // Show/Hide Loading Overlay
-        function showLoading(message = 'Chargement...') {
-            document.getElementById('loadingText').textContent = message;
-            document.getElementById('loadingOverlay').classList.add('active');
-        }
-
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.remove('active');
-        }
-
-        // Show/Hide Modal
-        function showModal(modalId) {
-            document.getElementById(modalId).classList.add('active');
-        }
-
-        function hideModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-        }
-
-        // Toggle Sidebar on Mobile
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
-        }
-
-        // Toggle Theme
-        function toggleTheme() {
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-            
-            // Update icon
-            const themeIcon = document.querySelector('.fa-moon');
-            if (themeIcon) {
-                themeIcon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
-                themeIcon.nextElementSibling.textContent = newTheme === 'dark' ? 'Thème Sombre' : 'Thème Clair';
+        // Charger les packages
+        async function loadPackages() {
+            try {
+                const response = await fetch('/api/packages');
+                const data = await response.json();
+                displayPackages(data.packages);
+                updateStats(data.packages);
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('packages-container').innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: var(--danger); margin-bottom: 10px;"></i>
+                        <p>Erreur de chargement des packages</p>
+                    </div>
+                `;
             }
+        }
+
+        // Afficher les packages
+        function displayPackages(packages) {
+            const container = document.getElementById('packages-container');
+            if (!packages || packages.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--gray);">Aucun package disponible</p>';
+                return;
+            }
+
+            container.innerHTML = packages.map(pkg => `
+                <div class="package-card">
+                    <div class="package-header">
+                        <a href="#" onclick="showPackageDetails('${pkg.name}')" class="package-name">
+                            ${pkg.name}
+                        </a>
+                        <span class="package-version">${pkg.version}</span>
+                    </div>
+                    <p class="package-description">${pkg.description || 'Pas de description'}</p>
+                    <div class="package-meta">
+                        <span class="package-author">
+                            <i class="fas fa-user"></i> ${pkg.author}
+                        </span>
+                        <div class="package-stats">
+                            <span><i class="fas fa-download"></i> ${pkg.downloads_count}</span>
+                            <span><i class="fas fa-file-code"></i> ${formatSize(pkg.size)}</span>
+                            <span><i class="fas fa-balance-scale"></i> ${pkg.license}</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                        <a href="${pkg.download_url}" class="btn btn-outline" style="padding: 8px 15px; font-size: 0.9rem;">
+                            <i class="fas fa-download"></i> Télécharger
+                        </a>
+                        <a href="${pkg.readme_url}" target="_blank" class="btn btn-outline" style="padding: 8px 15px; font-size: 0.9rem;">
+                            <i class="fas fa-book"></i> README
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Mettre à jour les statistiques
+        function updateStats(packages) {
+            const totalDownloads = packages.reduce((sum, pkg) => sum + pkg.downloads_count, 0);
+            document.getElementById('total-packages').textContent = packages.length;
+            document.getElementById('total-downloads').textContent = totalDownloads;
             
-            localStorage.setItem('zenv_theme', newTheme);
+            // Mettre à jour le badge dans le hero
+            document.querySelector('.hero-badges').innerHTML = `
+                <img src="/badge/custom/API/v2.1.0/blue" alt="API Version">
+                <img src="/badge/custom/Packages/${packages.length}/green" alt="Packages Count">
+                <img src="/badge/custom/Downloads/${totalDownloads}/orange" alt="Downloads">
+                <img src="/badge/custom/GitHub/Private/orange/github" alt="GitHub">
+            `;
         }
 
-        // Show Auth Screen
-        function showAuthScreen() {
-            document.getElementById('authScreen').style.display = 'flex';
-            document.getElementById('dashboardContainer').classList.remove('active');
-            showAuthTab('login');
+        // Charger les stats depuis l'API
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                console.log('Statut API:', data);
+            } catch (error) {
+                console.error('Erreur stats:', error);
+            }
         }
 
-        // Show Dashboard
-        function showDashboard() {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('dashboardContainer').classList.add('active');
-            updateUserInfo();
-            loadDashboardData();
-            showPage('dashboard');
+        // Formater la taille
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
 
-        // Show Auth Tab
-        function showAuthTab(tab) {
-            // Update tabs
-            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        // Gestion des onglets
+        function showTab(tabName) {
+            currentTab = tabName;
+            
+            // Mettre à jour les onglets actifs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
             event.target.classList.add('active');
             
-            // Hide all forms
-            document.querySelectorAll('.auth-form').forEach(form => {
-                form.classList.remove('active');
+            // Afficher le contenu de l'onglet
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
             });
-            
-            // Show selected form
-            document.getElementById(tab + 'Form').classList.add('active');
-            
-            // Clear alert
-            hideAuthAlert();
+            document.getElementById(tabName + '-tab').style.display = 'block';
         }
 
-        // Show/Hide Auth Alert
-        function showAuthAlert(message, type = 'error') {
-            const alertDiv = document.getElementById('authAlert');
-            alertDiv.className = `auth-alert auth-alert-${type}`;
-            alertDiv.innerHTML = `
-                <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
-                <div>${message}</div>
-            `;
-            alertDiv.style.display = 'flex';
-        }
-
-        function hideAuthAlert() {
-            document.getElementById('authAlert').style.display = 'none';
-        }
-
-        // Copy Sample Token
-        function copySampleToken() {
-            const token = document.getElementById('sampleToken').textContent;
-            navigator.clipboard.writeText(token).then(() => {
-                showAuthAlert('Token copié dans le presse-papier', 'success');
-            });
-        }
-
-        // Authentication Functions
-        async function login() {
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-            
-            if (!username || !password) {
-                showAuthAlert('Veuillez remplir tous les champs', 'error');
-                return;
-            }
-            
-            showLoading('Connexion en cours...');
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        password: password
-                    })
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    currentToken = data.token.access_token;
-                    currentUser = data.token.user;
-                    
-                    // Store in localStorage
-                    localStorage.setItem('zenv_token', currentToken);
-                    localStorage.setItem('zenv_user', JSON.stringify(currentUser));
-                    
-                    hideLoading();
-                    showDashboard();
-                    showAlert('Connexion réussie', 'success');
-                } else {
-                    const error = await response.json();
-                    hideLoading();
-                    showAuthAlert(error.error || 'Identifiants incorrects', 'error');
-                }
-            } catch (error) {
-                hideLoading();
-                showAuthAlert('Erreur réseau. Vérifiez votre connexion.', 'error');
-            }
-        }
-
-        async function loginWithToken() {
-            const token = document.getElementById('loginToken').value.trim();
-            
-            if (!token) {
-                showAuthAlert('Veuillez entrer un token', 'error');
-                return;
-            }
-            
-            await verifyAndLogin(token);
-        }
-
-        async function verifyAndLoginWithToken() {
-            const token = document.getElementById('tokenInput').value.trim();
-            
-            if (!token) {
-                showAuthAlert('Veuillez entrer un token', 'error');
-                return;
-            }
-            
-            await verifyAndLogin(token);
-        }
-
-        async function verifyAndLogin(token) {
-            showLoading('Vérification du token...');
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/tokens/verify?token=${token}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.valid) {
-                        currentToken = token;
-                        currentUser = data.user;
-                        
-                        // Store in localStorage
-                        localStorage.setItem('zenv_token', currentToken);
-                        localStorage.setItem('zenv_user', JSON.stringify(currentUser));
-                        
-                        hideLoading();
-                        showDashboard();
-                        showAlert('Connexion réussie avec token', 'success');
-                    } else {
-                        hideLoading();
-                        showAuthAlert('Token invalide ou expiré', 'error');
-                    }
-                } else {
-                    hideLoading();
-                    showAuthAlert('Erreur de vérification du token', 'error');
-                }
-            } catch (error) {
-                hideLoading();
-                showAuthAlert('Erreur réseau', 'error');
-            }
-        }
-
-        async function register() {
-            const username = document.getElementById('registerUsername').value.trim();
-            const email = document.getElementById('registerEmail').value.trim();
-            const password = document.getElementById('registerPassword').value.trim();
-            const confirmPassword = document.getElementById('registerConfirmPassword').value.trim();
-            
-            if (!username || !email || !password || !confirmPassword) {
-                showAuthAlert('Veuillez remplir tous les champs', 'error');
-                return;
-            }
-            
-            if (password.length < 8) {
-                showAuthAlert('Le mot de passe doit contenir au moins 8 caractères', 'error');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                showAuthAlert('Les mots de passe ne correspondent pas', 'error');
-                return;
-            }
-            
-            showLoading('Création de votre compte...');
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/auth/register`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        email: email,
-                        password: password
-                    })
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    currentToken = data.token.access_token;
-                    currentUser = data.token.user;
-                    
-                    // Store in localStorage
-                    localStorage.setItem('zenv_token', currentToken);
-                    localStorage.setItem('zenv_user', JSON.stringify(currentUser));
-                    
-                    hideLoading();
-                    showDashboard();
-                    showAlert('Inscription réussie ! Bienvenue sur Zenv Hub', 'success');
-                } else {
-                    const error = await response.json();
-                    hideLoading();
-                    showAuthAlert(error.error || 'Erreur lors de l\'inscription', 'error');
-                }
-            } catch (error) {
-                hideLoading();
-                showAuthAlert('Erreur réseau', 'error');
-            }
-        }
-
-        // Dashboard Functions
-        function showPage(pageId) {
-            // Hide all pages
-            const pages = document.querySelectorAll('.page');
-            pages.forEach(page => page.style.display = 'none');
-            
-            // Remove active class from all nav items
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(item => item.classList.remove('active'));
-            
-            // Show selected page
-            document.getElementById(pageId + 'Page').style.display = 'block';
-            document.getElementById('pageTitle').textContent = getPageTitle(pageId);
-            
-            // Add active class to corresponding nav item
-            const activeNavItem = document.querySelector(`.nav-item[onclick*="${pageId}"]`);
-            if (activeNavItem) {
-                activeNavItem.classList.add('active');
-            }
-            
-            // Hide sidebar on mobile
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('active');
-            }
-            
-            // Load page data
-            switch(pageId) {
-                case 'dashboard':
-                    loadDashboardData();
-                    break;
-                case 'explore':
-                    loadAllPackages();
-                    break;
-                case 'my-packages':
-                    loadMyPackages();
-                    break;
-                case 'badges':
-                    loadAllBadges();
-                    break;
-                case 'profile':
-                    loadProfileData();
-                    break;
-                case 'tokens':
-                    loadTokens();
-                    break;
-            }
-        }
-
-        function getPageTitle(pageId) {
-            const titles = {
-                'dashboard': 'Dashboard',
-                'profile': 'Mon Profil',
-                'tokens': 'Mes Tokens',
-                'explore': 'Explorer les Packs',
-                'my-packages': 'Mes Packages',
-                'upload': 'Uploader un Pack',
-                'badges': 'Badges',
-                'api': 'API Reference'
-            };
-            return titles[pageId] || pageId;
-        }
-
-        // Update User Info
-        function updateUserInfo() {
-            if (!currentUser) return;
-            
-            document.getElementById('userName').textContent = currentUser.username;
-            document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'Administrateur' : 'Utilisateur';
-            
-            const avatar = document.getElementById('userAvatar');
-            if (avatar) {
-                avatar.textContent = currentUser.username.charAt(0).toUpperCase();
-            }
-        }
-
-        // Check Server Health
-        async function checkServerHealth() {
-            try {
-                const response = await fetch(`${API_BASE}/api/health`);
-                if (response.ok) {
-                    document.getElementById('serverStatus').innerHTML = '●<span style="color: var(--secondary); margin-left: 0.5rem;">Connecté</span>';
-                } else {
-                    document.getElementById('serverStatus').innerHTML = '●<span style="color: var(--danger); margin-left: 0.5rem;">Erreur</span>';
-                }
-            } catch (error) {
-                document.getElementById('serverStatus').innerHTML = '●<span style="color: var(--danger); margin-left: 0.5rem;">Hors ligne</span>';
-            }
-        }
-
-        // Load Dashboard Data
-        async function loadDashboardData() {
-            showLoading('Chargement des données...');
-            try {
-                const [packagesResponse, badgesResponse] = await Promise.all([
-                    fetch(`${API_BASE}/api/packages`),
-                    fetch(`${API_BASE}/api/badges`)
-                ]);
-                
-                if (packagesResponse.ok) {
-                    const packagesData = await packagesResponse.json();
-                    allPackages = packagesData.packages || [];
-                    
-                    document.getElementById('totalPackages').textContent = packagesData.count || 0;
-                    
-                    // Calculate total downloads
-                    const totalDownloads = allPackages.reduce((sum, pkg) => sum + (pkg.downloads_count || 0), 0);
-                    document.getElementById('totalDownloads').textContent = totalDownloads.toLocaleString();
-                    
-                    // Show recent packages (last 6)
-                    const recentPackages = allPackages.slice(0, 6);
-                    displayPackages(recentPackages, 'recentPackages');
-                }
-                
-                if (badgesResponse.ok) {
-                    const badgesData = await badgesResponse.json();
-                    allBadges = badgesData.badges || [];
-                    document.getElementById('totalBadges').textContent = badgesData.count || 0;
-                }
-                
-                // Check server health
-                await checkServerHealth();
-                
-                hideLoading();
-            } catch (error) {
-                showAlert('Impossible de charger les données du dashboard', 'error');
-                hideLoading();
-            }
-        }
-
-        // Load All Packages
-        async function loadAllPackages() {
-            showLoading('Chargement des packages...');
-            try {
-                const response = await fetch(`${API_BASE}/api/packages`);
-                if (response.ok) {
-                    const data = await response.json();
-                    allPackages = data.packages || [];
-                    displayPackages(allPackages, 'allPackages');
-                    document.getElementById('noPackagesFound').style.display = allPackages.length === 0 ? 'block' : 'none';
-                }
-                hideLoading();
-            } catch (error) {
-                showAlert('Impossible de charger les packages', 'error');
-                hideLoading();
-            }
-        }
-
-        // Load My Packages
-        async function loadMyPackages() {
-            if (!currentUser) {
-                document.getElementById('noMyPackages').style.display = 'block';
-                document.getElementById('myPackages').innerHTML = '';
-                return;
-            }
-            
-            showLoading('Chargement de vos packages...');
-            try {
-                const response = await fetch(`${API_BASE}/api/packages`);
-                if (response.ok) {
-                    const data = await response.json();
-                    const myPackages = data.packages.filter(pkg => pkg.author === currentUser.username);
-                    displayPackages(myPackages, 'myPackages');
-                    document.getElementById('noMyPackages').style.display = myPackages.length === 0 ? 'block' : 'none';
-                }
-                hideLoading();
-            } catch (error) {
-                showAlert('Impossible de charger vos packages', 'error');
-                hideLoading();
-            }
-        }
-
-        // Display Packages in Grid
-        function displayPackages(packages, containerId) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            
-            container.innerHTML = '';
-            
-            packages.forEach(pkg => {
-                const card = document.createElement('div');
-                card.className = 'package-card';
-                card.innerHTML = `
-                    <div class="package-header">
-                        <div>
-                            <div class="package-name">${pkg.name}</div>
-                            <span class="package-version">v${pkg.version}</span>
-                        </div>
-                        <div style="color: var(--gray); font-size: 0.875rem;">
-                            <i class="fas fa-download"></i> ${pkg.downloads_count || 0}
-                        </div>
-                    </div>
-                    <div class="package-description">${pkg.description || 'Aucune description'}</div>
-                    <div class="package-meta">
-                        <div>
-                            <i class="fas fa-user"></i> ${pkg.author || 'Inconnu'}
-                        </div>
-                        <div>
-                            <i class="fas fa-calendar"></i> ${formatDate(pkg.updated_at)}
-                        </div>
-                    </div>
-                    <div class="package-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="downloadPackage('${pkg.name}', '${pkg.version}')">
-                            <i class="fas fa-download"></i> Télécharger
-                        </button>
-                        <button class="btn btn-secondary btn-sm" onclick="viewPackageDetails('${pkg.name}')">
-                            <i class="fas fa-info-circle"></i> Détails
-                        </button>
-                        ${currentUser && currentUser.username === pkg.author ? `
-                        <button class="btn btn-danger btn-sm" onclick="deletePackage('${pkg.name}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                        ` : ''}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        // Search Packages
-        function searchPackages(query) {
-            if (!allPackages.length) return;
-            
-            const filteredPackages = allPackages.filter(pkg => 
-                pkg.name.toLowerCase().includes(query.toLowerCase()) ||
-                pkg.description.toLowerCase().includes(query.toLowerCase()) ||
-                pkg.author.toLowerCase().includes(query.toLowerCase())
-            );
-            
-            const container = document.getElementById('allPackages');
-            if (container) {
-                displayPackages(filteredPackages, 'allPackages');
-                document.getElementById('noPackagesFound').style.display = filteredPackages.length === 0 ? 'block' : 'none';
-            }
-        }
-
-        // Download Package
-        async function downloadPackage(name, version) {
-            try {
-                const response = await fetch(`${API_BASE}/api/packages/download/${name}/${version}`);
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${name}-${version}.zv`;
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                    
-                    showAlert(`Package ${name} v${version} téléchargé avec succès`, 'success');
-                    
-                    // Refresh packages list
-                    loadDashboardData();
-                } else {
-                    showAlert('Impossible de télécharger le package', 'error');
-                }
-            } catch (error) {
-                showAlert('Erreur lors du téléchargement', 'error');
-            }
-        }
-
-        // View Package Details
-        async function viewPackageDetails(packageName) {
-            showLoading('Chargement des détails...');
-            try {
-                const response = await fetch(`${API_BASE}/api/packages`);
-                if (response.ok) {
-                    const data = await response.json();
-                    const pkg = data.packages.find(p => p.name === packageName);
-                    
-                    if (pkg) {
-                        document.getElementById('packageModalTitle').textContent = pkg.name;
-                        document.getElementById('packageDetailsContent').innerHTML = `
-                            <div style="margin-bottom: 1.5rem;">
-                                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                                    <div style="font-size: 2rem; color: var(--primary);">
-                                        <i class="fas fa-box"></i>
-                                    </div>
-                                    <div>
-                                        <h3 style="margin: 0;">${pkg.name}</h3>
-                                        <div class="package-version" style="margin-top: 0.25rem;">v${pkg.version}</div>
-                                    </div>
-                                </div>
-                                <p>${pkg.description || 'Aucune description'}</p>
-                            </div>
-                            
-                            <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: var(--radius); margin-bottom: 1.5rem;">
-                                <h4 style="margin-bottom: 0.5rem;">Informations</h4>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                                    <div>
-                                        <div class="stat-label">Auteur</div>
-                                        <div><i class="fas fa-user"></i> ${pkg.author || 'Inconnu'}</div>
-                                    </div>
-                                    <div>
-                                        <div class="stat-label">Taille</div>
-                                        <div><i class="fas fa-hdd"></i> ${formatFileSize(pkg.size || 0)}</div>
-                                    </div>
-                                    <div>
-                                        <div class="stat-label">Téléchargements</div>
-                                        <div><i class="fas fa-download"></i> ${pkg.downloads_count || 0}</div>
-                                    </div>
-                                    <div>
-                                        <div class="stat-label">Dernière mise à jour</div>
-                                        <div><i class="fas fa-calendar"></i> ${formatDate(pkg.updated_at)}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <h4 style="margin-bottom: 0.5rem;">Installation</h4>
-                                <pre><code>zenv install ${pkg.name}@${pkg.version}</code></pre>
-                            </div>
-                            
-                            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                                <button class="btn btn-primary" onclick="downloadPackage('${pkg.name}', '${pkg.version}')">
-                                    <i class="fas fa-download"></i> Télécharger
-                                </button>
-                                <button class="btn btn-secondary" onclick="hideModal('packageDetailsModal')">
-                                    Fermer
-                                </button>
-                            </div>
-                        `;
-                        showModal('packageDetailsModal');
-                    }
-                }
-                hideLoading();
-            } catch (error) {
-                showAlert('Impossible de charger les détails du package', 'error');
-                hideLoading();
-            }
-        }
-
-        // Setup Drag and Drop for File Upload
-        function setupDragAndDrop() {
-            const dropZone = document.getElementById('dropZone');
-            if (!dropZone) return;
-            
-            dropZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropZone.classList.add('dragover');
-            });
-            
-            dropZone.addEventListener('dragleave', () => {
-                dropZone.classList.remove('dragover');
-            });
-            
-            dropZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropZone.classList.remove('dragover');
-                
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    handleFileSelect({ files: [files[0]] });
-                }
-            });
-        }
-
-        // Handle File Selection
-        function handleFileSelect(input) {
-            const file = input.files ? input.files[0] : null;
-            if (!file) return;
-            
-            // Check file size (100MB max)
-            if (file.size > 100 * 1024 * 1024) {
-                showAlert('Le fichier est trop volumineux (max 100MB)', 'error');
-                return;
-            }
-            
-            // Check file extension
-            if (!file.name.match(/\.(zv|zcf|gs)$/i)) {
-                showAlert('Seuls les fichiers .zv, .zcf et .gs sont autorisés', 'error');
-                return;
-            }
-            
-            document.getElementById('fileName').textContent = file.name;
-            document.getElementById('fileSize').textContent = formatFileSize(file.size);
-            document.getElementById('selectedFile').style.display = 'block';
-        }
-
-        // Clear Selected File
-        function clearFile() {
-            document.getElementById('packageFile').value = '';
-            document.getElementById('selectedFile').style.display = 'none';
-        }
-
-        // Upload Package
-        async function uploadPackage() {
-            if (!currentToken) {
-                showAlert('Vous devez être connecté pour uploader un package', 'error');
-                showAuthScreen();
-                return;
-            }
-            
-            const name = document.getElementById('packageName').value.trim();
-            const version = document.getElementById('packageVersion').value.trim();
-            const description = document.getElementById('packageDescription').value.trim();
-            const fileInput = document.getElementById('packageFile');
-            
-            if (!name || !version) {
-                showAlert('Le nom et la version sont requis', 'error');
-                return;
-            }
-            
-            if (!fileInput.files.length) {
-                showAlert('Veuillez sélectionner un fichier', 'error');
-                return;
-            }
-            
-            showLoading('Publication du package...');
-            
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('version', version);
-            formData.append('description', description);
-            formData.append('file', fileInput.files[0]);
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/packages/upload`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${currentToken}`
-                    },
-                    body: formData
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    showAlert(data.message || 'Package publié avec succès', 'success');
-                    
-                    // Clear form
-                    document.getElementById('packageName').value = '';
-                    document.getElementById('packageVersion').value = '';
-                    document.getElementById('packageDescription').value = '';
-                    clearFile();
-                    
-                    // Refresh packages
-                    loadDashboardData();
-                    showPage('dashboard');
-                } else {
-                    const error = await response.json();
-                    showAlert(error.error || 'Erreur lors de la publication', 'error');
-                }
-            } catch (error) {
-                showAlert('Erreur réseau', 'error');
-            }
-            
-            hideLoading();
-        }
-
-        // Delete Package (placeholder - requires backend implementation)
-        function deletePackage(packageName) {
-            if (confirm(`Êtes-vous sûr de vouloir supprimer le package "${packageName}" ?`)) {
-                showAlert('Cette fonctionnalité sera bientôt disponible', 'warning');
-            }
-        }
-
-        // Load All Badges
-        async function loadAllBadges() {
-            showLoading('Chargement des badges...');
-            try {
-                const response = await fetch(`${API_BASE}/api/badges`);
-                if (response.ok) {
-                    const data = await response.json();
-                    allBadges = data.badges || [];
-                    displayBadges(allBadges);
-                    document.getElementById('noBadges').style.display = allBadges.length === 0 ? 'block' : 'none';
-                }
-                hideLoading();
-            } catch (error) {
-                showAlert('Impossible de charger les badges', 'error');
-                hideLoading();
-            }
-        }
-
-        // Display Badges
-        function displayBadges(badges) {
-            const container = document.getElementById('badgesList');
-            if (!container) return;
-            
-            container.innerHTML = '';
-            
-            badges.forEach(badge => {
-                const card = document.createElement('div');
-                card.className = 'package-card';
-                card.innerHTML = `
-                    <div class="package-header">
-                        <div>
-                            <div class="package-name">${badge.name}</div>
-                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">
-                                <div style="width: 12px; height: 12px; border-radius: 50%; background: ${getBadgeColor(badge.color)};"></div>
-                                <div style="color: var(--gray); font-size: 0.75rem;">${badge.color}</div>
-                            </div>
-                        </div>
-                        <div style="color: var(--gray); font-size: 0.875rem;">
-                            <i class="fas fa-eye"></i> ${badge.usage_count || 0}
-                        </div>
-                    </div>
-                    <div style="margin: 1rem 0; text-align: center;" id="badge-${badge.name}">
-                        <!-- Badge SVG will be loaded here -->
-                    </div>
-                    <div class="package-meta">
-                        <div>
-                            <i class="fas fa-user"></i> ${badge.created_by || 'Inconnu'}
-                        </div>
-                        <div>
-                            <i class="fas fa-calendar"></i> ${formatDate(badge.updated_at)}
-                        </div>
-                    </div>
-                    <div class="package-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="copyBadgeMarkdown('${badge.name}')">
-                            <i class="fas fa-code"></i> Markdown
-                        </button>
-                        <button class="btn btn-secondary btn-sm" onclick="copyBadgeUrl('${badge.name}')">
-                            <i class="fas fa-link"></i> URL
-                        </button>
-                        ${currentUser && currentUser.username === badge.created_by ? `
-                        <button class="btn btn-danger btn-sm" onclick="deleteBadge('${badge.name}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                        ` : ''}
-                    </div>
-                `;
-                container.appendChild(card);
-                
-                // Load badge SVG
-                loadBadgeSvg(badge.name, `badge-${badge.name}`);
-            });
-        }
-
-        // Load Badge SVG
-        async function loadBadgeSvg(badgeName, containerId) {
-            try {
-                const response = await fetch(`${API_BASE}/badge/svg/${badgeName}`);
-                if (response.ok) {
-                    const svg = await response.text();
-                    document.getElementById(containerId).innerHTML = svg;
-                }
-            } catch (error) {
-                // Ignore error
-            }
-        }
-
-        // Get Badge Color
-        function getBadgeColor(color) {
-            const colors = {
-                'blue': '#007ec6',
-                'green': '#4c1',
-                'red': '#e05d44',
-                'orange': '#fe7d37',
-                'yellow': '#dfb317'
-            };
-            return colors[color] || colors['blue'];
-        }
-
-        // Badge Creation
+        // Sélectionner une couleur
         function selectColor(color) {
+            currentColor = color;
             document.querySelectorAll('.color-option').forEach(opt => {
                 opt.classList.remove('active');
             });
             event.target.classList.add('active');
+            document.getElementById('badge-color').value = color;
             updateBadgePreview();
         }
 
+        // Mettre à jour la prévisualisation
         function updateBadgePreview() {
-            const name = document.getElementById('badgeName').value || 'zenv-version';
-            const label = document.getElementById('badgeLabel').value || 'Zenv';
-            const value = document.getElementById('badgeValue').value || '1.0.0';
-            const color = document.querySelector('.color-option.active')?.dataset.color || 'blue';
+            const label = document.getElementById('badge-label').value || 'Label';
+            const value = document.getElementById('badge-value').value || 'Value';
+            const color = document.getElementById('badge-color').value;
             
-            // Generate SVG (simplified version)
-            const svg = generateBadgeSvg(label, value, color);
-            document.getElementById('previewSvg').innerHTML = svg;
-            
-            // Update markdown
-            const badgeUrl = `${API_BASE}/badge/svg/${name}`;
-            document.getElementById('badgeMarkdown').textContent = 
-                `![${label}: ${value}](${badgeUrl})`;
+            const badgeUrl = `/badge/custom/${encodeURIComponent(label)}/${encodeURIComponent(value)}/${color}`;
+            document.getElementById('badge-image').src = badgeUrl;
+            document.getElementById('badge-url').textContent = badgeUrl;
+            document.getElementById('badge-markdown').textContent = `![${label}: ${value}](${badgeUrl})`;
         }
 
-        function generateBadgeSvg(label, value, color) {
-            const colors = {
-                'blue': '#007ec6',
-                'green': '#4c1',
-                'red': '#e05d44',
-                'orange': '#fe7d37',
-                'yellow': '#dfb317'
-            };
-            
-            const colorHex = colors[color] || colors['blue'];
-            const labelWidth = Math.max(label.length * 7 + 10, 40);
-            const valueWidth = Math.max(value.length * 7 + 10, 40);
-            const totalWidth = labelWidth + valueWidth;
-            
-            return `
-                <svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="20">
-                    <linearGradient id="b" x2="0" y2="100%">
-                        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
-                        <stop offset="1" stop-opacity=".1"/>
-                    </linearGradient>
-                    <mask id="a">
-                        <rect width="${totalWidth}" height="20" rx="3" fill="#fff"/>
-                    </mask>
-                    <g mask="url(#a)">
-                        <rect width="${labelWidth}" height="20" fill="${colorHex}"/>
-                        <rect x="${labelWidth}" width="${valueWidth}" height="20" fill="#555"/>
-                        <rect width="${totalWidth}" height="20" fill="url(#b)"/>
-                    </g>
-                    <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
-                        <text x="${labelWidth/2}" y="15" fill="#010101" fill-opacity=".3">${label}</text>
-                        <text x="${labelWidth/2}" y="14">${label}</text>
-                        <text x="${labelWidth + valueWidth/2}" y="15" fill="#010101" fill-opacity=".3">${value}</text>
-                        <text x="${labelWidth + valueWidth/2}" y="14">${value}</text>
-                    </g>
-                </svg>
-            `;
+        // Générer un badge
+        function generateBadge() {
+            updateBadgePreview();
+            document.getElementById('badge-result').style.display = 'block';
         }
 
-        async function createBadge() {
-            if (!currentToken) {
-                showAlert('Vous devez être connecté pour créer un badge', 'error');
-                showAuthScreen();
-                return;
+        // Générer un badge avec logo
+        function generateBadgeWithLogo() {
+            const label = document.getElementById('badge-label').value || 'Label';
+            const value = document.getElementById('badge-value').value || 'Value';
+            const color = document.getElementById('badge-color').value;
+            const logo = document.getElementById('badge-logo').value;
+            
+            let badgeUrl = `/badge/custom/${encodeURIComponent(label)}/${encodeURIComponent(value)}/${color}`;
+            if (logo) {
+                badgeUrl += `/${encodeURIComponent(logo)}`;
             }
             
-            const name = document.getElementById('badgeName').value.trim();
-            const label = document.getElementById('badgeLabel').value.trim();
-            const value = document.getElementById('badgeValue').value.trim();
-            const color = document.querySelector('.color-option.active')?.dataset.color || 'blue';
+            document.getElementById('badge-image').src = badgeUrl;
+            document.getElementById('badge-url').textContent = badgeUrl;
+            document.getElementById('badge-markdown').textContent = `![${label}: ${value}](${badgeUrl})`;
+            document.getElementById('badge-result').style.display = 'block';
+        }
+
+        // Générer un badge shields.io
+        async function generateShieldsBadge() {
+            const label = document.getElementById('badge-label').value || 'Label';
+            const value = document.getElementById('badge-value').value || 'Value';
+            const color = document.getElementById('badge-color').value;
+            const logo = document.getElementById('badge-logo').value;
+            const style = document.getElementById('shield-style').value;
             
-            if (!name || !label || !value) {
-                showAlert('Tous les champs sont requis', 'error');
-                return;
+            let shieldsUrl = `/badge/shields/${encodeURIComponent(label)}/${encodeURIComponent(value)}/${color}`;
+            if (logo) {
+                shieldsUrl += `/${encodeURIComponent(logo)}`;
+                shieldsUrl += `/${style}`;
             }
-            
-            showLoading('Création du badge...');
             
             try {
-                const response = await fetch(`${API_BASE}/api/badges`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${currentToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        name: name,
-                        label: label,
-                        value: value,
-                        color: color
-                    })
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    showAlert(data.message || 'Badge créé avec succès', 'success');
-                    hideModal('createBadgeModal');
-                    
-                    // Reset form
-                    document.getElementById('badgeName').value = '';
-                    document.getElementById('badgeLabel').value = 'Zenv';
-                    document.getElementById('badgeValue').value = '1.0.0';
-                    document.querySelector('.color-option[data-color="blue"]').classList.add('active');
-                    
-                    // Refresh badges
-                    loadAllBadges();
-                    loadDashboardData();
-                } else {
-                    const error = await response.json();
-                    showAlert(error.error || 'Erreur lors de la création du badge', 'error');
-                }
+                const response = await fetch(shieldsUrl + '?redirect=false');
+                const data = await response.json();
+                document.getElementById('shields-result').innerHTML = `
+                    <p><strong>URL Shields.io:</strong><br>
+                    <code>${data.url}</code></p>
+                    <p><strong>Markdown:</strong><br>
+                    <code>![${label}: ${value}](${data.url})</code></p>
+                    <a href="${data.url}" target="_blank" class="btn btn-primary" style="margin-top: 10px;">
+                        <i class="fas fa-external-link-alt"></i> Voir sur Shields.io
+                    </a>
+                `;
             } catch (error) {
-                showAlert('Erreur réseau', 'error');
-            }
-            
-            hideLoading();
-        }
-
-        // Copy Badge Markdown
-        function copyBadgeMarkdown(badgeName) {
-            const markdown = `![Badge](https://zenv-hub.onrender.com/badge/svg/${badgeName})`;
-            navigator.clipboard.writeText(markdown).then(() => {
-                showAlert('Markdown copié dans le presse-papier', 'success');
-            });
-        }
-
-        // Copy Badge URL
-        function copyBadgeUrl(badgeName) {
-            const url = `https://zenv-hub.onrender.com/badge/svg/${badgeName}`;
-            navigator.clipboard.writeText(url).then(() => {
-                showAlert('URL copiée dans le presse-papier', 'success');
-            });
-        }
-
-        // Delete Badge (placeholder)
-        function deleteBadge(badgeName) {
-            if (confirm(`Êtes-vous sûr de vouloir supprimer le badge "${badgeName}" ?`)) {
-                showAlert('Cette fonctionnalité sera bientôt disponible', 'warning');
-            }
-        }
-
-        // Load Profile Data
-        async function loadProfileData() {
-            if (!currentToken) {
-                showAlert('Vous devez être connecté', 'error');
-                showAuthScreen();
-                return;
-            }
-            
-            showLoading('Chargement du profil...');
-            
-            try {
-                // Get user profile
-                const profileResponse = await fetch(`${API_BASE}/api/auth/profile`, {
-                    headers: {
-                        'Authorization': `Bearer ${currentToken}`
-                    }
-                });
-                
-                if (profileResponse.ok) {
-                    const profileData = await profileResponse.json();
-                    const user = profileData.user;
-                    
-                    document.getElementById('profileName').textContent = user.username;
-                    document.getElementById('profileEmail').textContent = user.email;
-                    document.getElementById('profileRole').textContent = `Rôle: ${user.role === 'admin' ? 'Administrateur' : 'Utilisateur'}`;
-                    
-                    const avatar = document.getElementById('profileAvatar');
-                    if (avatar) {
-                        avatar.textContent = user.username.charAt(0).toUpperCase();
-                    }
-                    
-                    // Load packages count
-                    const packagesResponse = await fetch(`${API_BASE}/api/packages`);
-                    if (packagesResponse.ok) {
-                        const packagesData = await packagesResponse.json();
-                        const userPackages = packagesData.packages.filter(pkg => pkg.author === user.username);
-                        document.getElementById('profilePackages').textContent = userPackages.length;
-                        
-                        // Calculate total downloads for user's packages
-                        const totalDownloads = userPackages.reduce((sum, pkg) => sum + (pkg.downloads_count || 0), 0);
-                        document.getElementById('profileDownloads').textContent = totalDownloads;
-                    }
-                    
-                    // Load badges count
-                    const badgesResponse = await fetch(`${API_BASE}/api/badges`);
-                    if (badgesResponse.ok) {
-                        const badgesData = await badgesResponse.json();
-                        const userBadges = badgesData.badges.filter(badge => badge.created_by === user.username);
-                        document.getElementById('profileBadges').textContent = userBadges.length;
-                    }
-                    
-                    // Display current token
-                    document.getElementById('profileToken').textContent = currentToken;
-                }
-            } catch (error) {
-                // Ignore error, use stored data
-                document.getElementById('profileToken').textContent = currentToken || 'Non disponible';
-            }
-            
-            hideLoading();
-        }
-
-        // Copy Token
-        function copyToken() {
-            if (currentToken) {
-                navigator.clipboard.writeText(currentToken).then(() => {
-                    showAlert('Token copié dans le presse-papier', 'success');
-                });
-            }
-        }
-
-        // Generate New Token
-        async function generateNewToken() {
-            if (!currentToken) {
-                showAlert('Vous devez être connecté', 'error');
-                showAuthScreen();
-                return;
-            }
-            
-            if (!confirm('Générer un nouveau token ? L\'ancien token sera invalidé.')) {
-                return;
-            }
-            
-            showLoading('Génération du token...');
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/tokens/generate`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${currentToken}`
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    currentToken = data.token;
-                    
-                    // Update stored token
-                    localStorage.setItem('zenv_token', currentToken);
-                    
-                    // Update user info
-                    if (data.user) {
-                        currentUser = data.user;
-                        localStorage.setItem('zenv_user', JSON.stringify(currentUser));
-                        updateUserInfo();
-                    }
-                    
-                    showAlert('Nouveau token généré avec succès', 'success');
-                    
-                    // Refresh profile and tokens page
-                    loadProfileData();
-                    loadTokens();
-                } else {
-                    const error = await response.json();
-                    showAlert(error.error || 'Erreur lors de la génération du token', 'error');
-                }
-            } catch (error) {
-                showAlert('Erreur réseau', 'error');
-            }
-            
-            hideLoading();
-        }
-
-        // Load Tokens
-        async function loadTokens() {
-            if (!currentToken) return;
-            
-            // For now, just show current token
-            // In a real implementation, you would fetch all tokens from the API
-            const tokensList = document.getElementById('tokensList');
-            if (tokensList) {
-                tokensList.innerHTML = `
-                    <tr>
-                        <td><code style="font-size: 0.75rem;">${currentToken.substring(0, 30)}...</code></td>
-                        <td>${formatDate(new Date().toISOString())}</td>
-                        <td><span class="package-version">${currentUser?.role || 'user'}</span></td>
-                        <td><span style="color: var(--secondary);">● Actif</span></td>
-                        <td>
-                            <button class="btn btn-secondary btn-sm" onclick="copyToken()">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </td>
-                    </tr>
+                document.getElementById('shields-result').innerHTML = `
+                    <p style="color: var(--danger);">Erreur: ${error.message}</p>
                 `;
             }
         }
 
-        // Show API Tab
-        function showApiTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            document.querySelectorAll('.api-tab').forEach(tab => tab.style.display = 'none');
-            document.getElementById(tab + 'Api').style.display = 'block';
+        // Afficher les détails d'un package
+        function showPackageDetails(packageName) {
+            alert(`Détails du package: ${packageName}\n\nUtilisez la CLI Zenv pour plus d'options:\n\nzenv pkg install ${packageName}\nzenv hub info ${packageName}`);
         }
 
-        // Logout
-        function logout() {
-            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-                localStorage.removeItem('zenv_token');
-                localStorage.removeItem('zenv_user');
-                currentToken = null;
-                currentUser = null;
-                showAuthScreen();
-                showAlert('Déconnexion réussie', 'success');
+        // Basculer le thème
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.querySelector('.theme-toggle i');
+            
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark-mode');
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
             }
         }
 
-        // Show Alert
-        function showAlert(message, type = 'info') {
-            const alertContainer = document.getElementById('alertContainer');
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success'}`;
-            alert.innerHTML = `
-                <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i>
-                <div>${message}</div>
-            `;
-            
-            alertContainer.appendChild(alert);
-            
-            // Remove alert after 5 seconds
-            setTimeout(() => {
-                alert.style.opacity = '0';
-                setTimeout(() => {
-                    alert.remove();
-                }, 300);
-            }, 5000);
-        }
-
-        // Show Terms
-        function showTerms() {
-            alert(`Conditions d'utilisation Zenv Hub :
-
-1. Vous êtes responsable de vos packages et badges
-2. Ne partagez jamais vos tokens publiquement
-3. Respectez les droits d'auteur
-4. Les packages malveillants seront supprimés
-5. Le support est disponible via Discord
-
-Pour plus d'informations, contactez support@zenv.dev`);
-        }
-
-        // Utility Functions
-        function formatDate(dateString) {
-            if (!dateString) return 'Inconnu';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('fr-FR', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
-        }
-
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        // Initialize badge preview and drag & drop when page loads
-        setTimeout(() => {
-            updateBadgePreview();
-            setupDragAndDrop();
-            
-            // Setup event listeners for badge creation form
-            const badgeNameInput = document.getElementById('badgeName');
-            const badgeLabelInput = document.getElementById('badgeLabel');
-            const badgeValueInput = document.getElementById('badgeValue');
-            
-            if (badgeNameInput) {
-                badgeNameInput.addEventListener('input', updateBadgePreview);
-            }
-            if (badgeLabelInput) {
-                badgeLabelInput.addEventListener('input', updateBadgePreview);
-            }
-            if (badgeValueInput) {
-                badgeValueInput.addEventListener('input', updateBadgePreview);
-            }
-        }, 1000);
+        // Mettre à jour les champs en temps réel
+        document.getElementById('badge-label').addEventListener('input', updateBadgePreview);
+        document.getElementById('badge-value').addEventListener('input', updateBadgePreview);
     </script>
+
+    <style>
+        /* Dark mode styles */
+        body.dark-mode {
+            background: #121212;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode header {
+            background: #1e1e1e;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-mode .package-card,
+        body.dark-mode .workshop,
+        body.dark-mode .stat-card {
+            background: #1e1e1e;
+            border-color: #333;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .hero {
+            background: linear-gradient(135deg, #0052CC 0%, #4B0082 100%);
+        }
+
+        body.dark-mode footer {
+            background: #000;
+        }
+
+        body.dark-mode .btn-outline {
+            border-color: #666;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .btn-outline:hover {
+            background: #333;
+            border-color: #666;
+        }
+
+        body.dark-mode .form-control {
+            background: #2d2d2d;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .form-control:focus {
+            border-color: var(--primary);
+        }
+
+        body.dark-mode .badge-preview {
+            background: #2d2d2d;
+        }
+
+        body.dark-mode .badge-result {
+            background: #2d2d2d;
+        }
+
+        body.dark-mode .color-option.active {
+            border-color: #fff;
+        }
+    </style>
 </body>
 </html>
